@@ -2,8 +2,7 @@
 %P: number of flows
 %T: number of terminal nodes
 %EE: adjacency matrix
-function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
-   
+function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %vector of variable values
     %f: first E * P * T entries
     %x: next E * P entries
@@ -41,9 +40,10 @@ function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %all x variables participate in clause 5
     clause_mat(V*V*P*T+1:N, 5) = 1;
     
-    
     p = zeros(N, 2);
     p(1:N, 1:D) = 1/D;
+    
+    iter_counter = 0;
     while 1
         done = 1;
         for i = 1:N
@@ -53,10 +53,7 @@ function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             end
             
             %design variable
-            b = 0.4;
-
-            %number of variables
-            D = 2;
+            b = 0.2;
 
             r = rand;
             %realize random bernoulli variable
@@ -73,7 +70,7 @@ function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             if clause_mat(i, 1) == 1
                 %checking clause1
                 if flow_limit(vars, V, P, T, E, edge, ST) ~= 1
-                    fprintf('Flow limit failed.')
+                    %fprintf('Flow limit failed.')
                     satisfied = 0;
                 end
             end
@@ -81,7 +78,7 @@ function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             if clause_mat(i, 2) == 1
                 %checking clause2
                 if flow_conservation(vars,V,P,T,OV,IV,sigma,ST) ~= 1
-                    fprintf('Flow conservation failed.')
+                    %fprintf('Flow conservation failed.')
                     satisfied = 0;
                 end
             end
@@ -89,7 +86,7 @@ function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             if clause_mat(i, 3) == 1
                 %checking clause 3
                 if flow_x(vars, V, P, T, E, edge, ST) ~= 1
-                    fprintf('Flow x failed.')
+                    %fprintf('Flow x failed.')
                     satisfied = 0;
                 end
             end
@@ -97,7 +94,7 @@ function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             if clause_mat(i, 4) == 1
                 %checking clause 4
                 if checkx(vars, V, P, T, ST, IV, TT) ~= 1
-                    fprintf('Checkx failed.')
+                    %fprintf('Checkx failed.')
                     satisfied = 0;
                 end
             end
@@ -105,7 +102,7 @@ function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             if clause_mat(i, 5) == 1
                 %checking clause 5
                 if checkbeta(vars, V, P, T, IV, E, edge) ~= 1
-                    fprintf('Checkbeta failed.\n')
+                    %fprintf('Checkbeta failed.\n')
                     satisfied = 0;
                 end
             end
@@ -125,7 +122,14 @@ function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                 
                 p(i, vars(i) + 1) = (1-b)*t;
             end
-            fprintf('\n------------\n')
+            %fprintf('\n------------\n')
+                    
+            if rem(iter_counter, 10000) == 0
+                fprintf('Iter: %d\n', iter_counter);
+                disp_vars_p(vars, V, P, T, E, edge);
+            end
+            
+            iter_counter = iter_counter + 1;
         end
 
         %check if we are completely done
@@ -140,7 +144,7 @@ function CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                 end
             end
         end
-
+        
         if done
            break 
         end
@@ -272,7 +276,36 @@ function res=checkbeta(vars, V, P, T, IV, E, edges)
     end
 end
 
-%takes variables and converts them into arrays of f and x
+%takes vars and prints it
+function disp_vars_p(vars, V, P, T, E, edge)
+    res_str = '';
+    
+    for e = 1:E
+        i = real(edge(e));
+        j = imag(edge(e));
+        
+        for p = 1:P
+            for t = 1:T
+                val = get_f_from_vars(vars, i, j, p, t, V, P, T);
+                res_str = strcat(res_str, int2str(val));
+            end
+        end
+    end
+    
+    for e = 1:E
+        i = real(edge(e));
+        j = imag(edge(e));
+        for p = 1:P
+            val = get_x_from_vars(vars, i, j, p, V, P, T);
+            res_str = strcat(res_str, int2str(val));
+        end
+    end
+    
+    disp(res_str)
+    
+end
+
+%takes vars and prints it in a human-readable form
 function disp_vars(vars, V, P, T, E, edge)
     for e = 1:E
         i = real(edge(e));
@@ -290,10 +323,8 @@ function disp_vars(vars, V, P, T, E, edge)
         i = real(edge(e));
         j = imag(edge(e));
         for p = 1:P
-            for t = 1:T
-                val = get_x_from_vars(vars, i, j, p, V, P, T);
-                fprintf('x; i: %d, j: %d, p: %d, val: %d\n', i, j, p, val);
-            end
+            val = get_x_from_vars(vars, i, j, p, V, P, T);
+            fprintf('x; i: %d, j: %d, p: %d, val: %d\n', i, j, p, val);
         end
     end
 end
