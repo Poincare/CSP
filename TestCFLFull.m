@@ -1,9 +1,11 @@
 clc
+clear
 
 %%Parameters
 V=11; %Number of Nodes
 SS=[1,2]; %Sources
 S=length(SS); %Number of Sources
+P=S;
 TT=[7,8,10]; %Terminals
 T=length(TT); %Number of Terminals
 EE=zeros(V,V); %Edges
