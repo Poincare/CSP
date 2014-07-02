@@ -39,7 +39,11 @@ for v=1:V
             
             %if there are no nodes yet, make a list
             if sum(IV{v})==0
+<<<<<<< HEAD
                 IV{v}=iv;
+=======
+                IV{v}=iv; 
+>>>>>>> 596c238c00922258e05c1ade680befbceb343504
                 
             %otherwise, put into existing list
             else

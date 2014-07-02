@@ -1,30 +1,32 @@
 clc
-clear
 
-%node 1 -------> node 3
-%node 2 ----------^
-V = 3;
+V = 6;
 P = 2;
-S = P; %change of notation
+S = P ; %change of notation
 
 %number of edges
-E = 2;
+E = 7;
 
 %adj matrix
 EE = zeros(V, V);
 EE(1, 3) = 1;
-EE(2, 3) = 1;
+EE(2, 5) = 1;
+EE(3, 4) = 1;
+EE(5, 4) = 1;
+EE(3, 6) = 1;
+EE(5, 6) = 1;
+EE(4, 6) = 1;
 
 %source(s)
 SS=[1, 2];
 
 %terminal(s)
-TT = [3];
+TT = [6];
 T = length(TT);
 
 %Flows Each Terminal Wants
 ST=zeros(S,T);
-ST(1, 1) = 1;
+ST(1, 6) = 1;
 
 %set up OV and IV
 IV=cell(V);
@@ -49,6 +51,8 @@ for v=1:V
         end
     end
 end
+
+IV
 
 %output node
 OV=cell(V);
@@ -87,11 +91,12 @@ e=1;
 for l=1:V
     for m=1:V
         if EE(l,m)==1
-            edge(e)=l+m*i;
+            edge(e)=l+m*1i;
             e=e+1;
         end
     end
 end
 
+edge
 
 CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)

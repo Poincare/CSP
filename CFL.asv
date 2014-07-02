@@ -3,6 +3,13 @@
 %T: number of terminal nodes
 %EE: adjacency matrix
 function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
+    %matrix representation of the variables vector
+    %var_mat(1) are the f's
+    %var_mat(2) are the x's
+    var_mat = zeros(2, V, V, P, T);
+    var_mat = remove_nonexistent_edges_var_mat(var_mat, V, P, T, EE);
+    var_mat = set_source_links_var_mat(var_mat, V, P, T, EE, SS);
+    
     %vector of variable values
     %f: first E * P * T entries
     %x: next E * P entries
@@ -48,7 +55,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
         done = 1;
         for i = 1:N
             %check if the variable is supposed to be considered
-            if vars(i) == -1
+            if var_mat(i) == -1
                 continue;
             end
             
@@ -59,9 +66,9 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             %realize random bernoulli variable
             %remember that p(i, 1) is actually the probability of j=0
             if r <= p(i, 1)
-                vars(i) = 0;
+                var_mat(i) = 0;
             else
-                vars(i) = 1;
+                var_mat(i) = 1;
             end
 
             %evaluate the clauses and see if they are
@@ -69,7 +76,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             satisfied = 1;
             if clause_mat(i, 1) == 1
                 %checking clause1
-                if flow_limit(vars, V, P, T, E, edge, ST) ~= 1
+                if flow_limit(var_mat, V, P, T, E, edge, ST) ~= 1
                     %fprintf('Flow limit failed.')
                     satisfied = 0;
                 end
@@ -77,7 +84,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             
             if clause_mat(i, 2) == 1
                 %checking clause2
-                if flow_conservation(vars,V,P,T,OV,IV,sigma,ST) ~= 1
+                if flow_conservation(var_mat,V,P,T,OV,IV,sigma,ST) ~= 1
                     %fprintf('Flow conservation failed.')
                     satisfied = 0;
                 end
@@ -152,11 +159,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     end
     
     disp_vars(vars, V, P, T, E, edge)
-<<<<<<< HEAD
     
-=======
-    mat2str(vars)
->>>>>>> 596c238c00922258e05c1ade680befbceb343504
 end
 
 %clause 1: Constraint (17)
@@ -333,6 +336,27 @@ function disp_vars(vars, V, P, T, E, edge)
     end
 end
 
+function res=set_source_links_var_mat(var_mat, V, P, T, EE, SS)
+    %loop over the sources, check the edges from each source
+    %set those as one in vars
+    for p1 = 1:P
+        s_p = SS(p1);
+        for p2 = 1:P
+            for j = 1:V
+                if EE(s_p, j) == 1
+                    vars = set_x_in_var_mat(var_mat, 0, s_p, j, p2, V, P, T);
+                end
+            end
+        end
+        
+        for j = 1:V
+            if EE(s_p, j) == 1
+                vars = set_x_in_var_mat(var_mat, 1, s_p, j, p1, V, P, T);
+            end
+        end
+    end
+    res = var_mat;
+end
 
 %fix all of the flow x's as 1's
 function res=set_source_links(vars, V, P, T, EE, SS)
@@ -357,6 +381,25 @@ function res=set_source_links(vars, V, P, T, EE, SS)
     res = vars;
 end
 
+function res=remove_nonexistent_edges_var_mat(var_mat, V, P, T, EE)
+    for i = 1:V
+        for j = 1:V
+            %if there is no edge at a given place,
+            %then we can set the values of f and x
+            %that correspond to it as -1
+            if EE(i, j) == 0
+                for p = 1:P
+                    vars = set_x_in_var_mat(var_mat, -1, i, j, p, V, P, T);
+                    for t = 1:T
+                        vars = set_f_in_var_mat(var_mat, -1, i, j, p, t, V,P,T);
+                    end
+                end
+            end
+        end
+    end
+    res = var_mat;
+end
+
 %sets vars so that nonexistent edges are -1
 function res=remove_nonexistent_edges(vars, V, P, T, EE)
     for i = 1:V
@@ -377,22 +420,45 @@ function res=remove_nonexistent_edges(vars, V, P, T, EE)
     res = vars;
 end
 
+%uses the matrix instead of a linear respresentation for the
+%variables (could be faster?)
+function res=get_x_from_var_mat(var_mat, i, j, p)
+    res = var_mat(1, i, j, p);
+end
+
+function res=set_x_in_var_mat(var_mat, val, i, j, p)
+    var_mat(1, i, j, p) = val;
+    res = var_mat;
+end
+
+function res=get_f_from_var_mat(var_mat, i, j, p, t)
+    res = var_mat(2, i, j, p, t);
+end
+
+function res=set_f_from_var_mat(var_mat, val, i, j, p, t)
+    var_mat(2, i, j, p, t) = val;
+    res = var_mat;
+end
+
 function res=set_f_in_vars(vars, val, i, j, p, t, V, P, T)
-    vars((i-1)*V*P*T + (j-1)*P*T + (p-1)*T + t) = val;
-    res = vars;
+    %vars((i-1)*V*P*T + (j-1)*P*T + (p-1)*T + t) = val;
+    %res = vars;
+    
 end
 
 function res = set_x_in_vars(vars, val, i, j, p, V, P, T)
-    vars(V*V*P*T + (i-1)*V*P + (j-1)*P + p) = val;
-    res = vars;
+    %vars(V*V*P*T + (i-1)*V*P + (j-1)*P + p) = val;
+    res = set_x_in_var_mat(vars, val, i, j, p);
 end
 
 %get value of f from the long "vars" vector
 function res=get_f_from_vars(vars, i, j, p, t, V, P, T)
-    res = vars((i-1)*V*P*T + (j-1)*P*T + (p-1)*T + t);
+    %res = vars((i-1)*V*P*T + (j-1)*P*T + (p-1)*T + t);
+    res = get_f_from_var_mat(vars, i, j, p, t);
 end
 
 %get value of x from the long "vars" vector
 function res=get_x_from_vars(vars, i, j, p, V, P, T)
-    res = vars(V*V*P*T + (i-1)*V*P + (j-1)*P + p);
+    %res = vars(V*V*P*T + (i-1)*V*P + (j-1)*P + p);
+    res = get_x_from_var_mat(vars, i, j, p)'
 end
