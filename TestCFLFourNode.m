@@ -1,7 +1,6 @@
 clc
 
-%node 1 -------> node 3
-%node 2 ----------^
+
 V = 4;
 P = 2;
 S = P; %change of notation
@@ -24,7 +23,7 @@ T = length(TT);
 
 %Flows Each Terminal Wants
 ST=zeros(S,T);
-ST(1, 4) = 1;
+ST(1, 1) = 1;
 
 %set up OV and IV
 IV=cell(V);

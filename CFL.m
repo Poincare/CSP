@@ -7,12 +7,14 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %f: first V*V * P * T entries
     %x: next V * P entries
     vars = zeros(1, V*V*P*T + V*V*P);
-    vars(1:V*V*P*T) = -1;
+    vars(:) = -1;
     vars = remove_nonexistent_edges(vars, V, P, T, EE);
+    vars = explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge);
     vars = set_source_links(vars, V, P, T, EE, SS);
-    vars = explore_paths(vars, V, P, T, EE, SS, TT, ST);
+    vars = explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge);
+    disp_vars(vars, V, P, T, E, edge)
     vars_after = length(vars(vars >= 0))
-    
+
     %number of variables
     N = length(vars);
     
@@ -73,36 +75,36 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             if clause_mat(i, 1) == 1
                 %checking clause1
                 if flow_limit(vars, V, P, T, E, edge, ST) ~= 1
-                    %fprintf('Flow limit failed.')
+                    %fprintf('Flow limit failed.\n')
                     satisfied = 0;
                 end
             end
             
-            if clause_mat(i, 2) == 1
+            if clause_mat(i, 2) == 1 && satisfied
                 %checking clause2
                 if flow_conservation(vars,V,P,T,OV,IV,sigma,ST) ~= 1
-                    %fprintf('Flow conservation failed.')
+                    %fprintf('Flow conservation failed.\n')
                     satisfied = 0;
                 end
             end
 
-            if clause_mat(i, 3) == 1
+            if clause_mat(i, 3) == 1 && satisfied
                 %checking clause 3
                 if flow_x(vars, V, P, T, E, edge, ST) ~= 1
-                    %fprintf('Flow x failed.')
+                    %fprintf('Flow x failed.\n')
                     satisfied = 0;
                 end
             end
             
-            if clause_mat(i, 4) == 1
+            if clause_mat(i, 4) == 1 && satisfied
                 %checking clause 4
                 if checkx(vars, V, P, T, ST, IV, TT) ~= 1
-                    %fprintf('Checkx failed.')
+                    %fprintf('Checkx failed.\n')
                     satisfied = 0;
                 end
             end
             
-            if clause_mat(i, 5) == 1
+            if clause_mat(i, 5) == 1 && satisfied
                 %checking clause 5
                 if checkbeta(vars, V, P, T, IV, E, edge) ~= 1
                     %fprintf('Checkbeta failed.\n')
@@ -154,43 +156,123 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 
     end
     
+    fprintf('ANSWER:: \n')
     disp_vars(vars, V, P, T, E, edge)
-    mat2str(vars)
 end
 
-%sets possible f's to zero in vars
-function vars=explore_paths(vars, V, P, T, EE, SS, TT, ST)
-    mat = zeros(V, V);
-    
-    function stack=explore(v, s, EE, SS, V)
+function vars=explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge_imag)
+    function [vars, cont]=explore_vars_x_iter(vars, v, s, EE, SS, V, P, T, E, edge_imag)
+        cont = 0;
         edges = EE(v, :);
-        stack = [v];
         
         if sum(edges) == 0
             if v == SS(s)
-                return
-            else
-                %set all the right things to -1
-                stack = [];
+                fprintf('Found source (x). v: %d, s: %d\n', v, s)
+                cont = 1;
                 return
             end
         end
         
         for e = 1:length(edges)
-            %if an edge exists, we follow it
             if edges(e) == 1
-                explored = explore(e, s, EE, SS);
-                stack = [stack, explored];
+                [vars,cont_x] = explore_vars_x_iter(vars, e, s, EE, SS, V, P, T, E, edge_imag);
+                %this means we reached the terminal node when explored
+                if cont_x
+                    fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
+                    vars = set_x_in_vars(vars, 0, e, v, s, V, P, T);
+                    disp_vars(vars, V, P, T, E, edge_imag)
+                    %should set f to 0
+                    cont = cont_x;
+                end
             end
         end
     end
+
+    for ti = 1:length(TT)
+        for si = 1:length(SS)
+            [vars, cont] = explore_vars_x_iter(vars, TT(ti), si, transpose(EE), SS, V, P, T, E, edge_imag)
+            vars;
+        end
+    end
+end
+
+function vars=explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge_imag)
+    function [vars, cont]=explore_vars_f_iter(vars, v, s, t, EE, SS, V, P, T, E, edge_imag)
+        cont = 0;
+        edges = EE(v, :);
+
+        if sum(edges) == 0
+            if v == SS(s)
+                fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
+                cont = 1;
+                return
+            end
+        end
+
+        for e = 1:length(edges)
+            if edges(e) == 1
+                [vars,cont_x] = explore_vars_f_iter(vars, e, s, t, EE, SS, V, P, T, E, edge_imag);
+                %this means we reached the terminal node when explored
+                if cont_x
+                    fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
+                    vars = set_f_in_vars(vars, 0, e, v, s, t, V, P, T);
+                    disp_vars(vars, V, P, T, E, edge_imag)
+                    %should set f to 0
+                    cont = cont_x;
+                end
+            end
+        end
+    end
+    
+    tt_length = length(TT);
+    fprintf('Exploring f variables...\n')
+    
+    for ti = 1:length(TT)
+        s_vec = ST(:, ti);
+        for si = 1:length(s_vec);
+            if s_vec(si) == 1
+                t = TT(ti);
+                [vars, cont] = explore_vars_f_iter(vars, t, si, ti, transpose(EE), SS, V, P, T, E, edge_imag)
+                vars;
+            end
+        end
+    end
+    
+end
+
+function stack=explore(v, s, EE, SS, ~)
+    edges = EE(v, :);
+    stack = [v];
+
+    if sum(edges) == 0
+        if v == SS(s)
+            return
+        else
+            %set all the right things to -1
+            return
+        end
+    end
+
+    for e = 1:length(edges)
+        %if an edge exists, we follow it
+        if edges(e) == 1
+            explored = explore(e, s, EE, SS);
+            stack = [stack, explored];
+        end
+    end
+end
+
+%sets possible f's to zero in vars
+function vars=explore_paths_f(vars, V, P, T, EE, SS, TT, ST)
+    mat = zeros(V, V);
+
 
     for ti = 1:length(TT)
         s_vec = ST(:, ti);
         for si = 1:length(s_vec)
             if s_vec(si) == 1
                 t = TT(ti);
-                stack = explore(t, si, transpose(EE), SS, V)
+                stack = explore(t, si, transpose(EE), SS, V);
                 %mark the right f values as 0's
                 for i = length(stack):-1:2
                     vars = set_f_in_vars(vars,0,stack(i),stack(i-1),si,ti,V,P,T); 
@@ -198,6 +280,20 @@ function vars=explore_paths(vars, V, P, T, EE, SS, TT, ST)
             end
         end
     end
+end
+
+function vars=explore_paths_x(vars, V, P, T, EE, SS, TT, ST)
+    for ti = 1:length(TT)
+        for si = 1:length(SS)
+            t = TT(ti);
+            stack = explore(t, si, transpose(EE), SS, V);
+            
+            %mark the right x values as 0's
+            for i = length(stack):-1:2
+                vars = set_x_in_vars(vars, 0, stack(i), stack(i-1),si,V,P,T);
+            end
+        end
+    end   
 end
 
 %clause 1: Constraint (17)
@@ -235,7 +331,9 @@ function checkfv=flow_conservation(vars, V, P, T, OV, IV, sigma, ST)
                         for ovidx=1:length(OV{v})
                             ov=OV{v}(ovidx);
                             f_val = get_f_from_vars(vars,v,ov,s,t,V,P,T);
-                            sumoutf=sumoutf+get_f_from_vars(vars,v,ov,s,t,V,P,T);
+                            if f_val ~= -1
+                                sumoutf=sumoutf+get_f_from_vars(vars,v,ov,s,t,V,P,T);
+                            end
                         end
                     end
 
@@ -243,7 +341,10 @@ function checkfv=flow_conservation(vars, V, P, T, OV, IV, sigma, ST)
                     if sum(IV{v}~=0)>=1
                         for ividx=1:length(IV{v})
                             iv=IV{v}(ividx);
-                            suminf=suminf+get_f_from_vars(vars,iv,v,s,t,V,P,T);
+                            f_val = get_f_from_vars(vars,iv,v,s,t,V,P,T);
+                            if f_val ~= -1
+                                suminf=suminf+get_f_from_vars(vars,iv,v,s,t,V,P,T);
+                            end
                         end
                     end
                     
@@ -265,8 +366,9 @@ function checkfx=flow_x(vars, V, P, T, E, edge, ST)
         for s=1:P
             for t=1:T
                 if ST(s,t) == 1
-                    if get_f_from_vars(vars,iv,ov,s,t,V,P,T) > ...
-                            get_x_from_vars(vars,iv,ov,s,V,P,T)
+                    fval = get_f_from_vars(vars,iv,ov,s,t,V,P,T);
+                    xval = get_x_from_vars(vars,iv,ov,s,V,P,T);
+                    if fval > xval && fval ~= -1 && xval ~= -1
                         checkfx=0;
                     end
                 end
@@ -283,7 +385,8 @@ function res=checkx(vars, V, P, T, ST, IV, TT)
          for s=1:P
              if (ST(s,t)~=1)
                  for iv=1:length(IV{TT(t)})
-                     if get_x_from_vars(vars, IV{TT(t)}(iv),TT(t),s,V,P,T) ~=0
+                     xval = get_x_from_vars(vars, IV{TT(t)}(iv),TT(t),s,V,P,T);
+                     if xval ~=0 && xval ~= -1
                          res=0;
                      end
                  end
@@ -305,17 +408,23 @@ function res=checkbeta(vars, V, P, T, IV, E, edges)
         for k = 1:length(IV{i})
             for beta = 0:1
                 for p = 1:P
-                    vec_p = beta * get_x_from_vars(vars,i, j, p, V, P, T);
-                    if vec_p > max_vec(p)
-                        max_vec(p) = vec_p;
+                    xval = get_x_from_vars(vars,i, j, p, V, P, T);
+                    if xval ~= -1
+                        vec_p = beta * get_x_from_vars(vars,i, j, p, V, P, T);
+                        if vec_p > max_vec(p)
+                            max_vec(p) = vec_p;
+                        end
                     end
                 end
             end
         end
         
         for p = 1:P
-            if max_vec(p) ~= get_x_from_vars(vars,i, j, p, V, P, T)
-                res = 0;
+            xval = get_x_from_vars(vars,i, j, p, V, P, T);
+            if xval ~= -1
+                if max_vec(p) ~= get_x_from_vars(vars,i, j, p, V, P, T)
+                    res = 0;
+                end
             end
         end
     end
@@ -345,7 +454,9 @@ function disp_vars_p(vars, V, P, T, E, edge)
         j = imag(edge(e));
         for p = 1:P
             val = get_x_from_vars(vars, i, j, p, V, P, T);
-            res_str = strcat(res_str, int2str(val));
+            if val >= 0
+                res_str = strcat(res_str, int2str(val));
+            end
         end
     end
     
@@ -386,14 +497,14 @@ function res=set_source_links(vars, V, P, T, EE, SS)
         s_p = SS(p1);
         for p2 = 1:P
             for j = 1:V
-                if EE(s_p, j) == 1
+                if EE(s_p, j) == 1 && get_x_from_vars(vars, s_p, j, p2, V, P, T) ~= -1
                     vars = set_x_in_vars(vars, 0, s_p, j, p2, V, P, T);
                 end
             end
         end
         
         for j = 1:V
-            if EE(s_p, j) == 1
+            if EE(s_p, j) == 1 && get_x_from_vars(vars, s_p, j, p1, V, P, T) ~= -1
                 vars = set_x_in_vars(vars, 1, s_p, j, p1, V, P, T);
             end
         end
