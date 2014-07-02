@@ -4,11 +4,14 @@
 %EE: adjacency matrix
 function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %vector of variable values
-    %f: first E * P * T entries
-    %x: next E * P entries
+    %f: first V*V * P * T entries
+    %x: next V * P entries
     vars = zeros(1, V*V*P*T + V*V*P);
+    vars(1:V*V*P*T) = -1;
     vars = remove_nonexistent_edges(vars, V, P, T, EE);
     vars = set_source_links(vars, V, P, T, EE, SS);
+    vars = explore_paths(vars, V, P, T, EE, SS, TT, ST);
+    vars_after = length(vars(vars >= 0))
     
     %number of variables
     N = length(vars);
@@ -152,11 +155,49 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     end
     
     disp_vars(vars, V, P, T, E, edge)
-<<<<<<< HEAD
-    
-=======
     mat2str(vars)
->>>>>>> 596c238c00922258e05c1ade680befbceb343504
+end
+
+%sets possible f's to zero in vars
+function vars=explore_paths(vars, V, P, T, EE, SS, TT, ST)
+    mat = zeros(V, V);
+    
+    function stack=explore(v, s, EE, SS, V)
+        edges = EE(v, :);
+        stack = [v];
+        
+        if sum(edges) == 0
+            if v == SS(s)
+                return
+            else
+                %set all the right things to -1
+                stack = [];
+                return
+            end
+        end
+        
+        for e = 1:length(edges)
+            %if an edge exists, we follow it
+            if edges(e) == 1
+                explored = explore(e, s, EE, SS);
+                stack = [stack, explored];
+            end
+        end
+    end
+
+    for ti = 1:length(TT)
+        s_vec = ST(:, ti);
+        for si = 1:length(s_vec)
+            if s_vec(si) == 1
+                t = TT(ti);
+                stack = explore(t, si, transpose(EE), SS, V)
+                %mark the right f values as 0's
+                for i = length(stack):-1:2
+                    vars = set_f_in_vars(vars,0,stack(i),stack(i-1),si,ti,V,P,T); 
+                end
+            end
+        end
+    end
 end
 
 %clause 1: Constraint (17)
@@ -280,6 +321,7 @@ function res=checkbeta(vars, V, P, T, IV, E, edges)
     end
 end
 
+
 %takes vars and prints it
 function disp_vars_p(vars, V, P, T, E, edge)
     res_str = '';
@@ -291,7 +333,9 @@ function disp_vars_p(vars, V, P, T, E, edge)
         for p = 1:P
             for t = 1:T
                 val = get_f_from_vars(vars, i, j, p, t, V, P, T);
-                res_str = strcat(res_str, int2str(val));
+                if val >= 0
+                    res_str = strcat(res_str, int2str(val));
+                end
             end
         end
     end

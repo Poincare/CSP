@@ -40,7 +40,6 @@ for v=1:V
     
     %loop over cols
     for iv=1:V
-        
         %if an edge exists from iv to v
         if EE(iv,v)==1
             
