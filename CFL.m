@@ -3,18 +3,8 @@
 %T: number of terminal nodes
 %EE: adjacency matrix
 function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
-    %vector of variable values
-    %f: first V*V * P * T entries
-    %x: next V * P entries
     vars = zeros(1, V*V*P*T + V*V*P);
-    vars(:) = -1;
-    vars = remove_nonexistent_edges(vars, V, P, T, EE);
-    vars = explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge);
-    vars = set_source_links(vars, V, P, T, EE, SS);
-    vars = explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge);
-    disp_vars(vars, V, P, T, E, edge)
-    vars_after = length(vars(vars >= 0))
-
+    
     %number of variables
     N = length(vars);
     
@@ -25,6 +15,19 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %(17): flow in {0, 1} - every f participates
     C = 5;
     
+    p = zeros(N, 2);
+    p(1:N, 1:D) = 1/D;
+  
+    %vector of variable values
+    %f: first V* V * P * T entries
+    %x: next V * V * P entries
+    vars(:) = -1;
+    vars = remove_nonexistent_edges(vars, V, P, T, EE);
+    vars = explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge);
+    vars = explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge);
+    disp_vars(vars, V, P, T, E, edge)
+    vars_after = length(vars(vars >= 0))
+
     %clause matrix
     %i,j is marked as 1 if variable i participates in clause j
     clause_mat = zeros(N, C);
@@ -45,13 +48,14 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %all x variables participate in clause 5
     clause_mat(V*V*P*T+1:N, 5) = 1;
     
-    p = zeros(N, 2);
-    p(1:N, 1:D) = 1/D;
+    [vars, p, clause_mat] = set_source_links(vars, p, clause_mat, V, P, T, EE, SS);
     
     iter_counter = 0;
+    last_time = cputime;
     while 1
         done = 1;
         for i = 1:N
+            
             %check if the variable is supposed to be considered
             if vars(i) == -1
                 continue;
@@ -132,6 +136,8 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             if rem(iter_counter, 10000) == 0
                 fprintf('Iter: %d\n', iter_counter);
                 disp_vars_p(vars, V, P, T, E, edge);
+                fprintf('%.10f\n', (cputime - last_time)*1000)
+                last_time = cputime;
             end
             
             iter_counter = iter_counter + 1;
@@ -299,18 +305,17 @@ end
 %clause 1: Constraint (17)
 function checkf=flow_limit(vars, V, P, T, E, edge, ST)
     checkf = 1;
-    zt=zeros(E,T);
     for e = 1:E
         iv=real(edge(e));
         ov=imag(edge(e));
         for t=1:T
             sumf=0;
             for s=1:P
-                if ST(s,t)==1
-                    sumf=sumf+get_f_from_vars(vars, iv,ov,s,t, V,P,T);
+                fval = get_f_from_vars(vars, iv,ov,s,t, V,P,T);
+                if ST(s,t)==1 && fval ~= -1
+                    sumf=sumf + fval;
                 end
             end
-            zt(e,t)=sumf;
             if sumf>1
                 checkf=0;
             end
@@ -332,7 +337,7 @@ function checkfv=flow_conservation(vars, V, P, T, OV, IV, sigma, ST)
                             ov=OV{v}(ovidx);
                             f_val = get_f_from_vars(vars,v,ov,s,t,V,P,T);
                             if f_val ~= -1
-                                sumoutf=sumoutf+get_f_from_vars(vars,v,ov,s,t,V,P,T);
+                                sumoutf=sumoutf+f_val;
                             end
                         end
                     end
@@ -490,15 +495,26 @@ end
 
 
 %fix all of the flow x's as 1's
-function res=set_source_links(vars, V, P, T, EE, SS)
+function [res, prob, clause_mat]=set_source_links(vars, prob, clause_mat, V, P, T, EE, SS)
     %loop over the sources, check the edges from each source
     %set those as one in vars
+    
     for p1 = 1:P
         s_p = SS(p1);
         for p2 = 1:P
             for j = 1:V
                 if EE(s_p, j) == 1 && get_x_from_vars(vars, s_p, j, p2, V, P, T) ~= -1
                     vars = set_x_in_vars(vars, 0, s_p, j, p2, V, P, T);
+                    
+                    %we also set the initial probability values
+                    index = linear_index_x(s_p, j, p2, V, P, T);
+                    prob(index, 1) = 1;
+                    prob(index, 2) = 0;
+                    
+                    %these are set in stone so they are not part of the
+                    %clauses
+                    clause_mat(index, 4) = 0;
+                    clause_mat(index, 5) = 0;
                 end
             end
         end
@@ -506,6 +522,8 @@ function res=set_source_links(vars, V, P, T, EE, SS)
         for j = 1:V
             if EE(s_p, j) == 1 && get_x_from_vars(vars, s_p, j, p1, V, P, T) ~= -1
                 vars = set_x_in_vars(vars, 1, s_p, j, p1, V, P, T);
+                prob(linear_index_x(s_p, j, p2, V, P, T), 1) = 0;
+                prob(linear_index_x(s_p, j, p2, V, P, T), 2) = 1;
             end
         end
     end
@@ -530,6 +548,10 @@ function res=remove_nonexistent_edges(vars, V, P, T, EE)
         end
     end
     res = vars;
+end
+
+function res=linear_index_x(i, j, p, V, P, T)
+    res = V*V*P*T + (i-1)*V*P + (j-1)*P + p;
 end
 
 function res=set_f_in_vars(vars, val, i, j, p, t, V, P, T)

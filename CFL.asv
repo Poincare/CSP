@@ -45,13 +45,12 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %all x variables participate in clause 5
     clause_mat(V*V*P*T+1:N, 5) = 1;
     
-    p = zeros(N, 2);
-    p(1:N, 1:D) = 1/D;
-    
     iter_counter = 0;
+    last_time = cputime;
     while 1
         done = 1;
         for i = 1:N
+            
             %check if the variable is supposed to be considered
             if vars(i) == -1
                 continue;
@@ -80,7 +79,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                 end
             end
             
-            if clause_mat(i, 2) == 1
+            if clause_mat(i, 2) == 1 && satisfied
                 %checking clause2
                 if flow_conservation(vars,V,P,T,OV,IV,sigma,ST) ~= 1
                     %fprintf('Flow conservation failed.\n')
@@ -88,7 +87,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                 end
             end
 
-            if clause_mat(i, 3) == 1
+            if clause_mat(i, 3) == 1 && satisfied
                 %checking clause 3
                 if flow_x(vars, V, P, T, E, edge, ST) ~= 1
                     %fprintf('Flow x failed.\n')
@@ -96,7 +95,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                 end
             end
             
-            if clause_mat(i, 4) == 1
+            if clause_mat(i, 4) == 1 && satisfied
                 %checking clause 4
                 if checkx(vars, V, P, T, ST, IV, TT) ~= 1
                     %fprintf('Checkx failed.\n')
@@ -104,7 +103,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                 end
             end
             
-            if clause_mat(i, 5) == 1
+            if clause_mat(i, 5) == 1 && satisfied
                 %checking clause 5
                 if checkbeta(vars, V, P, T, IV, E, edge) ~= 1
                     %fprintf('Checkbeta failed.\n')
@@ -130,8 +129,10 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             %fprintf('\n------------\n')
                     
             if rem(iter_counter, 10000) == 0
-                fprintf('Iter: %d\n', iter_counter);
-                disp_vars_p(vars, V, P, T, E, edge);
+                %fprintf('Iter: %d\n', iter_counter);
+                %disp_vars_p(vars, V, P, T, E, edge);
+                fprintf('%.10f\n', (cputime - last_time)*1000)
+                last_time = cputime;
             end
             
             iter_counter = iter_counter + 1;
@@ -299,18 +300,17 @@ end
 %clause 1: Constraint (17)
 function checkf=flow_limit(vars, V, P, T, E, edge, ST)
     checkf = 1;
-    zt=zeros(E,T);
     for e = 1:E
         iv=real(edge(e));
         ov=imag(edge(e));
         for t=1:T
             sumf=0;
             for s=1:P
-                if ST(s,t)==1
-                    sumf=sumf+get_f_from_vars(vars, iv,ov,s,t, V,P,T);
+                fval = get_f_from_vars(vars, iv,ov,s,t, V,P,T);
+                if ST(s,t)==1 && fval ~= -1
+                    sumf=sumf + fval;
                 end
             end
-            zt(e,t)=sumf;
             if sumf>1
                 checkf=0;
             end
@@ -332,7 +332,7 @@ function checkfv=flow_conservation(vars, V, P, T, OV, IV, sigma, ST)
                             ov=OV{v}(ovidx);
                             f_val = get_f_from_vars(vars,v,ov,s,t,V,P,T);
                             if f_val ~= -1
-                                sumoutf=sumoutf+get_f_from_vars(vars,v,ov,s,t,V,P,T);
+                                sumoutf=sumoutf+f_val;
                             end
                         end
                     end
@@ -366,9 +366,9 @@ function checkfx=flow_x(vars, V, P, T, E, edge, ST)
         for s=1:P
             for t=1:T
                 if ST(s,t) == 1
-                    fval = get_f_from_vars(vars,iv,ov,s,t,V,P,T)
-                    xval = get_x_from_vars(vars,iv,ov,s,V,P,T)
-                    if fval > xval &
+                    fval = get_f_from_vars(vars,iv,ov,s,t,V,P,T);
+                    xval = get_x_from_vars(vars,iv,ov,s,V,P,T);
+                    if fval > xval && fval ~= -1 && xval ~= -1
                         checkfx=0;
                     end
                 end
@@ -385,7 +385,8 @@ function res=checkx(vars, V, P, T, ST, IV, TT)
          for s=1:P
              if (ST(s,t)~=1)
                  for iv=1:length(IV{TT(t)})
-                     if get_x_from_vars(vars, IV{TT(t)}(iv),TT(t),s,V,P,T) ~=0
+                     xval = get_x_from_vars(vars, IV{TT(t)}(iv),TT(t),s,V,P,T);
+                     if xval ~=0 && xval ~= -1
                          res=0;
                      end
                  end
@@ -492,6 +493,7 @@ end
 function res=set_source_links(vars, V, P, T, EE, SS)
     %loop over the sources, check the edges from each source
     %set those as one in vars
+    
     for p1 = 1:P
         s_p = SS(p1);
         for p2 = 1:P
