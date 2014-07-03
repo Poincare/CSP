@@ -102,15 +102,6 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             %design variable
             b = 0.2;
 
-            r = rand;
-            %realize random bernoulli variable
-            %remember that p(i, 1) is actually the probability of j=0
-            if r <= p(i, 1)
-                vars(i) = 0;
-            else
-                vars(i) = 1;
-            end
-
             %evaluate the clauses and see if they are
             %satisfied
             satisfied = 1;
@@ -162,7 +153,6 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                 p(i, :) = 0;
                 p(i, vars(i) + 1) = 1;
                 continue;
-                
             %otherwise, we have to interpolate the distribution
             else
                 t = p(i,vars(i)+1);
@@ -172,8 +162,16 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                 
                 p(i, vars(i) + 1) = (1-b)*t;
             end
-            %fprintf('\n------------\n')
-                    
+
+            r = rand;
+            %realize random bernoulli variable
+            %remember that p(i, 1) is actually the probability of j=0
+            if r <= p(i, 1)
+                vars(i) = 0;
+            else
+                vars(i) = 1;
+            end                   
+
             if rem(iter_counter, 10000) == 0
                 fprintf('Iter: %d\n', iter_counter);
                 fprintf('%.10f\n', (cputime - last_time)*1000)
