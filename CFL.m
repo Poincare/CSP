@@ -3,6 +3,9 @@
 %T: number of terminal nodes
 %EE: adjacency matrix
 function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
+    %meant for Octave (not sure about matlab syntax)
+    more off
+
     vars = zeros(1, V*V*P*T + V*V*P);
     
     %number of variables
@@ -26,7 +29,6 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     vars = remove_nonexistent_edges(vars, V, P, T, EE);
     %vars = explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge);
     vars = explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge);
-    disp_vars(vars, V, P, T, E, edge)
     vars_after = length(vars(vars >= 0))
 
     %clause matrix
@@ -50,7 +52,42 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     clause_mat(V*V*P*T+1:N, 5) = 1;
     
     [vars, p, clause_mat] = set_source_links(vars, p, clause_mat, V, P, T, EE, SS);
+
+    %vars = set_f_in_vars(vars, 1, 1, 3, 1, 1, V, P, T);
+    %vars = set_f_in_vars(vars, 1, 2, 4, 2, 2, V, P, T);
+    %vars = set_f_in_vars(vars, 1, 3, 5, 1, 1, V, P, T);
+    %vars = set_f_in_vars(vars, 0, 3, 6, 1, 1, V, P, T);
+    %vars = set_f_in_vars(vars, 1, 4, 5, 2, 2, V, P, T);
+    %vars = set_f_in_vars(vars, 0, 4, 7, 2, 2, V, P, T);
+    %vars = set_f_in_vars(vars, 1, 5, 6, 1, 1, V, P, T);
+    %vars = set_f_in_vars(vars, 1, 5, 7, 2, 2, V, P, T);
+
+    %vars = set_x_in_vars(vars, 1, 1, 3, 1, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 1, 3, 2, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 2, 4, 1, V, P, T);
+    %vars = set_x_in_vars(vars, 1, 2, 4, 2, V, P, T);
+    %vars = set_x_in_vars(vars, 1, 3, 5, 1, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 3, 5, 2, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 3, 6, 1, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 3, 6, 2, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 4, 5, 1, V, P, T);
+    %vars = set_x_in_vars(vars, 1, 4, 5, 2, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 4, 7, 1, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 4, 7, 2, V, P, T);
+    %vars = set_x_in_vars(vars, 1, 5, 6, 1, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 5, 6, 2, V, P, T);
+    %vars = set_x_in_vars(vars, 0, 5, 7, 1, V, P, T);
+    %vars = set_x_in_vars(vars, 1, 5, 7, 2, V, P, T);
+    %disp(vars_to_bitstr(vars));
+    %disp_vars(vars, V, P, T, E, edge)
     
+    %fprintf('Flow limit: %d\n', flow_limit(vars, V, P, T, E, edge, ST));
+    %fprintf('Flow conservation: %d\n', flow_conservation(vars, V, P, T, OV, IV, sigma, ST));
+    %fprintf('Flow x: %d\n', flow_x(vars, V, P, T, E, edge, ST));
+    %fprintf('Checkx: %d\n', checkx(vars, V, P, T, ST, IV, TT));
+
+    %return
+
     iter_counter = 0;
     last_time = cputime;
     while 1
@@ -77,15 +114,16 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             %evaluate the clauses and see if they are
             %satisfied
             satisfied = 1;
-            if clause_mat(i, 1) == 1
+            %disp_vars(vars, V, P, T, E, edge)
+            if clause_mat(i, 1) == 1 && satisfied
                 %checking clause1
                 if flow_limit(vars, V, P, T, E, edge, ST) ~= 1
-                    %fprintf('Flow limit failed.\n')
+             %       fprintf('Flow limit failed.\n')
                     satisfied = 0;
                 end
             end
             
-            if clause_mat(i, 2) == 1 && satisfied
+            if clause_mat(i, 2) == 1 && satisfied 
                 %checking clause2
                 if flow_conservation(vars,V,P,T,OV,IV,sigma,ST) ~= 1
                     %fprintf('Flow conservation failed.\n')
@@ -102,7 +140,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             end
             
             if clause_mat(i, 4) == 1 && satisfied
-                %checking clause 4
+               %checking clause 4
                 if checkx(vars, V, P, T, ST, IV, TT) ~= 1
                     %fprintf('Checkx failed.\n')
                     satisfied = 0;
@@ -116,7 +154,9 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                     satisfied = 0;
                 end
             end
+            %fprintf('-----------\n\n\n')
             
+
             %if it is satisfied, we can clear the probabilities
             if satisfied
                 p(i, :) = 0;
@@ -136,8 +176,8 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                     
             if rem(iter_counter, 10000) == 0
                 fprintf('Iter: %d\n', iter_counter);
-                disp_vars_p(vars, V, P, T, E, edge);
                 fprintf('%.10f\n', (cputime - last_time)*1000)
+                save_vars(vars);
                 last_time = cputime;
             end
             
@@ -167,70 +207,87 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     disp_vars(vars, V, P, T, E, edge)
 end
 
-function vars=explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge_imag)
-    function [vars, cont]=explore_vars_x_iter(vars, v, s, EE, SS, V, P, T, E, edge_imag)
-        cont = 0;
-        edges = EE(v, :);
-        
-        if sum(edges) == 0
-            if v == SS(s)
-                fprintf('Found source (x). v: %d, s: %d\n', v, s)
-                cont = 1;
-                return
-            end
+function bitstr=vars_to_bitstr(vars)
+    bitstr = '';
+    for v = 1:length(vars)
+        if vars(v) >= 0
+            bitstr = strcat(bitstr, num2str(vars(v)));
         end
+    end
+end
+
+function save_vars(vars)
+    fileId = fopen('vars.out', 'a+');
+
+    bitstr = vars_to_bitstr(vars)
+    bitstr = strcat(bitstr, '\n');
+
+    fprintf(fileId, bitstr); 
+end
+
+function [vars, cont]=explore_vars_x_iter(vars, v, s, EE, SS, V, P, T, E, edge_imag)
+	cont = 0;
+	edges = EE(v, :);
+
+    if sum(edges) == 0
+        if v == SS(s)
+            fprintf('Found source (x). v: %d, s: %d\n', v, s)
+            cont = 1;
+            return
+        end
+    end
         
-        for e = 1:length(edges)
-            if edges(e) == 1
-                [vars,cont_x] = explore_vars_x_iter(vars, e, s, EE, SS, V, P, T, E, edge_imag);
-                %this means we reached the terminal node when explored
-                if cont_x
-                    fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
-                    vars = set_x_in_vars(vars, 0, e, v, s, V, P, T);
-                    disp_vars(vars, V, P, T, E, edge_imag)
-                    %should set f to 0
-                    cont = cont_x;
-                end
+    for e = 1:length(edges)
+        if edges(e) == 1
+            [vars,cont_x] = explore_vars_x_iter(vars, e, s, EE, SS, V, P, T, E, edge_imag);
+            %this means we reached the terminal node when explored
+            if cont_x
+                fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
+                vars = set_x_in_vars(vars, 0, e, v, s, V, P, T);
+                %should set f to 0
+                cont = cont_x;
             end
         end
     end
+end
 
-    for ti = 1:length(TT)
+
+function vars=explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge_imag)
+        for ti = 1:length(TT)
         for si = 1:length(SS)
             [vars, cont] = explore_vars_x_iter(vars, TT(ti), si, transpose(EE), SS, V, P, T, E, edge_imag)
-            vars;
+        end
+    end
+end
+
+function [vars, cont]=explore_vars_f_iter(vars, v, s, t, EE, SS, V, P, T, E, edge_imag)
+    cont = 0;
+    edges = EE(v, :);
+
+    if sum(edges) == 0
+        if v == SS(s)
+            fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
+            cont = 1;
+            return
+        end
+    end
+
+    for e = 1:length(edges)
+        if edges(e) == 1
+            [vars,cont_x] = explore_vars_f_iter(vars, e, s, t, EE, SS, V, P, T, E, edge_imag);
+            %this means we reached the terminal node when explored
+            if cont_x
+                fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
+                vars = set_f_in_vars(vars, 0, e, v, s, t, V, P, T);
+                %should set f to 0
+                cont = cont_x;
+            end
         end
     end
 end
 
 function vars=explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge_imag)
-    function [vars, cont]=explore_vars_f_iter(vars, v, s, t, EE, SS, V, P, T, E, edge_imag)
-        cont = 0;
-        edges = EE(v, :);
-
-        if sum(edges) == 0
-            if v == SS(s)
-                fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
-                cont = 1;
-                return
-            end
-        end
-
-        for e = 1:length(edges)
-            if edges(e) == 1
-                [vars,cont_x] = explore_vars_f_iter(vars, e, s, t, EE, SS, V, P, T, E, edge_imag);
-                %this means we reached the terminal node when explored
-                if cont_x
-                    fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
-                    vars = set_f_in_vars(vars, 0, e, v, s, t, V, P, T);
-                    disp_vars(vars, V, P, T, E, edge_imag)
-                    %should set f to 0
-                    cont = cont_x;
-                end
-            end
-        end
-    end
-    
+        
     tt_length = length(TT);
     fprintf('Exploring f variables...\n')
     
@@ -479,7 +536,9 @@ function disp_vars(vars, V, P, T, E, edge)
         for p = 1:P
             for t = 1:T
                 val = get_f_from_vars(vars, i, j, p, t, V, P, T);
-                fprintf('f; i: %d, j: %d, p: %d, t: %d, val: %d\n', i, j, p, t, val)
+                if val >= 0
+                    fprintf('f; i: %d, j: %d, p: %d, t: %d, val: %d\n', i, j, p, t, val)
+                end
             end
         end
     end
@@ -489,7 +548,9 @@ function disp_vars(vars, V, P, T, E, edge)
         j = imag(edge(e));
         for p = 1:P
             val = get_x_from_vars(vars, i, j, p, V, P, T);
-            fprintf('x; i: %d, j: %d, p: %d, val: %d\n', i, j, p, val);
+            if val >= 0
+                fprintf('x; i: %d, j: %d, p: %d, val: %d\n', i, j, p, val);
+            end
         end
     end
 end

@@ -1,31 +1,34 @@
 clc
 
-V = 6;
+V = 7;
 P = 2;
 S = P ; %change of notation
 
 %number of edges
-E = 5;
+E = 8;
 
 %adj matrix
 EE = zeros(V, V);
-EE(1,3) =1;
-EE(3,4)=1;
-EE(4,6)=1;
-EE(2,5)=1;
-EE(5,4) = 1;
+EE(1, 3) = 1;
+EE(2, 4) = 1;
+EE(3, 5) = 1;
+EE(4, 5) = 1;
+EE(3, 6) = 1;
+EE(5, 7) = 1;
+EE(5, 6) = 1;
+EE(4, 7) = 1;
 
 %source(s)
 SS=[1,2];
 
 %terminal(s)
-TT = [6];
+TT = [6,7];
 T = length(TT);
 
 %Flows Each Terminal Wants
 ST=zeros(S,T);
-ST(1, 1) = 1;
-ST(1, 2) = 1;
+ST(1,1) = 1;
+ST(2,2) = 1;
 
 %set up OV and IV
 IV=cell(V);
