@@ -21,9 +21,10 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %vector of variable values
     %f: first V* V * P * T entries
     %x: next V * V * P entries
-    vars(:) = -1;
+    %vars(:) = -1;
+    vars(1:V*V*P*T) = -1;
     vars = remove_nonexistent_edges(vars, V, P, T, EE);
-    vars = explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge);
+    %vars = explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge);
     vars = explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge);
     disp_vars(vars, V, P, T, E, edge)
     vars_after = length(vars(vars >= 0))
