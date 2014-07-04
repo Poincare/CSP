@@ -1,0 +1,10 @@
+digraph G {
+  S -> T
+  S -> U
+  T -> W
+  U -> W
+  W -> X
+  X -> Y
+  X -> Z
+}
+
