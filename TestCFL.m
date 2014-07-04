@@ -93,5 +93,33 @@ for l=1:V
     end
 end
 
+z=-ones(V,V);
+x=-ones(V,V,S);
+beta=-ones(V,V,V);
+f=-ones(V,V,S,T);
 
-CFL(V, P, T, EE, E, SS, OV, IV, sigma,ST, edge, TT)
+for l=1:V %column of EE matrix
+    for m=1:V %row of EE matrix
+        if EE(l,m)==1 %if l,m work in the EE matrix(when there is a 1 instead of 0)
+            z(l,m)=0; %show 0 instead of -1
+            for s=1:S
+                x(l,m,s)=0;
+                for t=1:T
+                    if ST(s,t)==1
+                        f(l,m,s,t)=0;
+                    end
+                end
+            end
+            for n=1:V
+                if EE(m,n)==1
+                    beta(l,m,n)=0;
+                end
+            end
+        end
+    end
+end
+
+f
+
+
+%CFL(V, P, T, EE, E, SS, OV, IV, sigma,ST, edge, TT)

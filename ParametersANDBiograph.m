@@ -114,22 +114,29 @@ function ParametersANDBiograph()
         for m=1:V %row of EE matrix
             if EE(l,m)==1 %if l,m work in the EE matrix(when there is a 1 instead of 0)
                 z(l,m)=0; %show 0 instead of -1
-                for s=1:S
-                    x(l,m,s)=0;
-                    for t=1:T
-                        if ST(s,t)==1
-                            f(l,m,s,t)=0;
-                        end
-                    end
-                end
+                %for s=1:S
+                    %x(l,m,s)=0;
+                    %for t=1:T
+                    %    if ST(s,t)==1
+                    %        f(l,m,s,t)=0;
+                    %    end
+                    %end
+                %end
                 for n=1:V
-                    if EE(m,n)==1
-                        beta(l,m,n)=0;
+		  if EE(m,n)==1
+                      beta(l,m,n)=0;
                     end
                 end
             end
         end
     end
+    
+    f = explore_vars_f(f, EE, SS, V, S, T, E, TT, ST, edge);
+
+    %reduces x dimensionality
+    x = explore_vars_x(x, EE, SS, V, S, T, E, TT, ST, edge);
+    
+    return
 
     % x for source edges *************brute force way*****
     x(1,3,1)=1;
@@ -354,9 +361,13 @@ function ParametersANDBiograph()
     end 
 end
 
-function [vars, cont]=explore_vars_x_iter(vars, v, s, EE, SS, V, P, T, E, edge_imag)
-	cont = 0;
-	edges = EE(v, :);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Dimensionality reduction mechanism %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [x, cont]=explore_vars_x_iter(x, v, s, EE, SS, V, P, T, E, edge_imag)
+    cont = 0;
+    edges = EE(v, :);
 
     if sum(edges) == 0
         if v == SS(s)
@@ -368,28 +379,26 @@ function [vars, cont]=explore_vars_x_iter(vars, v, s, EE, SS, V, P, T, E, edge_i
         
     for e = 1:length(edges)
         if edges(e) == 1
-            [vars,cont_x] = explore_vars_x_iter(vars, e, s, EE, SS, V, P, T, E, edge_imag);
+            [x,cont_x] = explore_vars_x_iter(x, e, s, EE, SS, V, P, T, E, edge_imag);
             %this means we reached the terminal node when explored
             if cont_x
                 fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
-                vars = set_x_in_vars(vars, 0, e, v, s, V, P, T);
-                %should set f to 0
+		x(e, v, s) = 0;
                 cont = cont_x;
             end
         end
     end
 end
 
-
-function vars=explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge_imag)
+function x=explore_vars_x(x, EE, SS, V, P, T, E, TT, ST, edge_imag)
         for ti = 1:length(TT)
         for si = 1:length(SS)
-            [vars, cont] = explore_vars_x_iter(vars, TT(ti), si, transpose(EE), SS, V, P, T, E, edge_imag)
+            [x, cont] = explore_vars_x_iter(x, TT(ti), si, transpose(EE), SS, V, P, T, E, edge_imag)
         end
     end
 end
 
-function [vars, cont]=explore_vars_f_iter(vars, v, s, t, EE, SS, V, P, T, E, edge_imag)
+function [f, cont]=explore_vars_f_iter(f, v, s, t, EE, SS, V, P, T, E, edge_imag)
     cont = 0;
     edges = EE(v, :);
 
@@ -403,11 +412,11 @@ function [vars, cont]=explore_vars_f_iter(vars, v, s, t, EE, SS, V, P, T, E, edg
 
     for e = 1:length(edges)
         if edges(e) == 1
-            [vars,cont_x] = explore_vars_f_iter(vars, e, s, t, EE, SS, V, P, T, E, edge_imag);
+            [f,cont_x] = explore_vars_f_iter(f, e, s, t, EE, SS, V, P, T, E, edge_imag);
             %this means we reached the terminal node when explored
             if cont_x
                 fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
-                vars = set_f_in_vars(vars, 0, e, v, s, t, V, P, T);
+                f(e, v, s, t) = 0;
                 %should set f to 0
                 cont = cont_x;
             end
@@ -415,7 +424,7 @@ function [vars, cont]=explore_vars_f_iter(vars, v, s, t, EE, SS, V, P, T, E, edg
     end
 end
 
-function vars=explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge_imag)
+function f=explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge_imag)
         
     tt_length = length(TT);
     fprintf('Exploring f variables...\n')
@@ -425,8 +434,7 @@ function vars=explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge_imag)
         for si = 1:length(s_vec);
             if s_vec(si) == 1
                 t = TT(ti);
-                [vars, cont] = explore_vars_f_iter(vars, t, si, ti, transpose(EE), SS, V, P, T, E, edge_imag)
-                vars;
+                [f, cont] = explore_vars_f_iter(f, t, si, ti, transpose(EE), SS, V, P, T, E, edge_imag);
             end
         end
     end
