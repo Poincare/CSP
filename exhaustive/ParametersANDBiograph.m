@@ -179,8 +179,8 @@ function ParametersANDBiograph()
                 end
             end
         end
-        %tcombidx==Beta+1
 
+        %tcombidx==Beta+1
         for l=1:V
             for m=1:V
                 for s=1:S
@@ -450,5 +450,3 @@ function f=explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge_imag)
     end
     
 end
-    
-    
