@@ -1,0 +1,3581 @@
+ExhaustiveSearch
+
+m =
+
+     1
+
+
+st_size =
+
+     5
+
+Exploring f variables...
+Found source. v: 1, s: 1, t:1
+Travelling down. i: 3, j: 1, s: 1, t: 1
+Travelling down. i: 4, j: 3, s: 1, t: 1
+Travelling down. i: 6, j: 4, s: 1, t: 1
+Travelling down. i: 7, j: 6, s: 1, t: 1
+Found source. v: 2, s: 2, t:1
+Travelling down. i: 5, j: 2, s: 2, t: 1
+Travelling down. i: 7, j: 5, s: 2, t: 1
+Found source. v: 2, s: 2, t:1
+Travelling down. i: 5, j: 2, s: 2, t: 1
+Travelling down. i: 4, j: 5, s: 2, t: 1
+Travelling down. i: 6, j: 4, s: 2, t: 1
+Travelling down. i: 7, j: 6, s: 2, t: 1
+Found source. v: 1, s: 1, t:2
+Travelling down. i: 3, j: 1, s: 1, t: 2
+Travelling down. i: 8, j: 3, s: 1, t: 2
+Found source. v: 1, s: 1, t:2
+Travelling down. i: 3, j: 1, s: 1, t: 2
+Travelling down. i: 9, j: 3, s: 1, t: 2
+Found source. v: 1, s: 1, t:2
+Travelling down. i: 3, j: 1, s: 1, t: 2
+Travelling down. i: 4, j: 3, s: 1, t: 2
+Travelling down. i: 6, j: 4, s: 1, t: 2
+Travelling down. i: 9, j: 6, s: 1, t: 2
+Travelling down. i: 11, j: 9, s: 1, t: 2
+Travelling down. i: 8, j: 11, s: 1, t: 2
+Found source. v: 1, s: 1, t:3
+Travelling down. i: 3, j: 1, s: 1, t: 3
+Travelling down. i: 4, j: 3, s: 1, t: 3
+Travelling down. i: 6, j: 4, s: 1, t: 3
+Travelling down. i: 10, j: 6, s: 1, t: 3
+Found source. v: 1, s: 1, t:3
+Travelling down. i: 3, j: 1, s: 1, t: 3
+Travelling down. i: 9, j: 3, s: 1, t: 3
+Found source. v: 1, s: 1, t:3
+Travelling down. i: 3, j: 1, s: 1, t: 3
+Travelling down. i: 4, j: 3, s: 1, t: 3
+Travelling down. i: 6, j: 4, s: 1, t: 3
+Travelling down. i: 9, j: 6, s: 1, t: 3
+Travelling down. i: 10, j: 9, s: 1, t: 3
+Found source. v: 2, s: 2, t:3
+Travelling down. i: 5, j: 2, s: 2, t: 3
+Travelling down. i: 4, j: 5, s: 2, t: 3
+Travelling down. i: 6, j: 4, s: 2, t: 3
+Travelling down. i: 10, j: 6, s: 2, t: 3
+Found source. v: 2, s: 2, t:3
+Travelling down. i: 5, j: 2, s: 2, t: 3
+Travelling down. i: 4, j: 5, s: 2, t: 3
+Travelling down. i: 6, j: 4, s: 2, t: 3
+Travelling down. i: 9, j: 6, s: 2, t: 3
+Travelling down. i: 10, j: 9, s: 2, t: 3
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x7 double]    [1x3 double]    [1x5 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    [1x5 double]    [1x4 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110110111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110110111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110110110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110110110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110101011101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110101011101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110101010010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110101010010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111101000111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111101000111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111101000110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111101000110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    [1x5 double]    [1x4 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110110111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110110111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110110110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110110110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110101011101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110101011101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110101010010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110101010010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000101000111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000101000111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000101000110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000101000110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    [1x5 double]    [1x4 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110010011110110111101111101
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110010011110110111101111010
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110010011110110110010111101
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110010011110110110010111010
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110010011110101011101111101
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110010011110101011101111010
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110010011110101010010111101
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110010011110101010010111010
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110010011101000111101111101
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110010011101000111101111010
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110010011101000110010111101
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     0
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110010011101000110010111010
+
+
+checkx =
+
+     1
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     0
+
+ExhaustiveSearch
+
+m =
+
+     1
+
+
+st_size =
+
+     5
+
+Exploring f variables...
+Found source. v: 1, s: 1, t:1
+Travelling down. i: 3, j: 1, s: 1, t: 1
+Travelling down. i: 4, j: 3, s: 1, t: 1
+Travelling down. i: 6, j: 4, s: 1, t: 1
+Travelling down. i: 7, j: 6, s: 1, t: 1
+Found source. v: 2, s: 2, t:1
+Travelling down. i: 5, j: 2, s: 2, t: 1
+Travelling down. i: 7, j: 5, s: 2, t: 1
+Found source. v: 2, s: 2, t:1
+Travelling down. i: 5, j: 2, s: 2, t: 1
+Travelling down. i: 4, j: 5, s: 2, t: 1
+Travelling down. i: 6, j: 4, s: 2, t: 1
+Travelling down. i: 7, j: 6, s: 2, t: 1
+Found source. v: 1, s: 1, t:2
+Travelling down. i: 3, j: 1, s: 1, t: 2
+Travelling down. i: 8, j: 3, s: 1, t: 2
+Found source. v: 1, s: 1, t:2
+Travelling down. i: 3, j: 1, s: 1, t: 2
+Travelling down. i: 9, j: 3, s: 1, t: 2
+Found source. v: 1, s: 1, t:2
+Travelling down. i: 3, j: 1, s: 1, t: 2
+Travelling down. i: 4, j: 3, s: 1, t: 2
+Travelling down. i: 6, j: 4, s: 1, t: 2
+Travelling down. i: 9, j: 6, s: 1, t: 2
+Travelling down. i: 11, j: 9, s: 1, t: 2
+Travelling down. i: 8, j: 11, s: 1, t: 2
+Found source. v: 1, s: 1, t:3
+Travelling down. i: 3, j: 1, s: 1, t: 3
+Travelling down. i: 4, j: 3, s: 1, t: 3
+Travelling down. i: 6, j: 4, s: 1, t: 3
+Travelling down. i: 10, j: 6, s: 1, t: 3
+Found source. v: 1, s: 1, t:3
+Travelling down. i: 3, j: 1, s: 1, t: 3
+Travelling down. i: 9, j: 3, s: 1, t: 3
+Found source. v: 1, s: 1, t:3
+Travelling down. i: 3, j: 1, s: 1, t: 3
+Travelling down. i: 4, j: 3, s: 1, t: 3
+Travelling down. i: 6, j: 4, s: 1, t: 3
+Travelling down. i: 9, j: 6, s: 1, t: 3
+Travelling down. i: 10, j: 9, s: 1, t: 3
+Found source. v: 2, s: 2, t:3
+Travelling down. i: 5, j: 2, s: 2, t: 3
+Travelling down. i: 4, j: 5, s: 2, t: 3
+Travelling down. i: 6, j: 4, s: 2, t: 3
+Travelling down. i: 10, j: 6, s: 2, t: 3
+Found source. v: 2, s: 2, t:3
+Travelling down. i: 5, j: 2, s: 2, t: 3
+Travelling down. i: 4, j: 5, s: 2, t: 3
+Travelling down. i: 6, j: 4, s: 2, t: 3
+Travelling down. i: 9, j: 6, s: 2, t: 3
+Travelling down. i: 10, j: 9, s: 2, t: 3
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x7 double]    [1x3 double]    [1x5 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    [1x5 double]    [1x4 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110110111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110110111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110110110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110110110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110101011101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110101011101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110101010010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110101010010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111101000111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111101000111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111101000110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111101000110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    [1x5 double]    [1x4 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110110111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110110111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110110110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110110110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110101011101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110101011101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110101010010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110101010010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000101000111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000101000111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000101000110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000101000110010111010
+
+{Error using ExhaustiveSearch>disp_f (line 187)
+Not enough input arguments.
+
+Error in ExhaustiveSearch>path_comb (line 199)
+        disp_f(f, S, T, V);
+
+Error in ExhaustiveSearch>path_comb (line 408)
+        path_comb(st_imag, st_index+1, fs, betas, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma);
+
+Error in ExhaustiveSearch>path_comb (line 408)
+        path_comb(st_imag, st_index+1, fs, betas, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma);
+
+Error in ExhaustiveSearch>path_comb (line 408)
+        path_comb(st_imag, st_index+1, fs, betas, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma);
+
+Error in ExhaustiveSearch>path_comb (line 408)
+        path_comb(st_imag, st_index+1, fs, betas, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma);
+
+Error in ExhaustiveSearch>path_comb (line 408)
+        path_comb(st_imag, st_index+1, fs, betas, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma);
+
+Error in ExhaustiveSearch (line 157)
+    path_comb(st_imag, 1, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma);
+} 
+ExhaustiveSearch
+
+m =
+
+     1
+
+
+st_size =
+
+     5
+
+Exploring f variables...
+Found source. v: 1, s: 1, t:1
+Travelling down. i: 3, j: 1, s: 1, t: 1
+Travelling down. i: 4, j: 3, s: 1, t: 1
+Travelling down. i: 6, j: 4, s: 1, t: 1
+Travelling down. i: 7, j: 6, s: 1, t: 1
+Found source. v: 2, s: 2, t:1
+Travelling down. i: 5, j: 2, s: 2, t: 1
+Travelling down. i: 7, j: 5, s: 2, t: 1
+Found source. v: 2, s: 2, t:1
+Travelling down. i: 5, j: 2, s: 2, t: 1
+Travelling down. i: 4, j: 5, s: 2, t: 1
+Travelling down. i: 6, j: 4, s: 2, t: 1
+Travelling down. i: 7, j: 6, s: 2, t: 1
+Found source. v: 1, s: 1, t:2
+Travelling down. i: 3, j: 1, s: 1, t: 2
+Travelling down. i: 8, j: 3, s: 1, t: 2
+Found source. v: 1, s: 1, t:2
+Travelling down. i: 3, j: 1, s: 1, t: 2
+Travelling down. i: 9, j: 3, s: 1, t: 2
+Found source. v: 1, s: 1, t:2
+Travelling down. i: 3, j: 1, s: 1, t: 2
+Travelling down. i: 4, j: 3, s: 1, t: 2
+Travelling down. i: 6, j: 4, s: 1, t: 2
+Travelling down. i: 9, j: 6, s: 1, t: 2
+Travelling down. i: 11, j: 9, s: 1, t: 2
+Travelling down. i: 8, j: 11, s: 1, t: 2
+Found source. v: 1, s: 1, t:3
+Travelling down. i: 3, j: 1, s: 1, t: 3
+Travelling down. i: 4, j: 3, s: 1, t: 3
+Travelling down. i: 6, j: 4, s: 1, t: 3
+Travelling down. i: 10, j: 6, s: 1, t: 3
+Found source. v: 1, s: 1, t:3
+Travelling down. i: 3, j: 1, s: 1, t: 3
+Travelling down. i: 9, j: 3, s: 1, t: 3
+Found source. v: 1, s: 1, t:3
+Travelling down. i: 3, j: 1, s: 1, t: 3
+Travelling down. i: 4, j: 3, s: 1, t: 3
+Travelling down. i: 6, j: 4, s: 1, t: 3
+Travelling down. i: 9, j: 6, s: 1, t: 3
+Travelling down. i: 10, j: 9, s: 1, t: 3
+Found source. v: 2, s: 2, t:3
+Travelling down. i: 5, j: 2, s: 2, t: 3
+Travelling down. i: 4, j: 5, s: 2, t: 3
+Travelling down. i: 6, j: 4, s: 2, t: 3
+Travelling down. i: 10, j: 6, s: 2, t: 3
+Found source. v: 2, s: 2, t:3
+Travelling down. i: 5, j: 2, s: 2, t: 3
+Travelling down. i: 4, j: 5, s: 2, t: 3
+Travelling down. i: 6, j: 4, s: 2, t: 3
+Travelling down. i: 9, j: 6, s: 2, t: 3
+Travelling down. i: 10, j: 9, s: 2, t: 3
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x7 double]    [1x3 double]    [1x5 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    [1x5 double]    [1x4 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110110111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110110111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110110110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110110110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110101011101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110101011101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111110101010010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111110101010010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111101000111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111101000111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111111001111101000110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111111001111101000110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    [1x5 double]    [1x4 double]    []    []    []    []    []    []    []    []
+
+
+width =
+
+     3
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110110111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110110111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110110110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110110110010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110101011101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110101011101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000110101010010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000110101010010111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+    [1x3 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000101000111101111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000101000111101111010
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+paths = 
+
+    [1x6 double]    []    []    []    []    []    []    []    []    []    []
+    [1x5 double]    []    []    []    []    []    []    []    []    []    []
+
+
+width =
+
+     2
+
+
+--------------------------------
+
+str =
+
+111110100000101000110010111101
+
+
+checkx =
+
+     0
+
+
+checkfx =
+
+     1
+
+
+checkf =
+
+     1
+
+
+checkfv =
+
+     1
+
+
+--------------------------------
+
+str =
+
+111110100000101000110010111010
+
+
+beta(:,:,1) =
+
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,2) =
+
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,3) =
+
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,4) =
+
+    -1    -1     1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1     1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,5) =
+
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,6) =
+
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1     1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1     1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,7) =
+
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1     1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1     1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,8) =
+
+    -1    -1     1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1     0
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,9) =
+
+    -1    -1     1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1     0    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,10) =
+
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1     1    -1    -1
+    -1    -1    -1    -1    -1     1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1     0    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+
+beta(:,:,11) =
+
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1     0    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1     0    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+

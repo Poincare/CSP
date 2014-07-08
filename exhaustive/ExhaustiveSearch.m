@@ -1,4 +1,23 @@
 function ExhaustiveSearch()
+
+    global m 
+    m=1
+
+%    V = 3;
+%    SS=[1,2];
+%    S = length(SS);
+%    P = S;
+%    TT = [3];
+%    T = length(TT);
+%    EE = zeros(V, V);
+%    EE(1, 3) = 1;
+%    EE(2, 3) = 1;
+%    E = sum(sum(EE));
+
+%    ST = zeros(S, T);
+%    ST(1, 1) = 1;
+%    ST(2, 1) = 1;
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Set up parameters                     %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,6 +50,7 @@ function ExhaustiveSearch()
     ST(1,3)=1;
     ST(2,1)=1;
     ST(2,3)=1;
+
     %Graph the Network
     VE=sparse([1 2 3 3 4 5 5 6 6 6 3 9 9 11],[3 5 4 8 6 4 7 7 10 9 9 11 10 8],true,11,11);
 
@@ -79,7 +99,7 @@ function ExhaustiveSearch()
             end
         end
     end
-
+    sigma
 
     %edge vector
     edge=zeros(1,E);
@@ -89,6 +109,19 @@ function ExhaustiveSearch()
             if EE(l,m)==1
                 edge(e)=l+m*i;
                 e=e+1;
+            end
+        end
+    end
+
+    %st_imag vector
+    st_size = sum(sum(ST))
+    st_imag = zeros(1, st_size);
+    st_index = 1;
+    for si = 1:S
+        for ti = 1:T
+            if ST(si, ti) == 1
+                st_imag(st_index) = si + (ti * 1i);
+                st_index = 1 + st_index; 
             end
         end
     end
@@ -121,20 +154,299 @@ function ExhaustiveSearch()
 
     %use DFS to set the correct variable spots for f.    
     f = explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge);
-
-    %path_mat{i} gives the paths from SS(i)
-    for s = 1:S
-        for t = 1:T
-            if ST(s, t) == 1
-                path_mat = get_paths(t, s, SS, EE, V);
-            end
-        end
-    end
+    path_comb(st_imag, 1, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z);
+ 
 end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Path cutting                      %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%i: source index
+
+function disp_f(f, S, T, V, beta)
+    str = '';
+    for s = 1:S
+        for t=1:T
+            if sum(sum(f(:, :, s, t))) ~= -V*V
+                for i = 1:V
+                    for j = 1:V
+                        val = f(i, j, s, t);
+                        if val ~= -1
+                            str = strcat(str, int2str(val));
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    str 
+	beta_expected = -ones(V, V, V);
+
+    if strcmp(str, '111110100000101000110010111010') == 1
+	beta_expected(1,3,4)=1;
+	beta_expected(3,4,6)=1;
+	beta_expected(3,9,10)=1;
+	beta_expected(4,6,7)=1;
+	beta_expected(5,4,6)=1;
+	beta_expected(4,6,10)=1;
+	beta_expected(2,5,4)=1;
+	beta_expected(2,5,7)=1;
+	beta_expected(1,3,8)=1;
+	beta_expected(1,3,9)=1;
+    beta_expected(4,6,9)=0;
+    beta_expected(6,9,10)=0;
+    beta_expected(6,9,11)=0;
+    beta_expected(9,11,8)=0;
+    beta_expected(3, 9, 11) = 0;
+    fprintf('answer\n');
+    end
+end
+
+function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z)
+    fprintf('\n--------------------------------\n')
+
+    global m;
+    %if the source is the last one in consideration,
+    %then we can check conditions
+    if st_index > length(st_imag)
+
+        %check conditions...
+        x = -ones(V, V, S); 
+        m = m + 1;
+
+        %TODO generalize this
+        % x for source edges *************brute force way*****
+        x(1,3,1)=1;
+        x(1,3,2)= 0;
+        x(2,5,2)=1;
+        x(2,5,1)=0;
+
+        %generate x based on beta ********brute force way**********
+        %Constraint (31)
+        %step 1
+
+        for s=1:S %x on the left is the edge and the x on the right is the preceeding edge
+            x(3,4,s)=beta(1,3,4)*x(1,3,s);
+        end
+
+        for s=1:S
+            x(3,8,s)=beta(1,3,8)*x(1,3,s);
+        end
+
+        for s=1:S
+            x(3,9,s)=beta(1,3,9)*x(1,3,s);
+        end
+
+        for s=1:S
+            x(5,4,s)=beta(2,5,4)*x(2,5,s);
+        end
+
+        for s=1:S
+            x(5,7,s)=beta(2,5,7)*x(2,5,s);
+        end
+        %step 2
+
+        for s=1:S
+            x(4,6,s)=max(beta(3,4,6)*x(3,4,s),beta(5,4,6)*x(5,4,s));
+        end
+
+        %step 3
+        for s=1:S
+            x(6,7,s)=beta(4,6,7)*x(4,6,s);
+        end
+
+        for s=1:S
+            x(6,10,s)=beta(4,6,10)*x(4,6,s);
+         end
+
+         for s=1:S
+            x(6,9,s)=beta(4,6,9)*x(4,6,s);
+         end
+
+         %step 4
+        for s=1:S
+            x(9,11,s)=max(beta(6,9,11)*x(6,9,s),beta(3,9,11)*x(3,9,s));
+        end
+
+         for s=1:S
+            x(9,10,s)=max(beta(6,9,10)*x(6,9,s),beta(3,9,10)*x(3,9,s));
+         end
+
+         %step 5
+         for s=1:S
+            x(11,8,s)=beta(9,11,8)*x(9,11,s);
+         end
+
+    
+         %% checking constraints 1:satisfied
+         checkx=1;
+         checkfx=1;
+         checkf=1;
+         checkfv=1; %Flow Conservation
+
+         %check x at terminals
+         t=1;
+         while (t<=T)&&(checkx==1)
+             for s=1:S
+                 if (ST(s,t)~=1)
+                     for iv=1:length(IV{TT(t)})
+                         if x(IV{TT(t)}(iv),TT(t),s)~=0
+                             checkx=0;
+                         end
+                     end
+                 end
+             end 
+             t=t+1;
+         end
+
+         %check f<=x %Constraint (29)
+         e=1;
+         while (checkx==1)&&(e<=E)&&(checkfx==1)
+             iv=real(edge(e)); %input node (represented by real number)
+             ov=imag(edge(e)); %output node (represented by imaginary number)
+             for s=1:S
+                 for t=1:T
+                     if ST(s,t)==1
+                         if f(iv,ov,s,t)>x(iv,ov,s)
+                             checkfx=0;
+                         end
+                     end
+                 end
+             end
+             e=e+1;
+         end
+
+
+         %check f %Consraint (17)
+         e=1;
+         zt=zeros(E,T);
+         while (checkx==1)&&(checkfx==1)&&(e<=E)&&(checkf==1)
+             iv=real(edge(e));
+             ov=imag(edge(e));
+             for t=1:T
+                 sumf=0;
+                 for s=1:S
+                     if ST(s,t)==1
+                         val = f(iv,ov,s,t);
+                         if val ~= -1
+                            sumf=sumf+val
+                         end
+                     end
+                 end
+                 zt(e,t)=sumf;
+                 if sumf>1
+                     checkf=0;
+                 end
+             end
+             z(iv,ov)=max(zt(e,:));
+             e=e+1;
+         end
+
+         % check f flow conservation
+         %Constraint (28)
+         v=1;
+         while (checkx==1)&&(checkfx==1)&&(checkf==1)&&(v<=V)&&(checkfv==1)
+             for t=1:T
+                 for s=1:S
+                     if ST(s,t)==1
+                         %sum of outgoing flows from v
+                         sumoutf=0;
+                         if sum(OV{v}~=0)>=1
+                             for ovidx=1:length(OV{v})
+                                 ov=OV{v}(ovidx);
+                                 val = f(v,ov,s,t);
+                                 if val ~= -1
+                                    sumoutf=sumoutf+val;
+                                 end
+                             end
+                         end
+
+                         suminf=0;
+                         if sum(IV{v}~=0)>=1
+                             for ividx=1:length(IV{v})
+                                 iv=IV{v}(ividx);
+                                 val = f(iv,v,s,t);
+                                 if val ~= -1
+                                    suminf=suminf+val; 
+                                end
+                             end
+                         end
+
+                         if (sumoutf-suminf~=sigma(v,s,t))
+                            fprintf('Failed on node: %d, t: %d, s: %d\n', v, t, s);
+                            fprintf('Sumoutf: %d, suminf: %d, sigma: %d\n', sumoutf, suminf, sigma(v, s, t));
+                             checkfv=0;
+                         end
+                     end
+                 end
+             end
+             v=v+1;
+         end
+
+        checkx
+        checkfx
+        checkf
+        checkfv
+
+        disp_f(f, S, T, V, beta);
+         % recording feasible solutions
+         if (checkx==1)&&(checkfx==1)&&(checkf==1)&&(checkfv==1)
+            diary soln.txt
+            z
+            disp('\n------------------\n')
+            Usum=0;
+            for e=1:E
+                iv=real(edge(e));
+                ov=imag(edge(e));
+                Usum=Usum+z(iv,ov);
+            end
+
+            Usum
+            diary off
+         end     
+         
+      
+         
+        return
+    end 
+
+    si = real(st_imag(st_index));
+    ti = imag(st_imag(st_index));
+
+    final_mat = get_paths(TT(ti), S, SS, EE, V);
+    paths = final_mat{SS(si)};
+    paths
+    width = max(find(~cellfun(@isempty, paths)));
+    width
+
+    %permutation vector
+    perm_mat = eye(width);
+
+    %loop over the rows of the matrix; should create
+    %the recursive stack
+    for r = 1:width
+        betas = beta;
+        fs = f;
+
+        row = perm_mat(r, :);
+
+        one_index = find(row);
+        path_vec = paths{one_index};
+
+        for j = 1:length(path_vec)-1
+            fs(path_vec(j), path_vec(j+1), si, ti) = 1; 
+        end
+
+        for j = 1:length(path_vec)-2
+            betas(path_vec(j), path_vec(j+1), path_vec(j+2)) = 1;
+        end
+
+        path_comb(st_imag, st_index+1, fs, betas, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma);
+    end
+end
+
 
 function [cont, cell_mat, path_count, paths]=get_paths_explore_iter(s, t, EE, cell_mat, path_count, paths)
     edges = EE(s, :);
@@ -150,7 +462,6 @@ function [cont, cell_mat, path_count, paths]=get_paths_explore_iter(s, t, EE, ce
     end
 
     cont = 0;
-    edges
     for e = 1:length(edges)
         if edges(e) == 1 
             [cont_x, cell_mat, path_count, ~] = get_paths_explore_iter(e, t, EE, cell_mat, path_count, paths);
@@ -161,6 +472,7 @@ function [cont, cell_mat, path_count, paths]=get_paths_explore_iter(s, t, EE, ce
     end
 end
 
+%Note: t represents the actual terminal value, not the index of TT
 
 function final_mat=get_paths(t, S, SS, EE, V)
     final_mat = cell(1, S);
