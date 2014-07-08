@@ -6,11 +6,10 @@ function DFSPathCounting()
     EE(4, 5) = 1;
     EE(5, 3) = 1;
 
-    view(biograph(EE));
     paths = explore(3, EE)
 end
 
-function [paths, cont, cell_mat, path_count]=explore_iter(s, t, EE, paths, cell_mat, path_count)
+function [cont, cell_mat, path_count, paths]=explore_iter(s, t, EE, cell_mat, path_count, paths)
     edges = EE(s, :);
     paths = [paths, s];
 
@@ -18,8 +17,8 @@ function [paths, cont, cell_mat, path_count]=explore_iter(s, t, EE, paths, cell_
     %that means we are done with this iteration of DFS
     if s == t
         cont = 1;
-        cell_mat(path_count + 1, :) = paths
-        path_count = path_count + 1 
+        cell_mat{path_count} = paths;
+        path_count = path_count + 1;
         return
     end
 
@@ -27,7 +26,7 @@ function [paths, cont, cell_mat, path_count]=explore_iter(s, t, EE, paths, cell_
     edges
     for e = 1:length(edges)
         if edges(e) == 1 
-            [paths, cont_x, cell_mat, path_count] = explore_iter(e, t, EE, paths, cell_mat, path_count);
+            [cont_x, cell_mat, path_count, ~] = explore_iter(e, t, EE, cell_mat, path_count, paths);
             if cont_x == 1
                 cont =  1;
             end 
@@ -37,7 +36,9 @@ end
 
 
 function paths=explore(t, EE)
-    cell_mat = cell(5, 5) 
-    paths= explore_iter(1, t, EE, [], cell_mat, 0);
+    cell_mat = cell(10, 10); 
+    [cont, cell_mat, path_count, paths] = explore_iter(1, t, EE, cell_mat, 1, []);
+    cell_mat{1}
+    cell_mat{2}
 end
 

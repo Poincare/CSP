@@ -136,6 +136,7 @@ end
 % Path cutting                      %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+function [satisfied, compute_path(
 function [cont, cell_mat, path_count, paths]=get_paths_explore_iter(s, t, EE, cell_mat, path_count, paths)
     edges = EE(s, :);
     paths = [paths, s];
