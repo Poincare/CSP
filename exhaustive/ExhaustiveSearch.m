@@ -1,7 +1,15 @@
 function ExhaustiveSearch()
 
     global m 
-    m=1
+    global fea_idx
+    global fea_x
+    global fea_beta
+    global fea_z
+    global fea_f
+    global fea_usum;
+    
+    fea_idx = 1;
+    m=1;
 
 %    V = 3;
 %    SS=[1,2];
@@ -99,7 +107,6 @@ function ExhaustiveSearch()
             end
         end
     end
-    sigma
 
     %edge vector
     edge=zeros(1,E);
@@ -114,7 +121,7 @@ function ExhaustiveSearch()
     end
 
     %st_imag vector
-    st_size = sum(sum(ST))
+    st_size = sum(sum(ST));
     st_imag = zeros(1, st_size);
     st_index = 1;
     for si = 1:S
@@ -155,9 +162,22 @@ function ExhaustiveSearch()
     %use DFS to set the correct variable spots for f.    
     f = explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge);
     path_comb(st_imag, 1, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z);
- 
+
+    diary 'optimal.txt'
+    find_optimal()
+    diary off
 end
 
+
+function find_optimal()
+    global fea_usum fea_z fea_beta fea_x fea_f
+
+    min_cost_idx = find(fea_usum, min(fea_usum))
+    z = fea_z(:, :, min_cost_idx)
+    beta = fea_beta(:, :, min_cost_idx)
+    x = fea_x(:, :, :, min_cost_idx)
+    f = fea_f(:, :, :, min_cost_idx)
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Path cutting                      %%
@@ -173,6 +193,7 @@ function disp_f(f, S, T, V, beta)
                     for j = 1:V
                         val = f(i, j, s, t);
                         if val ~= -1
+                            fprintf('i: %d, j: %d, s: %d, t: %d, val: %d\n', i, j, s, t, val);
                             str = strcat(str, int2str(val));
                         end
                     end
@@ -208,6 +229,13 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
     fprintf('\n--------------------------------\n')
 
     global m;
+    global fea_x
+    global fea_beta
+    global fea_z
+    global fea_f
+    global fea_idx
+    global fea_usum
+    
     %if the source is the last one in consideration,
     %then we can check conditions
     if st_index > length(st_imag)
@@ -331,7 +359,7 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
                      if ST(s,t)==1
                          val = f(iv,ov,s,t);
                          if val ~= -1
-                            sumf=sumf+val
+                            sumf=sumf+val;
                          end
                      end
                  end
@@ -393,22 +421,25 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
         disp_f(f, S, T, V, beta);
          % recording feasible solutions
          if (checkx==1)&&(checkfx==1)&&(checkf==1)&&(checkfv==1)
-            diary soln.txt
-            z
-            disp('\n------------------\n')
-            Usum=0;
-            for e=1:E
-                iv=real(edge(e));
-                ov=imag(edge(e));
-                Usum=Usum+z(iv,ov);
-            end
+             fea_z(:,:,fea_idx)=z;
+             fea_x(:,:,:,fea_idx)=x;
+             fea_beta(:,:,:,fea_idx)=beta;
+             fea_f(:,:,:,:,fea_idx)=f;
+
+             % cal sum cost for a feasible solution
+             Usum=0;
+             for e=1:E
+                 iv=real(edge(e));
+                 ov=imag(edge(e));
+                 Usum=Usum+z(iv,ov);
+             end
+
+             fea_usum(fea_idx)=Usum;
+             fea_idx = fea_idx + 1;
 
             Usum
-            diary off
+            diary off;
          end     
-         
-      
-         
         return
     end 
 
@@ -517,7 +548,7 @@ end
 function x=explore_vars_x(x, EE, SS, V, P, T, E, TT, ST, edge_imag)
         for ti = 1:length(TT)
         for si = 1:length(SS)
-            [x, cont] = explore_vars_x_iter(x, TT(ti), si, transpose(EE), SS, V, P, T, E, edge_imag)
+            [x, cont] = explore_vars_x_iter(x, TT(ti), si, transpose(EE), SS, V, P, T, E, edge_imag);
         end
     end
 end
