@@ -527,19 +527,32 @@ end
 
 %takes vars and prints it in a human-readable form
 function disp_vars(vars, V, P, T, E, edge)
-    for e = 1:E
-        i = real(edge(e));
-        j = imag(edge(e));
-        
-        for p = 1:P
-            for t = 1:T
+    for p = 1:P
+        for t = 1:T
+            for e = 1:E
+                i = real(edge(e));
+                j = imag(edge(e));
                 val = get_f_from_vars(vars, i, j, p, t, V, P, T);
                 if val >= 0
-                    fprintf('f; i: %d, j: %d, p: %d, t: %d, val: %d\n', i, j, p, t, val)
+                    fprintf('f; i %d, j: %d, p: %d, t: %d, val: %d\n', i, j, p, t, val);
                 end
             end
         end
     end
+    
+%     for e = 1:E
+%         i = real(edge(e));
+%         j = imag(edge(e));
+%         
+%         for p = 1:P
+%             for t = 1:T
+%                 val = get_f_from_vars(vars, i, j, p, t, V, P, T);
+%                 if val >= 0
+%                     fprintf('f; i: %d, j: %d, p: %d, t: %d, val: %d\n', i, j, p, t, val)
+%                 end
+%             end
+%         end
+%     end
     
     for e = 1:E
         i = real(edge(e));
