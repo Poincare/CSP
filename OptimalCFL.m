@@ -13,7 +13,7 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 
     %if this value is found in the probability matrix,
     %the value of the variable cannot be changed
-    global NO_CHANGE_P
+    %global NO_CHANGE_P
     NO_CHANGE_P = 2;
 
     fea_idx = 1;
@@ -25,24 +25,31 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     fea_cost = zeros(V, V);
     vars = zeros(1, V*V*P*T + V*V*P);
     
-
-    while 1
-        z = zeros(V, V);
-        vars = CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT);
-        %implies no satisfying soln. found
-        if length(vars) == 0
-            break;
+    for s = 1:S
+        for t = 1:T
+            if ST(s, t) == 1
+                terminal_inputs = get_terminal_inputs(vars, s, t, V, P, T, E, IV, SS, TT)
+            end
         end
-
-        [f, x] = vars_to_mat(vars, V, P, T);
-        fea_x(:, :, :, fea_idx) = x;
-        fea_f(:, :, :, :, fea_idx)  = f;
-        fea_z(:, :, fea_idx) = z;
-        min_cost = sum(sum(z(z ~= -1)));
-        fea_cost(:, fea_idx) = min_cost;
-
-        min_cost       
     end
+
+    %while 1
+    %    z = zeros(V, V);
+    %    vars = CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT);
+    %    %implies no satisfying soln. found
+    %    if length(vars) == 0
+    %        break;
+    %    end
+
+    %    [f, x] = vars_to_mat(vars, V, P, T);
+    %    fea_x(:, :, :, fea_idx) = x;
+    %    fea_f(:, :, :, :, fea_idx)  = f;
+    %    fea_z(:, :, fea_idx) = z;
+    %    min_cost = sum(sum(z(z ~= -1)));
+    %    fea_cost(:, fea_idx) = min_cost;
+
+    %    min_cost       
+    %end
 
     fea_x
     fea_f
@@ -105,19 +112,12 @@ function vars=CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %after the threshold, we give up 
     cost_clause_failure = 0;
     cost_clause_thresh = 100;
-    
-    s = 1;
-    t = 1;
-    res = get_terminal_inputs(vars, s, t, V, P, T, E, IV, SS, TT)
-    vars = []
-    return
    
     while 1
         done = 1;
         for i = 1:N
-                       
             %check if the variable is supposed to be considered
-            if vars(i) == -1
+            if vars(i) == -1 || any(p(i, :) == NO_CHANGE_P) ~= 0 
                 continue;
             end
 
