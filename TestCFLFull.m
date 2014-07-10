@@ -99,4 +99,4 @@ for l=1:V
 end
 
 
-CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
+OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
