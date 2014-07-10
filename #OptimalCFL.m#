@@ -11,11 +11,6 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global fea_idx;
     global min_cost
 
-    %if this value is found in the probability matrix,
-    %the value of the variable cannot be changed
-    global NO_CHANGE_P
-    NO_CHANGE_P = 2;
-
     fea_idx = 1;
     %infinity initially
     min_cost = Inf;
@@ -52,9 +47,8 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     min_cost
 end
 
-function vars=CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
-    global NO_CHANGE_P
 
+function vars=CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %meant for Octave (not sure about matlab syntax)
     more off
 
@@ -106,11 +100,7 @@ function vars=CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     cost_clause_failure = 0;
     cost_clause_thresh = 100;
     
-    s = 1;
-    t = 1;
-    res = get_terminal_inputs(vars, s, t, V, P, T, E, IV, SS, TT)
-    vars = []
-    return
+    res = get_terminal_inputs(vars, t, p, V, P, T, E, EE, IV, SS);
    
     while 1
         done = 1;
@@ -263,20 +253,8 @@ function vars=CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 end
 
 %get of input nodes for terminal edges given a terminal and a flow
-function res = get_terminal_inputs(vars, s, t, V, P, T, E, IV, SS, TT)
-    %input nodes to terminal
-    iv = IV{TT(t)};
-    res = [];
-    for i = 1:length(iv)
-        f_val = get_f_from_vars(vars, iv(i), TT(t), s, t, V, P, T);
-        
-        %if f_val is -1, then by the dimensionality reduction, the edge
-        %from iv(i) to t does not fall on any path from s to t, meaning it
-        %is not a terminal input node
-        if f_val ~= -1
-            res = [res, iv(i)]; 
-        end 
-    end
+    iv = IV{t};
+ = get_paths(t, S, SS, EE, V)
 end
 
 %cost constraint - changes w/ every satisfying solution found

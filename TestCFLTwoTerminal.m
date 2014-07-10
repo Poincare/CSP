@@ -95,4 +95,4 @@ end
 
 edge
 
-CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
+OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
