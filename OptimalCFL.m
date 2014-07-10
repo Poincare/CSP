@@ -13,35 +13,30 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 
     fea_idx = 1;
     %infinity initially
-    min_cost = Inf
-
+    min_cost = Inf;
+    fea_x = zeros(V, V, P, V);
+    fea_f = zeros(V, V, P, T, V);
+    fea_z = zeros(V, V, V);
+    fea_cost = zeros(V, V);
+    vars = zeros(1, V*V*P*T + V*V*P);
+    
 
     while 1
-        fea_x = zeros(V, V, P, V);
-        fea_f = zeros(V, V, P, T, V);
-        fea_z = zeros(V, V, V);
-        fea_cost = zeros(V, V);
-
         z = zeros(V, V);
-        vars = CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT);
+        vars = CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT);
         %implies no satisfying soln. found
         if length(vars) == 0
             break;
         end
 
-        [f, x] = vars_to_mat(vars, V, P, T) 
-        f
-        x
-        z
-
-        size(x)
-
+        [f, x] = vars_to_mat(vars, V, P, T);
         fea_x(:, :, :, fea_idx) = x;
         fea_f(:, :, :, :, fea_idx)  = f;
         fea_z(:, :, fea_idx) = z;
         min_cost = sum(sum(z(z ~= -1)));
         fea_cost(:, fea_idx) = min_cost;
-       
+
+        min_cost       
     end
 
     fea_x
@@ -53,7 +48,7 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 end
 
 
-function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
+function vars=CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %meant for Octave (not sure about matlab syntax)
     more off
 
@@ -62,8 +57,6 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global beta_mat
     beta_mat = zeros(V, V, V);
 
-    vars = zeros(1, V*V*P*T + V*V*P);
-    
     %number of variables
     N = length(vars);
     
@@ -90,7 +83,6 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     %clause matrix
     %i,j is marked as 1 if variable i participates in clause j
     clause_mat = generate_clause_mat(IV, OV, V, P, T, ST);
-    clause_mat
  
     %all variables participate in clause 3
     %TODO: Not sure if this is really the case
@@ -107,48 +99,13 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 
     [vars, p, clause_mat] = set_source_links(vars, p, clause_mat, V, P, T, EE, SS);
 
-    %vars = set_f_in_vars(vars, 1, 1, 3, 1, 1, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 2, 4, 2, 2, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 3, 5, 1, 1, V, P, T);
-    %vars = set_f_in_vars(vars, 0, 3, 6, 1, 1, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 4, 5, 2, 2, V, P, T);
-    %vars = set_f_in_vars(vars, 0, 4, 7, 2, 2, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 5, 6, 1, 1, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 5, 7, 2, 2, V, P, T);
-
-    %vars = set_x_in_vars(vars, 1, 1, 3, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 1, 3, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 2, 4, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 2, 4, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 3, 5, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 3, 5, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 3, 6, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 3, 6, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 4, 5, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 4, 5, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 4, 7, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 4, 7, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 5, 6, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 5, 6, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 5, 7, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 5, 7, 2, V, P, T);
-    %disp(vars_to_bitstr(vars));
-    %disp_vars(vars, V, P, T, E, edge)
-    
-    %fprintf('Flow limit: %d\n', flow_limit(vars, V, P, T, E, edge, ST));
-    %fprintf('Flow conservation: %d\n', flow_conservation(vars, V, P, T, OV, IV, sigma, ST));
-    %fprintf('Flow x: %d\n', flow_x(vars, V, P, T, E, edge, ST));
-    %fprintf('Checkx: %d\n', checkx(vars, V, P, T, ST, IV, TT));
-
-    %return
-
     iter_counter = 0;
     last_time = cputime;
 
     %number of times the cost clause is unsatisfied
     %after the threshold, we give up 
     cost_clause_failure = 0;
-    cost_clause_thresh = 10;
+    cost_clause_thresh = 100;
 
     while 1
         done = 1;
@@ -223,11 +180,11 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 
             %check cost clause
             if clause_mat(i, 4*V+2) == 1 && satisfied
-                if cost_clause(vars, V, P, T) ~= 1
+                if cost_clause(vars, V, P, T, E, edge, ST, OV) ~= 1
                     satisfied = 0;
                     cost_clause_failure = cost_clause_failure + 1;
                     if cost_clause_failure > cost_clause_thresh
-                        vars = []
+                        vars = [];
                         return
                     end
                 end    
@@ -296,18 +253,35 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 
     end
     
-    fprintf('ANSWER:: \n')
-    disp_vars(vars, V, P, T, E, edge)
+    %fprintf('ANSWER:: \n')
+    %disp_vars(vars, V, P, T, E, edge)
+end
+
+%get of input nodes for terminal edges given a terminal and a flow
+function res=get_terminal_inputs(vars, t, p, V, P, T, E, EE, IV)
+    iv = IV{t}
+     
 end
 
 %cost constraint - changes w/ every satisfying solution found
-function res=cost_clause(vars, V, P, T)
+function res=cost_clause(vars, V, P, T, E, edge, ST, OV)
     global min_cost
+    global z
+
+    %used to the set the z matrix correctly
+    for v = 1:V
+        flow_limit(v, vars, V, P, T, E, edge, ST, OV);
+    end
 
     res = 0;
 
-    [~, z] = vars_to_mat(vars, V, P, T)
-    cost = sum(sum(z(z ~= -1)))
+    z = compute_z(vars, V, P, T, E, edge, ST, OV);
+    [f, ~] = vars_to_mat(vars, V, P, T);
+    cost = sum(sum(z(z ~= -1)));
+    %f
+    %z
+    %fprintf('Cost: %d, min_cost: %d\n', cost, min_cost);
+
     if cost < min_cost
         res = 1; 
     end   
@@ -414,7 +388,7 @@ function [vars, cont]=explore_vars_x_iter(vars, v, s, EE, SS, V, P, T, E, edge_i
 
     if sum(edges) == 0
         if v == SS(s)
-            fprintf('Found source (x). v: %d, s: %d\n', v, s)
+            %fprintf('Found source (x). v: %d, s: %d\n', v, s)
             cont = 1;
             return
         end
@@ -425,7 +399,7 @@ function [vars, cont]=explore_vars_x_iter(vars, v, s, EE, SS, V, P, T, E, edge_i
             [vars,cont_x] = explore_vars_x_iter(vars, e, s, EE, SS, V, P, T, E, edge_imag);
             %this means we reached the terminal node when explored
             if cont_x
-                fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
+                %fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
                 vars = set_x_in_vars(vars, 0, e, v, s, V, P, T);
                 %should set f to 0
                 cont = cont_x;
@@ -438,7 +412,7 @@ end
 function vars=explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge_imag)
         for ti = 1:length(TT)
         for si = 1:length(SS)
-            [vars, cont] = explore_vars_x_iter(vars, TT(ti), si, transpose(EE), SS, V, P, T, E, edge_imag)
+            [vars, cont] = explore_vars_x_iter(vars, TT(ti), si, transpose(EE), SS, V, P, T, E, edge_imag);
         end
     end
 end
@@ -449,7 +423,7 @@ function [vars, cont]=explore_vars_f_iter(vars, v, s, t, EE, SS, V, P, T, E, edg
 
     if sum(edges) == 0
         if v == SS(s)
-            fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
+            %fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
             cont = 1;
             return
         end
@@ -460,7 +434,7 @@ function [vars, cont]=explore_vars_f_iter(vars, v, s, t, EE, SS, V, P, T, E, edg
             [vars,cont_x] = explore_vars_f_iter(vars, e, s, t, EE, SS, V, P, T, E, edge_imag);
             %this means we reached the terminal node when explored
             if cont_x
-                fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
+                %fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
                 vars = set_f_in_vars(vars, 0, e, v, s, t, V, P, T);
                 %should set f to 0
                 cont = cont_x;
@@ -472,14 +446,14 @@ end
 function vars=explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge_imag)
         
     tt_length = length(TT);
-    fprintf('Exploring f variables...\n')
+    %fprintf('Exploring f variables...\n')
     
     for ti = 1:length(TT)
         s_vec = ST(:, ti);
         for si = 1:length(s_vec);
             if s_vec(si) == 1
                 t = TT(ti);
-                [vars, cont] = explore_vars_f_iter(vars, t, si, ti, transpose(EE), SS, V, P, T, E, edge_imag)
+                [vars, cont] = explore_vars_f_iter(vars, t, si, ti, transpose(EE), SS, V, P, T, E, edge_imag);
                 vars;
             end
         end
@@ -571,7 +545,6 @@ function checkf=flow_limit(v, vars, V, P, T, E, edge, ST, OV)
     end
 
     if sum(ov) ~= 0
-
         zt_row = zt(v, :);
         for i = 1:length(ov)
             mq = [zt(v, :), z(v, ov(i))];
@@ -580,6 +553,32 @@ function checkf=flow_limit(v, vars, V, P, T, E, edge, ST, OV)
         end
     end
 
+end
+
+function z=compute_z(vars, V, P, T, E, edge, ST, OV)
+    z = zeros(V, V);
+    zt = zeros(E, T);
+
+    for e = 1:E
+        iv=real(edge(e));
+        ov=imag(edge(e));
+        for t=1:T
+            sumf=0;
+            for s=1:P
+                if ST(s,t)==1
+                    val = get_f_from_vars(vars, iv,ov,s,t, V, P, T);
+                    if val ~= -1
+                       sumf=sumf+val;
+                    end
+                end
+            end
+            zt(e,t)=sumf;
+            if sumf>1
+                checkf=0;
+            end
+        end
+        z(iv,ov)=max(zt(e,:));
+    end
 end
 
 %clause2: Constraint (28)
@@ -829,6 +828,49 @@ function res=remove_nonexistent_edges(vars, V, P, T, EE)
     res = vars;
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Path detection                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [cont, cell_mat, path_count, paths]=get_paths_explore_iter(s, t, EE, cell_mat, path_count, paths)
+    edges = EE(s, :);
+    paths = [paths, s];
+
+    %edge exists between the starting point and terminal;
+    %that means we are done with this iteration of DFS
+    if s == t
+        cont = 1;
+        cell_mat{path_count} = paths;
+        path_count = path_count + 1;
+        return
+    end
+
+    cont = 0;
+    for e = 1:length(edges)
+        if edges(e) == 1 
+            [cont_x, cell_mat, path_count, ~] = get_paths_explore_iter(e, t, EE, cell_mat, path_count, paths);
+            if cont_x == 1
+                cont =  1;
+            end 
+        end
+    end
+end
+
+%Note: t represents the actual terminal value, not the index of TT
+
+function final_mat=get_paths(t, S, SS, EE, V)
+    final_mat = cell(1, S);
+    for i = 1:S
+        cell_mat = cell(i, V);
+        [cont, cell_mat, path_count, paths] = get_paths_explore_iter(...
+            SS(i), t, EE, cell_mat, 1, []);
+        final_mat{i} = cell_mat;
+    end
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% linear indexing                       %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function res=linear_index_f(i, j, p, t, V, P, T)
     res = (i-1)*V*P*T + (j-1)*P*T + (p-1)*T + t;
 end
