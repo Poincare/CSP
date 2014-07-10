@@ -29,25 +29,22 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     vars = remove_nonexistent_edges(vars, V, P, T, EE);
     %vars = explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge);
     vars = explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge);
-    vars_after = length(vars(vars >= 0))
+    vars_after = length(vars(vars >= 0));
 
     %clause matrix
     %i,j is marked as 1 if variable i participates in clause j
     clause_mat = generate_clause_mat(IV, OV, V, P, T, ST);
     clause_mat
  
-    %all f's participate in clause 1
-    clause_mat(1:V*V*P*T, 2*V+1) = 1;
-    
     %all variables participate in clause 3
     %TODO: Not sure if this is really the case
     %clause_mat(:, V+2) = 1;
     
     %all x variables participate in clause 4
-    clause_mat(V*V*P*T+1:N, 2*V+3) = 1;
+    clause_mat(V*V*P*T+1:N, 3*V+1) = 1;
     
     %all x variables participate in clause 5
-    clause_mat(V*V*P*T+1:N, 2*V+4) = 1;
+    clause_mat(V*V*P*T+1:N, 3*V+2) = 1;
     
     [vars, p, clause_mat] = set_source_links(vars, p, clause_mat, V, P, T, EE, SS);
 
@@ -97,16 +94,6 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
                 continue;
             end
 
-            r = rand;
-            %realize random bernoulli variable
-            %remember that p(i, 1) is actually the probability of j=0
-            if r <= p(i, 1)
-                vars(i) = 0;
-            else
-                vars(i) = 1;
-            end                   
-
-
             %design variable
             b = 0.2;
 
@@ -115,23 +102,44 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             satisfied = 1;
             %disp_vars(vars, V, P, T, E, edge)
 
-            for v = 1:V
-                if clause_mat(i, v) == 1 && satisfied
-                    if flow_conservation(v, vars, V,P,T,OV,IV,sigma,ST) ~= 1
-                        fprintf('Flow conservation failed. i: %d, v: %d, mat: %d, var_value: %d\n', i, v, clause_mat(i, v), vars(i));
+            for c = 1:V
+                if clause_mat(i, c) == 1 && satisfied
+                    if flow_conservation(c, vars, V,P,T,OV,IV,sigma,ST,E,edge) ~= 1
+                        %fprintf('Flow conservation failed.\n\n');
                         satisfied = 0;
                         break;
                     end  
                 end
             end
 
-            for v = 1:V 
-                %checking clause 3
-                if flow_x(v, vars, OV, V, P, T, E, ST) ~= 1
-                    fprintf('Flow x failed.\n')
-                    satisfied = 0;
+            for c = 1:V
+                if clause_mat(i, V+c) == 1 && satisfied
+                    %checking clause 3
+                    if flow_x(c, vars, OV, V, P, T, E, ST, edge) ~= 1
+                        %fprintf('Flow x failed. i: %d, c: %d, mat: %d, var_value: %d\n\n', i, c, clause_mat(i,c), vars(i));                        satisfied = 0;
+                    end
                 end
             end
+
+            
+           for c = 1:V
+               if clause_mat(i, 2*V+c) == 1 && satisfied
+                    if checkx(c, vars, V, P, T, ST, IV, TT) ~= 1
+                        %fprintf('Checkx failed.\n')
+                        satisfied = 0;
+                    end
+                end
+           end
+           
+           for c = 1:V
+               if clause_mat(i, 3*V+c) == 1 && satisfied
+                    if flow_limit(c, vars, V, P, T, E, edge, ST, OV) ~= 1
+                        %fprintf('Flow limit failed.\n')
+                        satisfied = 0;
+                    end
+                end
+           end
+           
             %if clause_mat(i, 2) == 1 && satisfied 
             %    %checking clause2
             %    if flow_conservation(vars,V,P,T,OV,IV,sigma,ST) ~= 1
@@ -139,28 +147,11 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             %        satisfied = 0;
             %    end
             %end
-
-            if clause_mat(i, 2*V+1) == 1 && satisfied
-                %checking clause1
-                if flow_limit(vars, V, P, T, E, edge, ST) ~= 1
-                    fprintf('Flow limit failed.\n')
-                    satisfied = 0;
-                end
-            end
             
-            
-            if clause_mat(i, V+3) == 1 && satisfied
-               %checking clause 4
-                if checkx(vars, V, P, T, ST, IV, TT) ~= 1
-                    fprintf('Checkx failed.\n')
-                    satisfied = 0;
-                end
-            end
-            
-            if clause_mat(i, V+4) == 1 && satisfied
+            if clause_mat(i, 4*V+1) == 1 && satisfied
                 %checking clause 5
                 if checkbeta(vars, V, P, T, IV, E, edge) ~= 1
-                    fprintf('Checkbeta failed.\n')
+                    %fprintf('Checkbeta failed.\n')
                     satisfied = 0;
                 end
             end
@@ -189,8 +180,15 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
  
                 p(i, vars(i) + 1) = (1-b)*t;
             end
-            %fprintf('After: \n')
-            %p
+            
+            r = rand;
+            %realize random bernoulli variable
+            %remember that p(i, 1) is actually the probability of j=0
+            if r <= p(i, 1)
+                vars(i) = 0;
+            else
+                vars(i) = 1;
+            end                   
 
             if rem(iter_counter, 10000) == 0
                 fprintf('Iter: %d\n', iter_counter);
@@ -225,9 +223,40 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     disp_vars(vars, V, P, T, E, edge)
 end
 
+function optimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
+    while 1
+        vars = CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT);
+        
+    end
+end
+
+function [f, x]=vars_to_mat(vars, V, P, T)
+    f = zeros(V, V, P, T);
+    x = zeros(V, V, P);
+    
+    for i = 1:V
+        for j = 1:V
+            for s = 1:P
+                for t = 1:T
+                    f(i, j, s, t) = get_f_from_vars(vars, i, j, s, t, V, P, T);
+                end
+            end
+        end
+    end
+    
+    for i = 1:V
+        for j = 1:V
+            for s = 1:P
+                x(i, j, s) = get_x_from_vars(vars, i, j, s, V, P, T);
+            end
+        end
+    end
+    
+end
+
 %generates the clause-variable participation matrix
 function clause_mat=generate_clause_mat(IV, OV, V, P, T, ST)
-    nclauses = 4+V;
+    nclauses = V+V+V+V+1+1;
     nvars = V*V*P*T + V*V*P;
     clause_mat = zeros(nvars, nclauses);
 
@@ -235,24 +264,42 @@ function clause_mat=generate_clause_mat(IV, OV, V, P, T, ST)
         iv = IV{v};
         ov = OV{v};
         for s = 1:P
+            for i = 1:length(ov)
+                if ov(i) ~= 0
+                    clause_mat(linear_index_x(v, ov(i), s, V, P, T), V+v) = 1;
+                end
+            end
+            
             for t = 1:T
                 if ST(s, t) == 1
+                    %constraint (28)
                     for i = 1:length(iv)
                         if iv(i) ~= 0
                             clause_mat(linear_index_f(iv(i), v, s, t, V, P, T), v) = 1;
                         end
-                    end 
-
+                    end
                     for i = 1:length(ov)
                         if ov(i) ~= 0
                             clause_mat(linear_index_f(v, ov(i), s, t, V, P, T), v) = 1; 
                         end
                     end
                     
+                    %constraint (29)
                     for i = 1:length(ov)
                         if ov(i) ~= 0
                             clause_mat(linear_index_f(v, ov(i), s, t, V, P, T), V+v) = 1;
                         end
+                    end
+                    
+                    %constraint (32)
+                    ivt = IV{t};
+                    if length(ivt(ivt == v)) ~= 0
+                        clause_mat(linear_index_x(v, t, s, V, P, T), 2*V+v) = 1;
+                    end
+                    
+                    %constraint (17)
+                    for i = 1:length(ov)
+                        clause_mat(linear_index_f(v, ov(i), s, t, V, P, T), 3*V+v) = 1;
                     end
                 end 
             end
@@ -272,7 +319,7 @@ end
 function save_vars(vars)
     fileId = fopen('vars.out', 'a+');
 
-    bitstr = vars_to_bitstr(vars)
+    bitstr = vars_to_bitstr(vars);
     bitstr = strcat(bitstr, '\n');
 
     fprintf(fileId, bitstr); 
@@ -413,29 +460,29 @@ function vars=explore_paths_x(vars, V, P, T, EE, SS, TT, ST)
     end   
 end
 
-%clause 1: Constraint (17)
-function checkf=flow_limit(vars, V, P, T, E, edge, ST)
+%Constraint (17)
+function checkf=flow_limit(v, vars, V, P, T, E, edge, ST, OV)
     checkf = 1;
-    for e = 1:E
-        iv=real(edge(e));
-        ov=imag(edge(e));
-        for t=1:T
-            sumf=0;
-            for s=1:P
-                fval = get_f_from_vars(vars, iv,ov,s,t, V,P,T);
+    for t=1:T
+        sumf=0;
+        ov = OV{v};
+        for s=1:P
+            for i = 1:length(ov)
+                fval = get_f_from_vars(vars, v,ov(i),s,t, V,P,T);
                 if ST(s,t)==1 && fval ~= -1
                     sumf=sumf + fval;
                 end
             end
-            if sumf>1
-                checkf=0;
-            end
+        end
+        
+        if sumf>1
+            checkf=0;
         end
     end
 end
 
 %clause2: Constraint (28)
-function checkfv=flow_conservation(v, vars, V, P, T, OV, IV, sigma, ST)
+function checkfv=flow_conservation(v, vars, V, P, T, OV, IV, sigma, ST, E, edge)
     checkfv = 1;
     for t=1:T
         for s=1:P
@@ -464,6 +511,8 @@ function checkfv=flow_conservation(v, vars, V, P, T, OV, IV, sigma, ST)
                 end
                 
                 if (sumoutf-suminf~=sigma(v,s,t))
+                    %disp_vars(vars, V, P, T, E, edge);
+                    %fprintf('flow_conservation, v: %d\n', v); 
                     checkfv=0;
                 end
             end
@@ -472,16 +521,19 @@ function checkfv=flow_conservation(v, vars, V, P, T, OV, IV, sigma, ST)
 end
 
 %clause 3: Constraint (29)
-function checkfx=flow_x(v, vars, OV, V, P, T, E, ST)
+function checkfx=flow_x(v, vars, OV, V, P, T, E, ST, edge, p)
     checkfx=1;
     for s=1:P
         for t=1:T
             if ST(s,t) == 1
                 ov = OV{v};
                 for j = 1:length(ov)
-                    fval = get_f_from_vars(vars,v,ov,s,t,V,P,T);
-                    xval = get_x_from_vars(vars,v,ov,s,V,P,T);
+                    fval = get_f_from_vars(vars,v,ov(j),s,t,V,P,T);
+                    xval = get_x_from_vars(vars,v,ov(j),s,V,P,T);
+                    
                     if fval > xval && fval ~= -1 && xval ~= -1
+                        %disp_vars(vars, V, P, T, E, edge);
+                        %fprintf('flow_x, fval: %d, xval: %d, v: %d, ov(j): %d, s: %d, t: %d\n', fval, xval, v, ov(j), s, t);
                         checkfx=0;
                     end
                 end
@@ -492,16 +544,14 @@ end
 
 
 %clause 4: Constraint (32)
-function res=checkx(vars, V, P, T, ST, IV, TT)
+function res=checkx(v, vars, V, P, T, ST, IV, TT)
     res = 1;
     for t = 1:T
          for s=1:P
              if (ST(s,t)~=1)
-                 for iv=1:length(IV{TT(t)})
-                     xval = get_x_from_vars(vars, IV{TT(t)}(iv),TT(t),s,V,P,T);
-                     if xval ~=0 && xval ~= -1
-                         res=0;
-                     end
+                 xval = get_x_from_vars(vars, v, TT(t), s, V, P, T);
+                 if xval ~=0 && xval ~= -1
+                     res=0;
                  end
              end
          end 
