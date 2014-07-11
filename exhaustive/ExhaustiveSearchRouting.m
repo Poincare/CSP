@@ -331,7 +331,6 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
 
             if x_sum > 1
                 checkrouting = 0;
-                break;
             end
 
             e = e+1;
@@ -441,6 +440,11 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
         checkfx
         checkf
         checkfv
+
+        fea_z = zeros(V, V, V);
+        fea_x = zeros(V, V, S, V);
+        fea_beta = zeros(V, V, V, V);
+        fea_f = zeros(V, V, S, T, V);
 
         disp_f(f, S, T, V, beta);
          % recording feasible solutions
