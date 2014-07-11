@@ -78,6 +78,7 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
         for s = 1:S
             permy = perm_eyes{s}
         end
+
     end
     return
 
@@ -117,7 +118,7 @@ function pick_paths(vars, TS, V, P, T, p, on)
 
     inputs = TS{p};
 
-    for i in length(inputs):
+    for i = 1:length(inputs)
         ons = [on, input];
         ons
         pick_paths(vars, TS, V, P, T, p + 1, ons)  
