@@ -206,22 +206,22 @@ function disp_f(f, S, T, V, beta)
 	beta_expected = -ones(V, V, V);
 
     if strcmp(str, '111110100000101000110010111010') == 1
-	beta_expected(1,3,4)=1;
-	beta_expected(3,4,6)=1;
-	beta_expected(3,9,10)=1;
-	beta_expected(4,6,7)=1;
-	beta_expected(5,4,6)=1;
-	beta_expected(4,6,10)=1;
-	beta_expected(2,5,4)=1;
-	beta_expected(2,5,7)=1;
-	beta_expected(1,3,8)=1;
-	beta_expected(1,3,9)=1;
-    beta_expected(4,6,9)=0;
-    beta_expected(6,9,10)=0;
-    beta_expected(6,9,11)=0;
-    beta_expected(9,11,8)=0;
-    beta_expected(3, 9, 11) = 0;
-    fprintf('answer\n');
+        beta_expected(1,3,4)=1;
+        beta_expected(3,4,6)=1;
+        beta_expected(3,9,10)=1;
+        beta_expected(4,6,7)=1;
+        beta_expected(5,4,6)=1;
+        beta_expected(4,6,10)=1;
+        beta_expected(2,5,4)=1;
+        beta_expected(2,5,7)=1;
+        beta_expected(1,3,8)=1;
+        beta_expected(1,3,9)=1;
+        beta_expected(4,6,9)=0;
+        beta_expected(6,9,10)=0;
+        beta_expected(6,9,11)=0;
+        beta_expected(9,11,8)=0;
+        beta_expected(3, 9, 11) = 0;
+        fprintf('answer\n');
     end
 end
 
