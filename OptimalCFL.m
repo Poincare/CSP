@@ -10,6 +10,7 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global fea_cost;
     global fea_idx;
     global min_cost;
+    global NO_CHANGE_P
 
     S=P;
     vars = zeros(1, V*V*P*T + V*V*P);
@@ -75,10 +76,7 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             end
         end
 
-        for s = 1:S
-            permy = perm_eyes{s}
-        end
-
+        pick_paths(vars, p, terminals,  V, P, T, 1, zeros(1, P), t); 
     end
     return
 
@@ -110,22 +108,36 @@ end
 
 %sets f values for path switching
 %on: the terminal inputs that are on for this iteration
-function pick_paths(vars, TS, V, P, T, p, on)
+function pick_paths(vars, prob_matrix, TS, V, P, T, p, on, t)
+    global NO_CHANGE_P;
+
     if p > P
-        %this is where the CFL should be run
+        on
+        %for all of the on edges, we set the probability so that they
+        %cannot change throughout the iterations of CFL
+        for i = length(on)
+            index = linear_index_f(on(i), t, i, t, V, P, T);
+            vars(index) = 1;
+            prob_matrix(index, :) = 0;
+            prob_matrix(index, 1) = NO_CHANGE_P
+        end
+
         return
     end 
 
     inputs = TS{p};
 
     for i = 1:length(inputs)
-        ons = [on, input];
-        ons
-        pick_paths(vars, TS, V, P, T, p + 1, ons)  
+        %prevent overlapping terminal edges
+        if ~(any(on == inputs(i)))
+            ons = on;
+            ons(p) = inputs(i);
+            pick_paths(vars, prob_matrix, TS, V, P, T, p + 1, ons, t);
+        end
     end
 end
 
-function vars=CFL(vars, clause_mat, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
+function vars=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global NO_CHANGE_P
 
     %meant for Octave (not sure about matlab syntax)

@@ -27,6 +27,7 @@ T = length(TT);
 %Flows Each Terminal Wants
 ST=zeros(S,T);
 ST(1, 1) = 1;
+ST(2, 1) = 1;
 
 %set up OV and IV
 IV=cell(V);
