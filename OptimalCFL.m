@@ -9,8 +9,17 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global fea_f;
     global fea_cost;
     global fea_idx;
-    global min_cost
+    global min_cost;
 
+    S=P;
+    vars = zeros(1, V*V*P*T + V*V*P);
+    
+    %number of variables
+    N = length(vars);
+    
+    %possible values of variables
+    D = 2;
+    
     %if this value is found in the probability matrix,
     %the value of the variable cannot be changed
     %global NO_CHANGE_P
@@ -23,15 +32,54 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     fea_f = zeros(V, V, P, T, V);
     fea_z = zeros(V, V, V);
     fea_cost = zeros(V, V);
-    vars = zeros(1, V*V*P*T + V*V*P);
     
-    for s = 1:S
-        for t = 1:T
+    %vector of variable values
+    %f: first V* V * P * T entries
+    %x: next V * V * P entries
+    %vars(:) = -1;
+    vars(1:V*V*P*T) = -1;
+    vars = remove_nonexistent_edges(vars, V, P, T, EE);
+    %vars = explore_vars_x(vars, EE, SS, V, P, T, E, TT, ST, edge);
+    vars = explore_vars_f(vars, EE, SS, V, P, T, E, TT, ST, edge);
+    vars_after = length(vars(vars >= 0));
+
+    %clause matrix
+    %i,j is marked as 1 if variable i participates in clause j
+    clause_mat = generate_clause_mat(IV, OV, V, P, T, ST);
+ 
+    %all x variables participate in clause 5
+    clause_mat(V*V*P*T+1:N, 4*V+1) = 1;
+
+    %all f variables participate in the cost clause
+    clause_mat(1:V*V*P*T, 4*V+2) = 1;      
+
+    %probability matrix
+    p = zeros(N, 2);
+    p(1:N, 1:D) = 1/D;
+  
+    [vars, p, clause_mat] = set_source_links(vars, p, clause_mat, V, P, T, EE, SS);
+
+    iter_counter = 0;
+    last_time = cputime;
+
+
+    for t = 1:T
+        terminals = cell(1, P);
+        perm_eyes = cell(1, P);
+        for s = 1:S
             if ST(s, t) == 1
-                terminal_inputs = get_terminal_inputs(vars, s, t, V, P, T, E, IV, SS, TT)
+                terminal_inputs = get_terminal_inputs(vars, s, t, V, P, T, E, IV, SS, TT);
+                terminals{s} = terminal_inputs;
+                width = length(terminal_inputs);
+                perm_eyes{s} = eye(width) * reshape(terminal_inputs, width, 1);
             end
         end
+
+        for s = 1:S
+            permy = perm_eyes{s}
+        end
     end
+    return
 
     %while 1
     %    z = zeros(V, V);
@@ -59,7 +107,24 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     min_cost
 end
 
-function vars=CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
+%sets f values for path switching
+%on: the terminal inputs that are on for this iteration
+function pick_paths(vars, TS, V, P, T, p, on)
+    if p > P
+        %this is where the CFL should be run
+        return
+    end 
+
+    inputs = TS{p};
+
+    for i in length(inputs):
+        ons = [on, input];
+        ons
+        pick_paths(vars, TS, V, P, T, p + 1, ons)  
+    end
+end
+
+function vars=CFL(vars, clause_mat, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global NO_CHANGE_P
 
     %meant for Octave (not sure about matlab syntax)
@@ -78,11 +143,8 @@ function vars=CFL(vars, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     
     %number of clauses
     %(17): flow in {0, 1} - every f participates
-    C = 4 + V;
-    
-    p = zeros(N, 2);
-    p(1:N, 1:D) = 1/D;
-  
+    C = 4*V+3;
+
     %vector of variable values
     %f: first V* V * P * T entries
     %x: next V * V * P entries
