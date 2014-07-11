@@ -12,6 +12,62 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global min_cost;
     global NO_CHANGE_P
 
+    %sets f values for path switching
+    %on: the terminal inputs that are on for this iteration
+    function pick_paths(vars, prob_matrix, TS, V, P, T, p, on, t)
+        if p > P
+            on
+            %for all of the edges, set them to 0 and NO_CHANGE_P in prob_matrix
+            for s = 1:P
+                inputs = TS{s};
+                for i = 1:length(inputs)
+                    index = linear_index_f(inputs(i), TT(t), s, t, V, P, T);
+                    vars(index) = 0;
+                    prob_matrix(index, :) = 0;
+                    prob_matrix(index, 1) = NO_CHANGE_P; 
+                end 
+            end
+ 
+            %for all of the on edges, we set the probability so that they
+            %cannot change throughout the iterations of CFL
+            for i = 1:length(on)
+                fprintf('on(i): %d, t: %d, i: %d, t: %d\n', on(i), t, i, t);
+                index = linear_index_f(on(i), TT(t), i, t, V, P, T);
+                vars(index) = 1;
+                prob_matrix(index, :) = 0;
+                prob_matrix(index, 2) = NO_CHANGE_P;
+            end
+            
+            z = zeros(V, V);
+            vars = CFL(vars, clause_mat, prob_matrix, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT);
+            if length(vars) == 0
+                return
+            end
+
+            cost = sum(sum(z(z ~= -1)))
+            [f, x] = vars_to_mat(vars, V, P, T);
+            fea_x(:, :, :, fea_idx) = x;
+            fea_f(:, :, :, :, fea_idx) = f;
+            fea_z(:, :, fea_idx) = z;
+            fea_cost(fea_idx) = cost
+            fea_cost
+            fea_idx = fea_idx + 1;
+            disp_vars(vars, V, P, T, E, edge);
+            return
+        end 
+
+        inputs = TS{p};
+
+        for i = 1:length(inputs)
+            %prevent overlapping terminal edges
+            if ~(any(on == inputs(i)))
+                ons = on;
+                ons(p) = inputs(i);
+                pick_paths(vars, prob_matrix, TS, V, P, T, p + 1, ons, t);
+            end
+        end
+    end
+
     S=P;
     vars = zeros(1, V*V*P*T + V*V*P);
     
@@ -32,7 +88,7 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     fea_x = zeros(V, V, P, V);
     fea_f = zeros(V, V, P, T, V);
     fea_z = zeros(V, V, V);
-    fea_cost = zeros(V, V);
+    fea_cost = zeros(1, V);
     
     %vector of variable values
     %f: first V* V * P * T entries
@@ -76,8 +132,24 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
             end
         end
 
+        z = zeros(V, V);
+        vars = CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT); 
+        [f, x] = vars_to_mat(vars, V, P, T);
+        fea_f(:, :, :, :, fea_idx) = f;
+        fea_x(:, :, :, fea_idx) = x;
+        fea_z(:, :, fea_idx) = z;
+        fea_cost(fea_idx) = sum(sum(z));
+
+        fea_idx = 2;
         pick_paths(vars, p, terminals,  V, P, T, 1, zeros(1, P), t); 
     end
+
+    fea_cost
+    min_cost =  min(fea_cost(fea_cost ~= 0));
+    min_id = find(fea_cost == min_cost);
+    fea_z(:, :, min_id)
+    min_cost
+
     return
 
     %while 1
@@ -97,45 +169,8 @@ function OptimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 
     %    min_cost       
     %end
-
-    fea_x
-    fea_f
-    fea_z
-    fea_cost
-
-    min_cost
 end
 
-%sets f values for path switching
-%on: the terminal inputs that are on for this iteration
-function pick_paths(vars, prob_matrix, TS, V, P, T, p, on, t)
-    global NO_CHANGE_P;
-
-    if p > P
-        on
-        %for all of the on edges, we set the probability so that they
-        %cannot change throughout the iterations of CFL
-        for i = length(on)
-            index = linear_index_f(on(i), t, i, t, V, P, T);
-            vars(index) = 1;
-            prob_matrix(index, :) = 0;
-            prob_matrix(index, 1) = NO_CHANGE_P
-        end
-
-        return
-    end 
-
-    inputs = TS{p};
-
-    for i = 1:length(inputs)
-        %prevent overlapping terminal edges
-        if ~(any(on == inputs(i)))
-            ons = on;
-            ons(p) = inputs(i);
-            pick_paths(vars, prob_matrix, TS, V, P, T, p + 1, ons, t);
-        end
-    end
-end
 
 function vars=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global NO_CHANGE_P
@@ -150,7 +185,7 @@ function vars=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, ed
 
     %number of variables
     N = length(vars);
-    
+ 
     %possible values of variables
     D = 2;
     
@@ -191,9 +226,15 @@ function vars=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, ed
     while 1
         done = 1;
         for i = 1:N
+            fixed = 0;
+
             %check if the variable is supposed to be considered
-            if vars(i) == -1 || any(p(i, :) == NO_CHANGE_P) ~= 0 
-                continue;
+            if vars(i) == -1
+                continue;    
+            end
+
+            if any(p(i, :) == NO_CHANGE_P) ~= 0 
+                fixed = 1; 
             end
 
             %design variable
@@ -283,16 +324,18 @@ function vars=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, ed
                 continue;
             %otherwise, we have to interpolate the distribution
             else
-                t = p(i,vars(i)+1);
-                for j = 1:D
-                    p(i, j) = (1-b)*(p(i,j)) + (b/(D-1));
-                end
+                if ~fixed
+                    t = p(i,vars(i)+1);
+                    for j = 1:D
+                        p(i, j) = (1-b)*(p(i,j)) + (b/(D-1));
+                    end
               
-                %i
-                %vars(i) 
-                %(1-b)*t
+                    %i
+                    %vars(i) 
+                    %(1-b)*t
  
-                p(i, vars(i) + 1) = (1-b)*t;
+                    p(i, vars(i) + 1) = (1-b)*t;
+                end
             end
             
             r = rand;
@@ -332,7 +375,7 @@ function vars=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, ed
         end
 
     end
-    
+   
     %fprintf('ANSWER:: \n')
     %disp_vars(vars, V, P, T, E, edge)
 end
