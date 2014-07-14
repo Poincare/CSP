@@ -20,25 +20,36 @@ function Atoms()
     global V SS S P TT T EE E ST IV OV sigma edge st_imag TP
 
     %result matrices
-    global z x beta f
+    global z x beta f fea_f fea_idx fea_f
 
     function initialize_params()
-        V = 5;
-        SS = [1, 2];
+        V = 2;
+        SS = [1];
         S = length(SS);
         P = S;
-        TT = [4, 5];
+        TT = [2];
         T = length(TT);
         EE = zeros(V, V);
-        EE(1, 3) = 1;
-        EE(1, 5) = 1;
-        EE(2, 3) = 1;
-        EE(3, 4) = 1;
-        EE(3, 5) = 1;
-        E = sum(sum(EE));
+        EE(1,2) = 1; 
+        ST(1,1) = 1;
 
-        ST(1, 1) = 1;
-        ST(2, 2) = 1; 
+        %V = 5;
+        %SS = [1, 2];
+        %S = length(SS);
+        %P = S;
+        %TT = [4, 5];
+        %T = length(TT);
+        %EE = zeros(V, V);
+        %EE(1, 3) = 1;
+        %EE(1, 5) = 1;
+        %EE(2, 3) = 1;
+        %EE(3, 4) = 1;
+        %EE(3, 5) = 1;
+        %E = sum(sum(EE));
+
+        %ST(1, 1) = 1;
+        %ST(2, 2) = 1; 
+
         %V=11; %Number of Nodes
         %SS=[1,2]; %Sources
         %S=length(SS); %Number of Sources
@@ -206,24 +217,64 @@ function Atoms()
             end
         end
 
-        t
         D{t} = sources;
     end
 
-    ti_size = length(TP{3})
-    atom_mat = d_atoms(3, D, 1:S, 1, cell(1, 1));
-    atoms = cell(1, S);
-    [rows, cols] = size(atom_mat);
-    atoms = cell(1, 2^ti_size);
-    i = 1
-    for r = 1:rows
-        if length(atom_mat{r}) ~= 0
-            atoms{i} = atom_mat{r}  
-            i = i + 1
-        end
-    end  
+    C = cell(1, V);
+    for i = 1:V
+        ti_size = length(TP{i});
+        atom_mat = d_atoms(i, D, 1:S, 1, cell(1, 1));
+        atoms = cell(1, S);
+        [rows, cols] = size(atom_mat);
+        atoms = cell(1, 2^ti_size);
+        j = 1;
+        for r = 1:rows
+            if length(atom_mat{r}) ~= 0
+                atoms{i} = atom_mat{r};
+                j = j + 1;
+            end
+        end  
+
+        C{i} = atoms;
+    end
+    
+    fea_f = -ones(V, V, P, T, V); 
+    fea_idx = 1;
+
+    path_comb(1, f, C);
+    fea_f
+
+    fea_z = generate_fea_z()
+end
+
+%looks at the generated f's and determines the z values
+function fea_z=generate_fea_z()
+    global fea_f fea_idx
+    global V SS S P TT T EE E ST IV OV sigma edge st_imag TP
+
+    fea_z = -ones(V, V, V);
  
-     
+    for idx = 1:fea_idx
+        z = zeros(V, V);
+        f = fea_f(:, :, :, :, idx)
+        for e = 1:E
+            iv = real(edge(e));
+            ov = imag(edge(e));
+            
+            for t = 1:T
+                for s = 1:S
+                    f_val = f(iv, ov, s, t);
+                    f_val
+                    if f_val == 1
+                        z(iv, ov) = 1;
+                    end
+                end
+            end
+
+        end
+
+        fea_z(:, :, idx) = z;
+    end 
 end
 
 function [cont, cell_mat, path_count, paths]=get_paths_explore_iter(s, t, EE, cell_mat, path_count, paths)
@@ -268,34 +319,47 @@ function path_comb(st_index, f, atoms)
     global V SS S P TT T EE E ST IV OV sigma edge st_imag TP
 
     %result matrices
-    global z x beta
-    
+    global z x beta fea_f fea_idx
+ 
     %if the source is the last one in consideration,
     %then we can check conditions
+    satisfied = 1;
     if st_index > length(st_imag)
         %CHECK ATOM FEASIBILITY HERE
         for i = 1:V
-            iv = IV{i}
-            for j = 1:length(iv);
-                for m = 1:length(atoms)
-                    atom_set = atoms(m);
-                    for t = 1:T
-                        equi = zeros(1, length(atom_set));
-                        for si = 1:length(atom_set)
-                            s = atom_set(si);
-                            equi(s) = f(j, i, s, t);
-                        end
-                        
-                        equi_r = equi(equi ~= -1)
+            iv = IV{i};
+            C_i = atoms{i};
+            for j = 1:length(iv)
+                if sum(iv) ~= 0
+                    for m = 1:length(C_i)
+                        atom_set = C_i{m};
+                        for t = 1:T
+                            equi = zeros(1, length(atom_set));
+                            for si = 1:length(atom_set)
+                                s = atom_set(si);
+                                equi(s) = f(j, i, s, t);
+                            end
+                            equi
+ 
+                            equi_r = equi(equi ~= -1);
 
-                        %not all 1's or all 0's
-                        if sum(equi_r) ~= 0 && sum(equi_r) ~= length(equi_r)
-                            %don't do anything? do something if it all works out? 
+                            if length(equi_r) ~= 0
+                                if sum(equi_r) ~= 0 && sum(equi_r) ~= length(equi_r)
+                                    satisfied = 0; 
+                                    %don't do anything? do something if it all works out? 
+                                end
+                            end
                         end
                     end
                 end
             end
         end
+        
+        if satisfied == 1
+            fea_f(:, :, :, :, fea_idx) = f;
+            fea_idx = fea_idx + 1;
+        end
+
         return
     end 
 
@@ -327,7 +391,7 @@ function path_comb(st_index, f, atoms)
         %    betas(path_vec(j), path_vec(j+1), path_vec(j+2)) = 1;
         %end
 
-        path_comb(st_index+1, fs);
+        path_comb(st_index+1, fs, atoms);
     end
 end
 
