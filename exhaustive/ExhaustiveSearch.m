@@ -309,16 +309,8 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
         x = -ones(V, V, S); 
         m = m + 1;
 
-        %TODO generalize this
-        % x for source edges *************brute force way*****
-        x = set_x_on_initial_edges(x, f, OV, IV, V, S, T, SS, TT)
-
-        %TODO generalize this
-        %generate x based on beta ********brute force way**********
-        %Constraint (31)
-        %step 1
-
-        x = compute_x(x, beta, EE, IV, OV, V, S, T);
+       x = set_x_on_initial_edges(x, f, OV, IV, V, S, T, SS, TT);
+       x = compute_x(x, beta, EE, IV, OV, V, S, T);
 
          %% checking constraints 1:satisfied
          checkx=1;
