@@ -1,5 +1,4 @@
 function ExhaustiveSearch()
-
     global m 
     global fea_idx
     global fea_x
@@ -225,6 +224,72 @@ function disp_f(f, S, T, V, beta)
     end
 end
 
+%sets the x values for source and terminal edges (1 and 0
+%respectively)
+function x=set_x_on_initial_edges(x, f, OV, IV, V, P, T, SS, TT)
+    for s = 1:P
+        ov = OV{SS(s)};
+        for i = 1:length(ov)
+            for t = 1:T
+                fprintf('SS(s): %d, ov(i): %d, s: %d, t: %d, f_val: %d\n', SS(s), ov(i), s, t, f(s, ov(i), s, t));
+                if f(SS(s), ov(i), s, t) ~= -1
+                    x(SS(s), ov(i), :) = 0;
+                    x(SS(s), ov(i), s) = 1;
+                    break;
+                else
+                    x(SS(s), ov(i), s) = 0; 
+                end 
+            end
+        end
+    end
+
+    %for t=1:T
+    %    iv = IV{TT(t)};
+    %    for i = 1:length(iv)
+    %        for s = 1:P
+    %            fprintf('iv(i): %d, TT(t): %d, s: %d, t: %d, f_val: %d\n', iv(i), TT(t), s, t, f(iv(i), TT(t), s, t));
+
+    %            if f(iv(i), TT(t), s, t) ~= -1
+    %                x(iv(i), TT(t), s) = 0;
+    %            else
+    %                x(iv(i), TT(t), s) = -1;
+    %            end
+    %        end
+    %    end 
+    %end  
+   
+end
+
+%computes x from beta values
+function x=compute_x(x, beta, EE, IV, OV, V, S, T)
+    sorted_nodes = TopologicalSort(EE, IV);
+
+    for n = 1:length(sorted_nodes)
+        v = sorted_nodes(n); 
+
+        iv = IV{v};
+        ov = OV{v};
+        if sum(iv) ~= 0 && sum(ov) ~= 0
+            for j = 1:length(ov)
+                for s = 1:S
+                    max_x = -Inf;
+                    for k = 1:length(iv)
+
+                        fprintf('beta(%d, %d, %d) * x(%d, %d, %d)\n', iv(k), v, ov(j), iv(k), v, s);
+                        x_val = beta(iv(k), v, ov(j)) * x(iv(k), v, s);
+                        if x_val > max_x
+                            max_x = x_val;
+                        end 
+                    end
+                    fprintf('value set, s: %d\n', s);
+                    x(v, ov(j), s) = max_x 
+                end
+            end
+        end
+    end
+
+end
+
 function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z)
     fprintf('\n--------------------------------\n')
 
@@ -246,68 +311,15 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
 
         %TODO generalize this
         % x for source edges *************brute force way*****
-        x(1,3,1)=1;
-        x(1,3,2)= 0;
-        x(2,5,2)=1;
-        x(2,5,1)=0;
+        x = set_x_on_initial_edges(x, f, OV, IV, V, S, T, SS, TT)
 
+        %TODO generalize this
         %generate x based on beta ********brute force way**********
         %Constraint (31)
         %step 1
 
-        for s=1:S %x on the left is the edge and the x on the right is the preceeding edge
-            x(3,4,s)=beta(1,3,4)*x(1,3,s);
-        end
+        x = compute_x(x, beta, EE, IV, OV, V, S, T);
 
-        for s=1:S
-            x(3,8,s)=beta(1,3,8)*x(1,3,s);
-        end
-
-        for s=1:S
-            x(3,9,s)=beta(1,3,9)*x(1,3,s);
-        end
-
-        for s=1:S
-            x(5,4,s)=beta(2,5,4)*x(2,5,s);
-        end
-
-        for s=1:S
-            x(5,7,s)=beta(2,5,7)*x(2,5,s);
-        end
-        %step 2
-
-        for s=1:S
-            x(4,6,s)=max(beta(3,4,6)*x(3,4,s),beta(5,4,6)*x(5,4,s));
-        end
-
-        %step 3
-        for s=1:S
-            x(6,7,s)=beta(4,6,7)*x(4,6,s);
-        end
-
-        for s=1:S
-            x(6,10,s)=beta(4,6,10)*x(4,6,s);
-         end
-
-         for s=1:S
-            x(6,9,s)=beta(4,6,9)*x(4,6,s);
-         end
-
-         %step 4
-        for s=1:S
-            x(9,11,s)=max(beta(6,9,11)*x(6,9,s),beta(3,9,11)*x(3,9,s));
-        end
-
-         for s=1:S
-            x(9,10,s)=max(beta(6,9,10)*x(6,9,s),beta(3,9,10)*x(3,9,s));
-         end
-
-         %step 5
-         for s=1:S
-            x(11,8,s)=beta(9,11,8)*x(9,11,s);
-         end
-
-    
          %% checking constraints 1:satisfied
          checkx=1;
          checkfx=1;
