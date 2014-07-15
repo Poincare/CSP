@@ -7,7 +7,6 @@ function ExhaustiveSearch()
     global fea_f
     global fea_usum;
     
-    fea_idx = 1;
     m=1;
 
 %    V = 3;
@@ -28,38 +27,75 @@ function ExhaustiveSearch()
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Set up parameters                     %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    V=11; %Number of Nodes
-    SS=[1,2]; %Sources
-    S=length(SS); %Number of Sources
+    V = 15;
+    SS = [1, 15];
+    S = length(SS);
     P = S;
-    TT=[7,8,10]; %Terminals
-    T=length(TT); %Number of Terminals
-    EE=zeros(V,V); %Edges
-    EE(1,3)=1; %Edges
-    EE(3,4)=1;
-    EE(3,8)=1;
-    EE(11,8)=1;
-    EE(5,4)=1;
-    EE(4,6)=1;
-    EE(6,7)=1;
-    EE(6,10)=1;
-    EE(6,9)=1;
-    EE(9,11)=1;
-    EE(2,5)=1;
-    EE(5,7)=1;
-    EE(9,10)=1;
-    EE(3,9)=1;
-    E=sum(sum(EE)); %Number of Edges
+    TT = [12, 13, 14];
+    T = length(TT);
+    EE = zeros(V, V);
+    EE(1, 9) = 1;
+    EE(9, 10) = 1;
+    EE(10, 12) = 1;
+    EE(10, 14) = 1;
+    EE(15, 2) = 1;
+    EE(2, 3) = 1;
+    EE(3, 6) = 1;
+    EE(6, 8) = 1;
+    EE(6, 13) = 1;
+    EE(8, 10) = 1;
+    EE(4, 5) = 1;
+    EE(5, 6) = 1;
+    EE(5, 7) = 1;
+    EE(7, 9) = 1;
+    EE(9, 10) = 1;
+    EE(10, 14) = 1;
+    EE(4, 11) = 1;
+    EE(11, 14) = 1;
+    EE(2, 4) = 1;
+    E = sum(sum(EE));
 
-    ST=zeros(S,T); %Flows Each Terminal Wants
-    ST(1,1)=1;
-    ST(1,2)=1;
-    ST(1,3)=1;
-    ST(2,1)=1;
-    ST(2,3)=1;
+    ST = zeros(S, T);
+    ST(1, 1) = 1;
+    ST(2, 2) = 1;
+    ST(1, 3) = 1;
 
-    %Graph the Network
-    VE=sparse([1 2 3 3 4 5 5 6 6 6 3 9 9 11],[3 5 4 8 6 4 7 7 10 9 9 11 10 8],true,11,11);
+    fea_idx = 1;
+    fea_z = zeros(V, V, V);
+
+
+%    V=11; %Number of Nodes
+%    SS=[1,2]; %Sources
+%    S=length(SS); %Number of Sources
+%    P = S;
+%    TT=[7,8,10]; %Terminals
+%    T=length(TT); %Number of Terminals
+%    EE=zeros(V,V); %Edges
+%    EE(1,3)=1; %Edges
+%    EE(3,4)=1;
+%    EE(3,8)=1;
+%    EE(11,8)=1;
+%    EE(5,4)=1;
+%    EE(4,6)=1;
+%    EE(6,7)=1;
+%    EE(6,10)=1;
+%    EE(6,9)=1;
+%    EE(9,11)=1;
+%    EE(2,5)=1;
+%    EE(5,7)=1;
+%    EE(9,10)=1;
+%    EE(3,9)=1;
+%    E=sum(sum(EE)); %Number of Edges
+%
+%    ST=zeros(S,T); %Flows Each Terminal Wants
+%    ST(1,1)=1;
+%    ST(1,2)=1;
+%    ST(1,3)=1;
+%    ST(2,1)=1;
+%    ST(2,3)=1;
+%
+    view(biograph(EE));
+
 
     %input node
     IV=cell(V);
@@ -158,12 +194,13 @@ function ExhaustiveSearch()
         end
     end
 
-    %use DFS to set the correct variable spots for f.    
+    %use Depth First Search to set the correct variable spots for f.    
     f = explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge);
+
     path_comb(st_imag, 1, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z);
 
     diary 'optimal.txt'
-    find_optimal()
+    find_optimal();
     diary off
 end
 
@@ -275,14 +312,15 @@ function x=compute_x(x, beta, EE, IV, OV, V, S, T)
                     max_x = -Inf;
                     for k = 1:length(iv)
 
-                        fprintf('beta(%d, %d, %d) * x(%d, %d, %d)\n', iv(k), v, ov(j), iv(k), v, s);
+                        %fprintf('beta(%d, %d, %d) * x(%d, %d, %d)\n', iv(k), v, ov(j), iv(k), v, s);
                         x_val = beta(iv(k), v, ov(j)) * x(iv(k), v, s);
                         if x_val > max_x
                             max_x = x_val;
                         end 
                     end
-                    fprintf('value set, s: %d\n', s);
-                    x(v, ov(j), s) = max_x 
+
+                    %fprintf('value set, s: %d\n', s);
+                    x(v, ov(j), s) = max_x;
                 end
             end
         end
@@ -354,6 +392,7 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
          %check f %Consraint (17)
          e=1;
          zt=zeros(E,T);
+         z = zeros(V, V);
          while (checkx==1)&&(checkfx==1)&&(e<=E)&&(checkf==1)
              iv=real(edge(e));
              ov=imag(edge(e));
@@ -425,6 +464,9 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
         disp_f(f, S, T, V, beta);
          % recording feasible solutions
          if (checkx==1)&&(checkfx==1)&&(checkf==1)&&(checkfv==1)
+            Z_SIZE = size(z)
+            FEA_Z_SIZE = size(fea_z)
+
              fea_z(:,:,fea_idx)=z;
              fea_x(:,:,:,fea_idx)=x;
              fea_beta(:,:,:,fea_idx)=beta;
@@ -451,7 +493,7 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
     ti = imag(st_imag(st_index));
 
     final_mat = get_paths(TT(ti), S, SS, EE, V);
-    paths = final_mat{SS(si)};
+    paths = final_mat{si};
     paths
     width = max(find(~cellfun(@isempty, paths)));
     width
