@@ -1,7 +1,4 @@
-function Atoms()
-    clear
-    clc
-
+function min_cost_z = Atoms(v, ss, s, tt, t, ee, e, st)
     %graph parameters or basic info derived from parameters
     %V: number of vertices
     %SS: sources
@@ -18,6 +15,15 @@ function Atoms()
     %st_imag: vector of ST (real + imag representation)
     %TP: the terminals each node can access
     global V SS S P TT T EE E ST IV OV sigma edge st_imag TP
+    V = v;
+    SS = ss;
+    S = s;
+    P = S;
+    TT = tt;
+    T = t;
+    EE = ee;
+    E = e;
+    ST = st;
 
     %result matrices
     global z x beta f fea_f fea_idx fea_f
@@ -158,7 +164,6 @@ function Atoms()
 
     end
 
-    initialize_params();
     initialize_info();
 
     z=-ones(V,V);
@@ -242,9 +247,18 @@ function Atoms()
     fea_idx = 1;
 
     path_comb(1, f, C);
-    fea_f
 
-    fea_z = generate_fea_z()
+    fea_z = generate_fea_z();
+    min_cost = Inf;
+    min_cost_z = zeros(V, V);
+
+    for idx = 1:length(fea_z(1, 1, :))
+        cost = sum(sum(fea_z(:, :, idx)));
+        if (cost < min_cost) && (cost > 0)
+            min_cost = cost;
+            min_cost_z = fea_z(:, :, idx);
+        end
+    end
 end
 
 %looks at the generated f's and determines the z values
@@ -254,9 +268,9 @@ function fea_z=generate_fea_z()
 
     fea_z = -ones(V, V, V);
  
-    for idx = 1:fea_idx
+    for idx = 1:length(fea_f(1, 1, 1, 1, :))
         z = zeros(V, V);
-        f = fea_f(:, :, :, :, idx)
+        f = fea_f(:, :, :, :, idx);
         for e = 1:E
             iv = real(edge(e));
             ov = imag(edge(e));
@@ -264,7 +278,6 @@ function fea_z=generate_fea_z()
             for t = 1:T
                 for s = 1:S
                     f_val = f(iv, ov, s, t);
-                    f_val
                     if f_val == 1
                         z(iv, ov) = 1;
                     end
@@ -315,7 +328,7 @@ end
 
 %st_index: index of the st_imag vector (should be 1 for the first call)
 function path_comb(st_index, f, atoms)
-    fprintf('\n--------------------------------\n')
+    %fprintf('\n--------------------------------\n')
     global V SS S P TT T EE E ST IV OV sigma edge st_imag TP
 
     %result matrices
@@ -339,7 +352,6 @@ function path_comb(st_index, f, atoms)
                                 s = atom_set(si);
                                 equi(s) = f(j, i, s, t);
                             end
-                            equi
  
                             equi_r = equi(equi ~= -1);
 
@@ -367,8 +379,12 @@ function path_comb(st_index, f, atoms)
     ti = imag(st_imag(st_index));
 
     final_mat = get_paths(TT(ti), S, SS, EE, V);
-    paths = final_mat{SS(si)};
+    paths = final_mat{si};
     width = max(find(~cellfun(@isempty, paths)));
+    
+    %if length(width) == 0
+    %    return;
+    %end
 
     %permutation vector
     perm_mat = eye(width);
@@ -402,7 +418,6 @@ function atom_mat=d_atoms(i, D,atoms, ti, atom_mat)
     global z x beta f
 
     terminals = TP{i};
-    terminals
 
     %base case
     if ti > length(terminals)
@@ -414,7 +429,6 @@ function atom_mat=d_atoms(i, D,atoms, ti, atom_mat)
     atoms_l = intersect(atoms, D{terminals(ti)});  
     if length(atoms_l) ~= 0
         atom_mat_l = d_atoms(i, D, atoms_l, ti + 1, atom_mat);
-        atom_mat_l
         if ~isempty(atom_mat_l)
             atom_mat = [atom_mat; atom_mat_l];
         end
@@ -437,7 +451,7 @@ function [f, cont]=explore_vars_f_iter(f, v, s, t, EE, SS, V, P, T, E, edge_imag
 
     if sum(edges) == 0
         if v == SS(s)
-            fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
+            %fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
             cont = 1;
             return
         end
@@ -448,7 +462,7 @@ function [f, cont]=explore_vars_f_iter(f, v, s, t, EE, SS, V, P, T, E, edge_imag
             [f,cont_x] = explore_vars_f_iter(f, e, s, t, EE, SS, V, P, T, E, edge_imag);
             %this means we reached the terminal node when explored
             if cont_x
-                fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
+                %fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
                 f(e, v, s, t) = 0;
                 %should set f to 0
                 cont = cont_x;
@@ -460,7 +474,7 @@ end
 function f=explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge_imag)
     
     tt_length = length(TT);
-    fprintf('Exploring f variables...\n')
+    %fprintf('Exploring f variables...\n')
     
     for ti = 1:length(TT)
         s_vec = ST(:, ti);

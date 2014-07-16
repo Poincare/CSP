@@ -1,4 +1,4 @@
-function ExhaustiveSearch()
+function z=ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
 
     global m 
     global fea_idx
@@ -10,6 +10,8 @@ function ExhaustiveSearch()
     
     fea_idx = 1;
     m=1;
+
+    P = S;
 
 %    V = 3;
 %    SS=[1,2];
@@ -29,38 +31,6 @@ function ExhaustiveSearch()
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Set up parameters                     %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    V=11; %Number of Nodes
-    SS=[1,2]; %Sources
-    S=length(SS); %Number of Sources
-    P = S;
-    TT=[7,8,10]; %Terminals
-    T=length(TT); %Number of Terminals
-    EE=zeros(V,V); %Edges
-    EE(1,3)=1; %Edges
-    EE(3,4)=1;
-    EE(3,8)=1;
-    EE(11,8)=1;
-    EE(5,4)=1;
-    EE(4,6)=1;
-    EE(6,7)=1;
-    EE(6,10)=1;
-    EE(6,9)=1;
-    EE(9,11)=1;
-    EE(2,5)=1;
-    EE(5,7)=1;
-    EE(9,10)=1;
-    EE(3,9)=1;
-    E=sum(sum(EE)); %Number of Edges
-
-    ST=zeros(S,T); %Flows Each Terminal Wants
-    ST(1,1)=1;
-    ST(1,2)=1;
-    ST(1,3)=1;
-    ST(2,1)=1;
-    ST(2,3)=1;
-
-    %Graph the Network
-    VE=sparse([1 2 3 3 4 5 5 6 6 6 3 9 9 11],[3 5 4 8 6 4 7 7 10 9 9 11 10 8],true,11,11);
 
     %input node
     IV=cell(V);
@@ -163,20 +133,28 @@ function ExhaustiveSearch()
     f = explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge);
     path_comb(st_imag, 1, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z);
 
-    diary 'optimal.txt'
-    find_optimal()
-    diary off
+    z = find_optimal(V);
 end
 
+function get_path_ranking()
+    
+end
 
-function find_optimal()
+function z = find_optimal(V)
     global fea_usum fea_z fea_beta fea_x fea_f
 
-    min_cost_idx = find(fea_usum, min(fea_usum))
-    z = fea_z(:, :, min_cost_idx)
-    beta = fea_beta(:, :, min_cost_idx)
-    x = fea_x(:, :, :, min_cost_idx)
-    f = fea_f(:, :, :, min_cost_idx)
+    min_cost = Inf;
+    min_cost_z = zeros(V, V);
+
+    for idx = 1:length(fea_z(1, 1, :))
+        cost = sum(sum(fea_z(:, :, idx)));
+        if (cost < min_cost) && (cost > 0)
+            min_cost = cost;
+            min_cost_z = fea_z(:, :, idx);
+        end
+    end
+
+    z = min_cost_z; 
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -193,7 +171,7 @@ function disp_f(f, S, T, V, beta)
                     for j = 1:V
                         val = f(i, j, s, t);
                         if val ~= -1
-                            fprintf('i: %d, j: %d, s: %d, t: %d, val: %d\n', i, j, s, t, val);
+                            %fprintf('i: %d, j: %d, s: %d, t: %d, val: %d\n', i, j, s, t, val);
                             str = strcat(str, int2str(val));
                         end
                     end
@@ -202,7 +180,6 @@ function disp_f(f, S, T, V, beta)
         end
     end
 
-    str 
 	beta_expected = -ones(V, V, V);
 
     if strcmp(str, '111110100000101000110010111010') == 1
@@ -221,7 +198,7 @@ function disp_f(f, S, T, V, beta)
     beta_expected(6,9,11)=0;
     beta_expected(9,11,8)=0;
     beta_expected(3, 9, 11) = 0;
-    fprintf('answer\n');
+    %fprintf('answer\n');
     end
 end
 
@@ -232,7 +209,7 @@ function x=set_x_on_initial_edges(x, f, OV, IV, V, P, T, SS, TT)
         ov = OV{SS(s)};
         for i = 1:length(ov)
             for t = 1:T
-                fprintf('SS(s): %d, ov(i): %d, s: %d, t: %d, f_val: %d\n', SS(s), ov(i), s, t, f(s, ov(i), s, t));
+                %fprintf('SS(s): %d, ov(i): %d, s: %d, t: %d, f_val: %d\n', SS(s), ov(i), s, t, f(s, ov(i), s, t));
                 if f(SS(s), ov(i), s, t) ~= -1
                     x(SS(s), ov(i), :) = 0;
                     x(SS(s), ov(i), s) = 1;
@@ -276,14 +253,14 @@ function x=compute_x(x, beta, EE, IV, OV, V, S, T)
                     max_x = -Inf;
                     for k = 1:length(iv)
 
-                        fprintf('beta(%d, %d, %d) * x(%d, %d, %d)\n', iv(k), v, ov(j), iv(k), v, s);
+                        %fprintf('beta(%d, %d, %d) * x(%d, %d, %d)\n', iv(k), v, ov(j), iv(k), v, s);
                         x_val = beta(iv(k), v, ov(j)) * x(iv(k), v, s);
                         if x_val > max_x
                             max_x = x_val;
                         end 
                     end
-                    fprintf('value set, s: %d\n', s);
-                    x(v, ov(j), s) = max_x 
+                    %fprintf('value set, s: %d\n', s);
+                    x(v, ov(j), s) = max_x; 
                 end
             end
         end
@@ -293,7 +270,7 @@ end
 
 
 function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z)
-    fprintf('\n--------------------------------\n')
+    %fprintf('\n--------------------------------\n')
 
     global m;
     global fea_x
@@ -381,6 +358,7 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
 
          %check f %Consraint (17)
          e=1;
+         z = zeros(V, V);
          zt=zeros(E,T);
          while (checkx==1)&&(checkfx==1)&&(e<=E)&&(checkf==1)
              iv=real(edge(e));
@@ -435,8 +413,8 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
                          end
 
                          if (sumoutf-suminf~=sigma(v,s,t))
-                            fprintf('Failed on node: %d, t: %d, s: %d\n', v, t, s);
-                            fprintf('Sumoutf: %d, suminf: %d, sigma: %d\n', sumoutf, suminf, sigma(v, s, t));
+                            %fprintf('Failed on node: %d, t: %d, s: %d\n', v, t, s);
+                            %fprintf('Sumoutf: %d, suminf: %d, sigma: %d\n', sumoutf, suminf, sigma(v, s, t));
                              checkfv=0;
                          end
                      end
@@ -445,18 +423,17 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
              v=v+1;
          end
 
-        checkrouting
-        checkx
-        checkfx
-        checkf
-        checkfv
+        %checkrouting
+        %checkx
+        %checkfx
+        %checkf
+        %checkfv
 
         fea_z = zeros(V, V, V);
         fea_x = zeros(V, V, S, V);
         fea_beta = zeros(V, V, V, V);
         fea_f = zeros(V, V, S, T, V);
 
-        disp_f(f, S, T, V, beta);
          % recording feasible solutions
          if (checkrouting == 1) && (checkx==1)&&(checkfx==1)&&(checkf==1)&&(checkfv==1)
              fea_z(:,:,fea_idx)=z;
@@ -475,7 +452,6 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
              fea_usum(fea_idx)=Usum;
              fea_idx = fea_idx + 1;
 
-            Usum
             diary off;
          end     
         return
@@ -485,10 +461,12 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
     ti = imag(st_imag(st_index));
 
     final_mat = get_paths(TT(ti), S, SS, EE, V);
-    paths = final_mat{SS(si)};
-    paths
+    paths = final_mat{si};
     width = max(find(~cellfun(@isempty, paths)));
-    width
+    
+    %if length(width) == 0
+    %    continue
+    %end
 
     %permutation vector
     perm_mat = eye(width);
@@ -545,12 +523,14 @@ end
 
 function final_mat=get_paths(t, S, SS, EE, V)
     final_mat = cell(1, S);
+
     for i = 1:S
         cell_mat = cell(i, V);
         [cont, cell_mat, path_count, paths] = get_paths_explore_iter(...
             SS(i), t, EE, cell_mat, 1, []);
         final_mat{i} = cell_mat;
     end
+
 end
 
 
@@ -564,7 +544,7 @@ function [x, cont]=explore_vars_x_iter(x, v, s, EE, SS, V, P, T, E, edge_imag)
 
     if sum(edges) == 0
         if v == SS(s)
-            fprintf('Found source (x). v: %d, s: %d\n', v, s)
+            %fprintf('Found source (x). v: %d, s: %d\n', v, s)
             cont = 1;
             return
         end
@@ -575,7 +555,7 @@ function [x, cont]=explore_vars_x_iter(x, v, s, EE, SS, V, P, T, E, edge_imag)
             [x,cont_x] = explore_vars_x_iter(x, e, s, EE, SS, V, P, T, E, edge_imag);
             %this means we reached the terminal node when explored
             if cont_x
-                fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
+                %fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
 		x(e, v, s) = 0;
                 cont = cont_x;
             end
@@ -597,7 +577,7 @@ function [f, cont]=explore_vars_f_iter(f, v, s, t, EE, SS, V, P, T, E, edge_imag
 
     if sum(edges) == 0
         if v == SS(s)
-            fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
+            %fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
             cont = 1;
             return
         end
@@ -608,7 +588,7 @@ function [f, cont]=explore_vars_f_iter(f, v, s, t, EE, SS, V, P, T, E, edge_imag
             [f,cont_x] = explore_vars_f_iter(f, e, s, t, EE, SS, V, P, T, E, edge_imag);
             %this means we reached the terminal node when explored
             if cont_x
-                fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
+                %fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
                 f(e, v, s, t) = 0;
                 %should set f to 0
                 cont = cont_x;

@@ -1,4 +1,5 @@
-function ExhaustiveSearch()
+function z = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
+
     global m 
     global fea_idx
     global fea_x
@@ -9,60 +10,9 @@ function ExhaustiveSearch()
     
     m=1;
 
-%    V = 3;
-%    SS=[1,2];
-%    S = length(SS);
-%    P = S;
-%    TT = [3];
-%    T = length(TT);
-%    EE = zeros(V, V);
-%    EE(1, 3) = 1;
-%    EE(2, 3) = 1;
-%    E = sum(sum(EE));
-
-%    ST = zeros(S, T);
-%    ST(1, 1) = 1;
-%    ST(2, 1) = 1;
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Set up parameters                     %%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    V = 15;
-    SS = [1, 15];
-    S = length(SS);
-    P = S;
-    TT = [12, 13, 14];
-    T = length(TT);
-    EE = zeros(V, V);
-    EE(1, 9) = 1;
-    EE(9, 10) = 1;
-    EE(10, 12) = 1;
-    EE(10, 14) = 1;
-    EE(15, 2) = 1;
-    EE(2, 3) = 1;
-    EE(3, 6) = 1;
-    EE(6, 8) = 1;
-    EE(6, 13) = 1;
-    EE(8, 10) = 1;
-    EE(4, 5) = 1;
-    EE(5, 6) = 1;
-    EE(5, 7) = 1;
-    EE(7, 9) = 1;
-    EE(9, 10) = 1;
-    EE(10, 14) = 1;
-    EE(4, 11) = 1;
-    EE(11, 14) = 1;
-    EE(2, 4) = 1;
-    E = sum(sum(EE));
-
-    ST = zeros(S, T);
-    ST(1, 1) = 1;
-    ST(2, 2) = 1;
-    ST(1, 3) = 1;
-
     fea_idx = 1;
     fea_z = zeros(V, V, V);
-
+    P = S;
 
 %    V=11; %Number of Nodes
 %    SS=[1,2]; %Sources
@@ -198,21 +148,53 @@ function ExhaustiveSearch()
     f = explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge);
 
     path_comb(st_imag, 1, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z);
+    z = find_optimal(V);
 
-    diary 'optimal.txt'
-    find_optimal();
-    diary off
+end
+
+function shortest_path_rankings(t, path_stack)
+    paths_cells = get_paths(t, S, SS, EE, V);
+     
 end
 
 
-function find_optimal()
+function disp_z(z, V)
+    for i = 1:V
+        for j= 1:V
+            val = z(i, j);
+            if val ~= 0
+                fprintf('z, i: %d, j: %d, value: %d\n', i, j, val)
+            end
+        end
+    end
+end
+
+function z = find_optimal(V)
     global fea_usum fea_z fea_beta fea_x fea_f
 
-    min_cost_idx = find(fea_usum, min(fea_usum))
-    z = fea_z(:, :, min_cost_idx)
-    beta = fea_beta(:, :, min_cost_idx)
-    x = fea_x(:, :, :, min_cost_idx)
-    f = fea_f(:, :, :, min_cost_idx)
+    r = sum(sum(sum(fea_z)));
+   
+    for idx = 1:length(fea_z(1, 1, :)) 
+        if sum(sum(fea_z(:, :, idx))) ~= 0
+            %fea_z(:, :, idx)
+        else
+            fprintf('No feasible solution found\n');
+        end
+    end
+
+    min_cost = Inf;
+    min_cost_z = zeros(V, V);
+
+    for idx = 1:length(fea_z(1, 1, :))
+        cost = sum(sum(fea_z(:, :, idx)));
+        if (cost < min_cost) && (cost > 0)
+            min_cost = cost;
+            min_cost_z = fea_z(:, :, idx);
+        end
+    end
+
+    z = min_cost_z; 
+    
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -268,7 +250,7 @@ function x=set_x_on_initial_edges(x, f, OV, IV, V, P, T, SS, TT)
         ov = OV{SS(s)};
         for i = 1:length(ov)
             for t = 1:T
-                fprintf('SS(s): %d, ov(i): %d, s: %d, t: %d, f_val: %d\n', SS(s), ov(i), s, t, f(s, ov(i), s, t));
+                %fprintf('SS(s): %d, ov(i): %d, s: %d, t: %d, f_val: %d\n', SS(s), ov(i), s, t, f(s, ov(i), s, t));
                 if f(SS(s), ov(i), s, t) ~= -1
                     x(SS(s), ov(i), :) = 0;
                     x(SS(s), ov(i), s) = 1;
@@ -329,7 +311,7 @@ function x=compute_x(x, beta, EE, IV, OV, V, S, T)
 end
 
 function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z)
-    fprintf('\n--------------------------------\n')
+    %fprintf('\n--------------------------------\n')
 
     global m;
     global fea_x
@@ -342,7 +324,6 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
     %if the source is the last one in consideration,
     %then we can check conditions
     if st_index > length(st_imag)
-
         %check conditions...
         x = -ones(V, V, S); 
         m = m + 1;
@@ -456,34 +437,35 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
              v=v+1;
          end
 
-        checkx
-        checkfx
-        checkf
-        checkfv
+        %checkx
+        %checkfx
+        %checkf
+        %checkfv
 
-        disp_f(f, S, T, V, beta);
+        %disp_f(f, S, T, V, beta);
          % recording feasible solutions
          if (checkx==1)&&(checkfx==1)&&(checkf==1)&&(checkfv==1)
-            Z_SIZE = size(z)
-            FEA_Z_SIZE = size(fea_z)
+            Z_SIZE = size(z);
+            FEA_Z_SIZE = size(fea_z);
 
              fea_z(:,:,fea_idx)=z;
-             fea_x(:,:,:,fea_idx)=x;
-             fea_beta(:,:,:,fea_idx)=beta;
-             fea_f(:,:,:,:,fea_idx)=f;
+             %fea_x(:,:,:,fea_idx)=x;
+             %fea_beta(:,:,:,fea_idx)=beta;
+             %fea_f(:,:,:,:,fea_idx)=f;
 
              % cal sum cost for a feasible solution
-             Usum=0;
-             for e=1:E
-                 iv=real(edge(e));
-                 ov=imag(edge(e));
-                 Usum=Usum+z(iv,ov);
-             end
+             %Usum=0;
+             %for e=1:E
+             %    iv=real(edge(e));
+             %    ov=imag(edge(e));
+             %    Usum=Usum+z(iv,ov);
+             %end
+             Usum = sum(sum(z));
 
              fea_usum(fea_idx)=Usum;
              fea_idx = fea_idx + 1;
 
-            Usum
+            %Usum
             diary off;
          end     
         return
@@ -494,9 +476,11 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
 
     final_mat = get_paths(TT(ti), S, SS, EE, V);
     paths = final_mat{si};
-    paths
     width = max(find(~cellfun(@isempty, paths)));
-    width
+
+    %if length(width) == 0
+    %    continue
+    %end
 
     %permutation vector
     perm_mat = eye(width);
@@ -550,7 +534,6 @@ function [cont, cell_mat, path_count, paths]=get_paths_explore_iter(s, t, EE, ce
 end
 
 %Note: t represents the actual terminal value, not the index of TT
-
 function final_mat=get_paths(t, S, SS, EE, V)
     final_mat = cell(1, S);
     for i = 1:S
@@ -572,7 +555,7 @@ function [x, cont]=explore_vars_x_iter(x, v, s, EE, SS, V, P, T, E, edge_imag)
 
     if sum(edges) == 0
         if v == SS(s)
-            fprintf('Found source (x). v: %d, s: %d\n', v, s)
+            %fprintf('Found source (x). v: %d, s: %d\n', v, s)
             cont = 1;
             return
         end
@@ -583,7 +566,7 @@ function [x, cont]=explore_vars_x_iter(x, v, s, EE, SS, V, P, T, E, edge_imag)
             [x,cont_x] = explore_vars_x_iter(x, e, s, EE, SS, V, P, T, E, edge_imag);
             %this means we reached the terminal node when explored
             if cont_x
-                fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
+                %fprintf('Travelling down (x). i: %d, j: %d, s: %d\n', e, v, s)
 		x(e, v, s) = 0;
                 cont = cont_x;
             end
@@ -605,7 +588,7 @@ function [f, cont]=explore_vars_f_iter(f, v, s, t, EE, SS, V, P, T, E, edge_imag
 
     if sum(edges) == 0
         if v == SS(s)
-            fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
+            %fprintf('Found source. v: %d, s: %d, t:%d\n', v, s, t)
             cont = 1;
             return
         end
@@ -616,7 +599,7 @@ function [f, cont]=explore_vars_f_iter(f, v, s, t, EE, SS, V, P, T, E, edge_imag
             [f,cont_x] = explore_vars_f_iter(f, e, s, t, EE, SS, V, P, T, E, edge_imag);
             %this means we reached the terminal node when explored
             if cont_x
-                fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
+                %fprintf('Travelling down. i: %d, j: %d, s: %d, t: %d\n', v, e, s, t)
                 f(e, v, s, t) = 0;
                 %should set f to 0
                 cont = cont_x;
