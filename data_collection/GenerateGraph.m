@@ -108,12 +108,11 @@ function ST = generateST(pairing_avg)
 
     ST = zeros(S, T);
 
+    %every terminal is first paired with one node
+    %(which is the first element of the sources sequence)
     for ti = 1:T
-        for si = 1:S
-            ST(si, ti) = 1;
-        end
+        ST(1, ti) = 1;
     end 
-
     
     P = (pairing_avg - 1)/(S - 1); 
     for ti = 1:T
