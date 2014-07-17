@@ -158,13 +158,20 @@ function z= ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
     % (path_stack) : (path_cost)
     path_set_costs = cell(1, 2);
     path_set_idx = 1;
-
     shortest_path_rankings(1, st_imag, cell(0, 0), V, T, TT, S, SS, EE); 
+    
+    [~, non_empty_size] = size(path_set_costs(~cellfun('isempty', path_set_costs)));
+    if non_empty_size == 0
+        z = zeros(V, V);
+        return   
+    end
+
     path_set_costs = sortrows(path_set_costs, 2);
-    path_set_costs
+
+    %path_set_costs
     [path_count, ~] = size(path_set_costs);
 
-    path_count
+    %path_count
     for k = 1:path_count
         path_set = path_set_costs{k, 1};
 
@@ -172,11 +179,9 @@ function z= ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
         [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma);
 
         if res
-            z
             return
         else
             z = zeros(V, V);
-            fprintf('Res false\n');
         end
     end
 end
@@ -208,9 +213,9 @@ function shortest_path_rankings(st_index, st_imag, path_stack, V, T, TT, S, SS, 
     global path_set_costs
     global path_set_idx
 
+
     if st_index > length(st_imag) 
-        fprintf('hit.\n');
-         
+        %fprintf('hit.\n');
         cost = path_stack_cost(path_stack);
         path_set_costs{path_set_idx, 1} = path_stack;
         path_set_costs{path_set_idx, 2} = cost;
@@ -224,8 +229,10 @@ function shortest_path_rankings(st_index, st_imag, path_stack, V, T, TT, S, SS, 
 
     paths_c = get_paths(TT(ti), S, SS, EE, V);
     paths = paths_c{si};
-    source = SS(si)
-    terminal = TT(ti)
+    source = SS(si);
+    terminal = TT(ti);
+
+    path_length = length(paths);
 
     for path_i = 1:length(paths)
         path = paths(path_i);
@@ -240,12 +247,6 @@ end
 function [f, beta] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, f)
     beta = zeros(V, V, V);
     f = zeros(V, V, P, T);
-
-    fprintf('path_stack: \n');
-    [path_stack_count, ~] = size(path_set);
-    for i = 1:path_stack_count
-        path = path_set{i}
-    end
 
     for p = 1:length(path_set)
         path = path_set{p};
@@ -316,9 +317,9 @@ function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, e
              for t=1:T
                  if ST(s,t)==1
                      if f(iv,ov,s,t)>x(iv,ov,s)
-                        fprintf('Failed checkfx for iv: %d, ov:  %d, s: %d, t: %d\n', iv, ov, s, t);
-                        fprintf('fval: %d, xval: %d\n', f(iv, ov, s, t), x(iv, ov, s));
-                        f(:, :, s, t)
+                        %fprintf('Failed checkfx for iv: %d, ov:  %d, s: %d, t: %d\n', iv, ov, s, t);
+                        %fprintf('fval: %d, xval: %d\n', f(iv, ov, s, t), x(iv, ov, s));
+                        %f(:, :, s, t)
                          checkfx=0;
                      end
                  end
@@ -367,7 +368,7 @@ function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, e
                          for ovidx=1:length(OV{v})
                              ov=OV{v}(ovidx);
                              val = f(v,ov,s,t);
-                             fprintf('v: %d, ov: %d, s: %d, t: %d, val: %d\n', v, ov, s, t, val);
+                             %fprintf('v: %d, ov: %d, s: %d, t: %d, val: %d\n', v, ov, s, t, val);
                              if val ~= -1
                                 sumoutf=sumoutf+val;
                              end
@@ -396,10 +397,10 @@ function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, e
          v=v+1;
      end
     
-    checkx
-    checkfx
-    checkf
-    checkfv
+    %checkx
+    %checkfx
+    %checkf
+    %checkfv
 
     res = checkx & checkfx & checkf & checkfv;
 end
@@ -724,9 +725,9 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
     paths = final_mat{si};
     width = max(find(~cellfun(@isempty, paths)));
 
-    %if length(width) == 0
-    %    continue
-    %end
+    if length(width) == 0
+        return
+    end
 
     %permutation vector
     perm_mat = eye(width);
@@ -857,7 +858,7 @@ end
 function f=explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge_imag)
         
     tt_length = length(TT);
-    fprintf('Exploring f variables...\n')
+    %fprintf('Exploring f variables...\n')
     
     for ti = 1:length(TT)
         s_vec = ST(:, ti);

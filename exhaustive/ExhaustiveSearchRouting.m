@@ -600,7 +600,7 @@ end
 function f=explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge_imag)
         
     tt_length = length(TT);
-    fprintf('Exploring f variables...\n')
+    %fprintf('Exploring f variables...\n')
     
     for ti = 1:length(TT)
         s_vec = ST(:, ti);

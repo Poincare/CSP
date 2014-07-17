@@ -1,4 +1,8 @@
-function GenerateGraph()
+%iteration: the current realization # (used to name variables file)j
+%pairing_avg: average pairing between source and terminal
+%S: number of sources
+%T: number of terminals
+function [cost_exhaustive, cost_routing, cost_atoms]=GenerateGraph(iteration, pairing_avg, s, t)
     %this is to get the exhaustive search code
     %on the path so that we can use it from this file
     addpath('../exhaustive/');
@@ -6,18 +10,16 @@ function GenerateGraph()
 
     global V RS S RT T EE ST SS TT OV
 
-    %the average number of sources each terminal wants
-    pairing_avg = 1;     
 
     %changed after virtual sources and terminals are added
     V = 14;
     
     %number of sources
-    S= 1;
+    S=s; 
     P = S;
-
+    
     %number of terminals
-    T = 3; 
+    T=t; 
 
     RS = generateRS(1, int64(V/2))
     RT = generateRT(int64(V/2)+int64(1), V)
@@ -34,6 +36,12 @@ function GenerateGraph()
     EE = generateNSFNET();
     EE = setVirtualLinks(EE);
     E = sum(sum(EE));
+    
+    %save the realization to a file so that it can be
+    %used for other trials
+    filename = strcat('realizations/realizations', num2str(iteration), '.vars');
+    save('realizations/realizations.vars', 'RS', 'RT', 'ST');
+    
     OV = computeOV(V, EE);
 
     %we should finally have a acyclic, directed graph
@@ -41,11 +49,8 @@ function GenerateGraph()
         makeAcyclic(SS(si), zeros(1, V), zeros(1, 1));
     end
 
-    EE
-
     z_exhaustive = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST);
-    fprintf('Mixing\n');
-    disp_z(z_exhaustive, V);
+    %fprintf('Mixing\n');
     if sum(sum(z_exhaustive)) ~= 0
         cost_exhaustive = getCost(z_exhaustive);
     else
@@ -53,8 +58,7 @@ function GenerateGraph()
     end
 
     z_routing = ExhaustiveSearchRouting(V, SS, S, TT, T, EE, E, ST);  
-    fprintf('Routing\n');
-    disp_z(z_routing, V);
+    %fprintf('Routing\n');
     if sum(sum(z_routing)) ~= 0
         cost_routing = getCost(z_routing);
     else
@@ -62,17 +66,16 @@ function GenerateGraph()
     end
 
     z_atoms = Atoms(V, SS, S, TT, T, EE, E, ST);
-    fprintf('Atoms\n');
-    disp_z(z_atoms, V);
+    %fprintf('Atoms\n');
     if sum(sum(z_atoms)) ~= 0
         cost_atoms = getCost(z_atoms);
     else
         cost_atoms = -1;
     end
 
-    fprintf('Cost exhaustive: %d\n', cost_exhaustive);
-    fprintf('Cost routing: %d\n', cost_routing);
-    fprintf('Cost atoms: %d\n', cost_atoms);
+    %fprintf('Cost exhaustive: %d\n', cost_exhaustive);
+    %fprintf('Cost routing: %d\n', cost_routing);
+    %fprintf('Cost atoms: %d\n', cost_atoms);
 
 end
 
@@ -117,7 +120,7 @@ function ST = generateST(pairing_avg)
     P = (pairing_avg - 1)/(S - 1); 
     for ti = 1:T
         for si = 1:S
-            r = rand
+            r = rand;
             if r < P
                 ST(si, ti) = 1;
             end    
@@ -260,13 +263,11 @@ function EE=generateNSFNET()
 
     EE = zeros(V, V);
 
-    path_cells = get_paths(UE, OV, 2, 3, zeros(1, V));
-    
     for si = 1:S
         for ti = 1:T
             if ST(si, ti) == 1
                 path_cells = get_paths(UE, OV, RS(si), ti, zeros(1, V));
-                
+ 
                 %take one of the paths and directionalize according to it
                 for j = 1:length(path_cells)
                     path = path_cells{j};
@@ -323,7 +324,7 @@ function m = get_paths(UE, OV, v, ti, visited)
     %v
 
     visited(v) = 1;
-   
+  
     if v == RT(ti)
         m = cell(1, 1);
         m{1} = v;
