@@ -569,7 +569,7 @@ function path_comb(st_index, f, beta, C)
              path_set = C_j{c};
 
              if ~isempty(path_set)
-               value_set = zeros(1, length(path_set));
+               value_set =` zeros(1, length(path_set));
                for k = 1:length(path_set)
                  if x(i, j, path_set(k)) ~= -1
                    value_set(k) = x(i, j, path_set(k));

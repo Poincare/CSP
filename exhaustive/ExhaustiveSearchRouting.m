@@ -12,6 +12,7 @@ function z=ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
     m=1;
 
     P = S;
+    EE
 
 %    V = 3;
 %    SS=[1,2];
@@ -436,6 +437,7 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
 
          % recording feasible solutions
          if (checkrouting == 1) && (checkx==1)&&(checkfx==1)&&(checkf==1)&&(checkfv==1)
+            save('satisfied_routing.mat', 'z', 'x', 'beta', 'f', 'V', 'S', 'T', 'ST', 'EE')
              fea_z(:,:,fea_idx)=z;
              fea_x(:,:,:,fea_idx)=x;
              fea_beta(:,:,:,fea_idx)=beta;

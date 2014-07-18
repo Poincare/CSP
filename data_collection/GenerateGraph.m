@@ -21,6 +21,7 @@ function [cost_exhaustive, cost_routing, cost_atoms]=GenerateGraph(iteration, pa
     %number of terminals
     T=t; 
 
+    %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
     RS = generateRS(1, int64(V/2))
     RT = generateRT(int64(V/2)+int64(1), V)
 
@@ -29,6 +30,9 @@ function [cost_exhaustive, cost_routing, cost_atoms]=GenerateGraph(iteration, pa
     ST = zeros(S, T);
     %ST(1, 3) = 1;
     ST = generateST(pairing_avg);
+    %ST(1, 1) = 1;
+    %ST(2, 1) = 1;
+    %ST(1, 2) = 1;
 
     fea_idx = 1;
     fea_z = zeros(V, V, V);
@@ -37,11 +41,6 @@ function [cost_exhaustive, cost_routing, cost_atoms]=GenerateGraph(iteration, pa
     EE = setVirtualLinks(EE);
     E = sum(sum(EE));
     
-    %save the realization to a file so that it can be
-    %used for other trials
-    filename = strcat('realizations/realizations', num2str(iteration), '.vars');
-    save('realizations/realizations.vars', 'RS', 'RT', 'ST');
-    
     OV = computeOV(V, EE);
 
     %we should finally have a acyclic, directed graph
@@ -49,6 +48,14 @@ function [cost_exhaustive, cost_routing, cost_atoms]=GenerateGraph(iteration, pa
         makeAcyclic(SS(si), zeros(1, V), zeros(1, 1));
     end
 
+    %save the realization to a file so that it can be
+    %used for other trials
+    filename = strcat('realizations/realizations', num2str(iteration), '.vars');
+    filename
+    save(filename, 'RS', 'RT', 'ST', 'EE');
+   
+    disp_EE(EE, V);
+ 
     z_exhaustive = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST);
     %fprintf('Mixing\n');
     if sum(sum(z_exhaustive)) ~= 0
@@ -66,6 +73,7 @@ function [cost_exhaustive, cost_routing, cost_atoms]=GenerateGraph(iteration, pa
     end
 
     z_atoms = Atoms(V, SS, S, TT, T, EE, E, ST);
+    disp_z(z_atoms, V);
     %fprintf('Atoms\n');
     if sum(sum(z_atoms)) ~= 0
         cost_atoms = getCost(z_atoms);
@@ -77,6 +85,16 @@ function [cost_exhaustive, cost_routing, cost_atoms]=GenerateGraph(iteration, pa
     %fprintf('Cost routing: %d\n', cost_routing);
     %fprintf('Cost atoms: %d\n', cost_atoms);
 
+end
+
+function disp_EE(EE, V)
+    for i = 1:V
+        for j = 1:V
+            if EE(i, j) == 1
+                fprintf('i :%d, j: %d, val: %d\n', i, j, EE(i,j));
+            end
+        end
+    end 
 end
 
 function disp_z(z, V)

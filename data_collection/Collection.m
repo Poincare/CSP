@@ -5,7 +5,7 @@ function Collection()
 
     costs = zeros(0, 3);
 
-    for iteration = 1:2
+    for iteration = 1:1
         [cost_exhaustive, cost_routing, cost_atoms] = GenerateGraph(iteration, pairing_avg, S, T);
         cost_exhaustive
         cost_routing

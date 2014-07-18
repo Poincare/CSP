@@ -1,5 +1,5 @@
-function z= ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
-%function z=ExhaustiveSearch()
+%function z= ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
+function z=ExhaustiveSearch()
 
     global m 
     global fea_idx
@@ -284,7 +284,7 @@ function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, e
     global m
 
     %check conditions...
-     %f = zeros(V, V, S, T);
+    %f = zeros(V, V, S, T);
     x = -ones(V, V, S); 
     m = m + 1;
 
