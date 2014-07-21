@@ -466,11 +466,12 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
     paths = final_mat{si};
     width = max(find(~cellfun(@isempty, paths)));
     
-    %if length(width) == 0
-    %    continue
-    %end
+    if length(width) == 0
+        return;
+    end
 
     %permutation vector
+
     perm_mat = eye(width);
 
     %loop over the rows of the matrix; should create

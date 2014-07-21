@@ -47,7 +47,6 @@ function z= ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
 %    ST(2,1)=1;
 %    ST(2,3)=1;
 %
-    view(biograph(EE));
 
     %input node
     IV=cell(V);
