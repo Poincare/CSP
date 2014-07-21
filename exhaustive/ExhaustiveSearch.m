@@ -1,6 +1,6 @@
 %demand_set_expansion: boolean variable that decides whether or the demand set is to be expanded
 %shortest_path_depth: how far we had to go down the ranked paths list in order to find a feasible solution
-function [min_cost_z, shortest_path_depth] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, demand_set_expansion)
+function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, demand_set_expansion)
 %function z=ExhaustiveSearch()
 
     global m 
@@ -11,6 +11,8 @@ function [min_cost_z, shortest_path_depth] = ExhaustiveSearch(V, SS, S, TT, T, E
     global fea_f
     global fea_usum;
 
+    shortest_path_depth = -1;
+
 %    load('../data_collection/satisfied_atoms.mat', '-mat'); 
      
     m=1;
@@ -18,6 +20,8 @@ function [min_cost_z, shortest_path_depth] = ExhaustiveSearch(V, SS, S, TT, T, E
     fea_idx = 1;
     fea_z = zeros(V, V, V);
     P = S;
+
+    path_count = -1;
 
     %expand the demand set if we are told to do
     %so

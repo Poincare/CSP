@@ -2,7 +2,7 @@
 %pairing_avg: average pairing between source and terminal
 %S: number of sources
 %T: number of terminals
-function [cost_exhaustive, cost_exhaustive_no_expansion, cost_routing, cost_atoms]...
+function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms]...
 =GenerateGraph(iteration, pairing_avg, s, t)
 
 %this is to get the exhaustive search code
@@ -11,7 +11,6 @@ addpath('../exhaustive/');
 addpath('../2004isit/');
 
 global V RS S RT T EE ST SS TT OV
-
 
 %changed after virtual sources and terminals are added
 V = 14;
@@ -52,13 +51,15 @@ end
 
 %save the realization to a file so that it can be
 %used for other trials
-filename = strcat('realizations/realizations', num2str(iteration), '.vars');
+foldername = strcat('realizations', '-', num2str(S), '-', num2str(T), '-', num2str(pairing_avg));
+mkdir(foldername);
+filename = strcat(foldername, '/realizations', num2str(iteration), '.vars');
 filename
 save(filename, 'RS', 'RT', 'ST', 'EE');
 
 disp_EE(EE, V);
 
-z_exhaustive = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1);
+[z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1);
 %fprintf('Mixing\n');
 if sum(sum(z_exhaustive)) ~= 0
     cost_exhaustive = getCost(z_exhaustive);

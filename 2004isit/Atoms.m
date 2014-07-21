@@ -29,7 +29,6 @@ function min_cost_z = Atoms(v, ss, s, tt, t, ee, e, st)
     
     addpath('../exhaustive');
     
-    
     %result matrices
     global z x beta f fea_f fea_idx fea_z
     
@@ -47,7 +46,7 @@ function min_cost_z = Atoms(v, ss, s, tt, t, ee, e, st)
         
         ST(1,1) = 1;
         ST(2,1) = 1;
-        
+        ST(1, 2) =1;
     end
     
     function initialize_info()
@@ -188,7 +187,6 @@ function min_cost_z = Atoms(v, ss, s, tt, t, ee, e, st)
     end
     
     C = cell(1, V);
-    
     for i = 1:V
         ti_size = length(TP{i});
         atom_mat = d_atoms(i, D, 1:S, 1, cell(1, 1));
