@@ -1,4 +1,4 @@
-function z=ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
+function z=ExhaustiveSearchRouting(V, SS, S, TT, T, EE, E, ST)
 
     global m 
     global fea_idx

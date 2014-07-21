@@ -1,20 +1,20 @@
-function Collection()
-    pairing_avg = 1.3; 
-    S = 2;
-    T = 2;
+function Collection(S, T, pairing_avg, iterations)
+    costs = zeros(0, 4);
 
-    costs = zeros(0, 3);
+    for iteration = 1:iterations
+        [cost_exhaustive, cost_exhaustive_no_expansion, cost_routing, cost_atoms] = GenerateGraph(iteration, pairing_avg, S, T);
 
-    for iteration = 1:100
-        [cost_exhaustive, cost_routing, cost_atoms] = GenerateGraph(iteration, pairing_avg, S, T);
-        cost_exhaustive
-        cost_routing
-        cost_atoms
+        %cost_exhaustive
+        %cost_exhaustive_no_expansion
+        %cost_routing
+        %cost_atoms
+
         costs(iteration, 1) = cost_exhaustive;
-        costs(iteration, 2) = cost_routing;
-        costs(iteration, 3) = cost_atoms;
+        costs(iteration, 2) = cost_exhaustive_no_expansion;
+        costs(iteration, 3) = cost_routing;
+        costs(iteration, 4) = cost_atoms;
 
-        fprintf('\n============================\n');
+        fprintf('Iteration: %d\n', iteration);
     end     
 
     costs        

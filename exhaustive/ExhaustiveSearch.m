@@ -1,4 +1,6 @@
-function z= ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
+%demand_set_expansion: boolean variable that decides whether or the demand set is to be expanded
+%shortest_path_depth: how far we had to go down the ranked paths list in order to find a feasible solution
+function [min_cost_z, shortest_path_depth] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, demand_set_expansion)
 %function z=ExhaustiveSearch()
 
     global m 
@@ -17,81 +19,46 @@ function z= ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
     fea_z = zeros(V, V, V);
     P = S;
 
-%    V=11; %Number of Nodes
-%    SS=[1,2]; %Sources
-%    S=length(SS); %Number of Sources
-%    P = S;
-%    TT=[7,8,10]; %Terminals
-%    T=length(TT); %Number of Terminals
-%    EE=zeros(V,V); %Edges
-%    EE(1,3)=1; %Edges
-%    EE(3,4)=1;
-%    EE(3,8)=1;
-%    EE(11,8)=1;
-%    EE(5,4)=1;
-%    EE(4,6)=1;
-%    EE(6,7)=1;
-%    EE(6,10)=1;
-%    EE(6,9)=1;
-%    EE(9,11)=1;
-%    EE(2,5)=1;
-%    EE(5,7)=1;
-%    EE(9,10)=1;
-%    EE(3,9)=1;
-%    E=sum(sum(EE)); %Number of Edges
-%
-%    ST=zeros(S,T); %Flows Each Terminal Wants
-%    ST(1,1)=1;
-%    ST(1,2)=1;
-%    ST(1,3)=1;
-%    ST(2,1)=1;
-%    ST(2,3)=1;
-%
+    %expand the demand set if we are told to do
+    %so
+    if demand_set_expansion == 1
+      ST_possib = expand_demand_set(S, T, ST);
+    else
+      ST_possib = ST;
+    end
+
+    min_cost = Inf;
+    min_cost_z = zeros(V, V);
+    min_cost_st = zeros(S, T);
 
     %input node
     IV=cell(V);
     for v=1:V
-        IV{v}=0;
-        for iv=1:V
-            if EE(iv,v)==1
-                if sum(IV{v})==0
-                    IV{v}=iv;
-                else
-                    IV{v}=[IV{v},iv];
-                end
-            end
+      IV{v}=0;
+      for iv=1:V
+        if EE(iv,v)==1
+          if sum(IV{v})==0
+            IV{v}=iv;
+          else
+            IV{v}=[IV{v},iv];
+          end
         end
+      end
     end
 
     %output node
     OV=cell(V);
     for v=1:V
-        OV{v}=0;
-        for ov=1:V
-            if EE(v,ov)==1
-                if sum(OV{v})==0
-                    OV{v}=ov;
-                else
-                    OV{v}=[OV{v},ov];
-                end
-            end
+      OV{v}=0;
+      for ov=1:V
+        if EE(v,ov)==1
+          if sum(OV{v})==0
+            OV{v}=ov;
+          else
+            OV{v}=[OV{v},ov];
+          end
         end
-    end
-
-    % sigma
-    sigma=zeros(V,S,T);
-    for v=1:V
-        for s=1:S
-            for t=1:T
-                if ST(s,t)==1
-                    if v==SS(s)
-                        sigma(v,s,t)=1;
-                    elseif v==TT(t)
-                        sigma(v,s,t)=-1;
-                    end
-                end
-            end
-        end
+      end
     end
 
     %edge vector
@@ -99,93 +66,159 @@ function z= ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST)
     edge=zeros(1,E);
     e=1;
     for l=1:V
-        for m=1:V
-            if EE(l,m)==1
-                edge(e)=l+m*i;
-                e=e+1;
-            end
+      for m=1:V
+        if EE(l,m)==1
+          edge(e)=l+m*i;
+          e=e+1;
         end
+      end
     end
 
-    %st_imag vector
-    st_size = sum(sum(ST));
-    st_imag = zeros(1, st_size);
-    st_index = 1;
-    for si = 1:S
+    for st_i = 1:length(ST_possib)
+      %select one ST from the expanded demand set
+      if iscell(ST_possib) == 1
+        ST = ST_possib{st_i};
+      else
+        ST = ST_possib;
+      end
+
+      % sigma
+      sigma=zeros(V,S,T);
+      for v=1:V
+        for s=1:S
+          for t=1:T
+            if ST(s,t)==1
+              if v==SS(s)
+                sigma(v,s,t)=1;
+              elseif v==TT(t)
+                sigma(v,s,t)=-1;
+              end
+            end
+          end
+        end
+      end
+
+      %st_imag vector
+      st_size = sum(sum(ST));
+      st_imag = zeros(1, st_size);
+      st_index = 1;
+      for si = 1:S
         for ti = 1:T
-            if ST(si, ti) == 1
-                st_imag(st_index) = si + (ti * 1i);
-                st_index = 1 + st_index; 
-            end
+          if ST(si, ti) == 1
+            st_imag(st_index) = si + (ti * 1i);
+            st_index = 1 + st_index; 
+          end
         end
-    end
+      end
 
 
-    %initialize variable matrices  
-    z=-ones(V,V);
-    x=-ones(V,V,S);
-    beta=-ones(V,V,V);
-    f=-ones(V,V,S,T);
-    for l=1:V %column of EE matrix
+      %initialize variable matrices  
+      z=-ones(V,V);
+      x=-ones(V,V,S);
+      beta=-ones(V,V,V);
+      f=-ones(V,V,S,T);
+      for l=1:V %column of EE matrix
         for m=1:V %row of EE matrix
-            if EE(l,m)==1 %if l,m work in the EE matrix(when there is a 1 instead of 0)
-                z(l,m)=0; %show 0 instead of -1
-                for s=1:S
-                    x(l,m,s)=0;
-                    %for t=1:T
-                        %if ST(s,t)==1
-                            %f(l,m,s,t)=0;
-                        %end
-                    %end
-                end
-                for n=1:V
-                    if EE(m,n)==1
-                        beta(l,m,n)=0;
-                    end
-                end
+          if EE(l,m)==1 %if l,m work in the EE matrix(when there is a 1 instead of 0)
+            z(l,m)=0; %show 0 instead of -1
+            for s=1:S
+              x(l,m,s)=0;
+            %for t=1:T
+            %if ST(s,t)==1
+            %f(l,m,s,t)=0;
+            %end
+            %end
             end
+            for n=1:V
+              if EE(m,n)==1
+                beta(l,m,n)=0;
+              end
+            end
+          end
         end
-    end
+      end
 
-    %use Depth First Search to set the correct variable spots for f.    
-    f = explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge);
+      %use Depth First Search to set the correct variable spots for f.    
+      f = explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge);
 
-    %path_comb(st_imag, 1, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z);
-    %z = find_optimal(V);
-  
-    TT 
+      global path_set_costs
+      global path_set_idx
 
-    global path_set_costs
-    global path_set_idx
-
-    % (path_stack) : (path_cost)
-    path_set_costs = cell(1, 2);
-    path_set_idx = 1;
-    shortest_path_rankings(1, st_imag, cell(0, 0), V, T, TT, S, SS, EE); 
-    
-    [~, non_empty_size] = size(path_set_costs(~cellfun('isempty', path_set_costs)));
-    if non_empty_size == 0
+      % (path_stack) : (path_cost)
+      path_set_costs = cell(1, 2);
+      path_set_idx = 1;
+      shortest_path_rankings(1, st_imag, cell(0, 0), V, T, TT, S, SS, EE); 
+      
+      [~, non_empty_size] = size(path_set_costs(~cellfun('isempty', path_set_costs)));
+      if non_empty_size == 0
         z = zeros(V, V);
         return   
-    end
+      end
 
-    path_set_costs = sortrows(path_set_costs, 2);
+      path_set_costs = sortrows(path_set_costs, 2);
 
-    %path_set_costs
-    [path_count, ~] = size(path_set_costs);
+      %path_set_costs
+      [path_count, ~] = size(path_set_costs);
 
-    %path_count
-    for k = 1:path_count
+      %path_count
+      for k = 1:path_count
         path_set = path_set_costs{k, 1};
 
         [f, beta] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, f);
         [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma);
 
         if res
-            return
+          %first feasible solution is the optimal solution
+          min_cost_z = z;
+          shortest_path_depth = path_count;
+ 
+          return
+
+          %cost = get_cost(z);
+          %if cost < min_cost && (cost > 0)
+          %   min_cost = cost;
+          %   min_cost_z = z;
+          %   min_cost_st = ST;
+          %end
         else
-            z = zeros(V, V);
+          z = zeros(V, V);
         end
+      end
+    end
+end
+
+function cost = get_cost(z)
+    cost = sum(sum(z)); 
+end
+
+%expand the demand set (can give feasible solution even when the original demand set
+%does not give a feasible solution).
+function ST_possib = expand_demand_set(S, T, ST)
+    st_zero_width = length(ST(ST == 0));
+
+    ST_possib = cell(0, 1);
+
+    %no freedom in picking ST supersets
+    if st_zero_width == 0
+       ST_possib = ST
+       return
+    end
+
+    st_zero_pos = find(ST == 0);
+    comb = 2^(st_zero_width) - 1;
+
+    for tcomb = 0:comb
+        STs = ST;
+
+        bin_vec = de2bi(tcomb);
+
+        st_i = 1;
+        for i = 1:length(bin_vec)
+            STs(st_zero_pos(st_i)) = bin_vec(i);
+            st_i = st_i + 1;
+        end
+
+        ST_possib = [ST_possib, STs]; 
     end
 end
 
@@ -294,7 +327,7 @@ function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, e
      checkx=1;
      checkfx=1;
      checkf=1;
-     checkfv=1; %Flow Conservation
+     checkfv=1; %Fow Conservation
 
      %check x at terminals
      t=1;

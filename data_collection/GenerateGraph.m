@@ -2,66 +2,76 @@
 %pairing_avg: average pairing between source and terminal
 %S: number of sources
 %T: number of terminals
-function [cost_exhaustive, cost_routing, cost_atoms]=GenerateGraph(iteration, pairing_avg, s, t)
-    %this is to get the exhaustive search code
-    %on the path so that we can use it from this file
-    addpath('../exhaustive/');
-    addpath('../2004isit/');
+function [cost_exhaustive, cost_exhaustive_no_expansion, cost_routing, cost_atoms]...
+=GenerateGraph(iteration, pairing_avg, s, t)
 
-    global V RS S RT T EE ST SS TT OV
+%this is to get the exhaustive search code
+%on the path so that we can use it from this file
+addpath('../exhaustive/');
+addpath('../2004isit/');
+
+global V RS S RT T EE ST SS TT OV
 
 
-    %changed after virtual sources and terminals are added
-    V = 14;
-    
-    %number of sources
-    S=s; 
-    P = S;
-    
-    %number of terminals
-    T=t; 
+%changed after virtual sources and terminals are added
+V = 14;
 
-    %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
-    RS = generateRS(1, int64(V/2))
-    RT = generateRT(int64(V/2)+int64(1), V)
+%number of sources
+S=s; 
+P = S;
 
-    virtuals()
+%number of terminals
+T=t; 
 
-    ST = zeros(S, T);
-    %ST(1, 3) = 1;
-    ST = generateST(pairing_avg);
-    %ST(1, 1) = 1;
-    %ST(2, 1) = 1;
-    %ST(1, 2) = 1;
+%THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
+RS = generateRS(1, int64(V/2))
+RT = generateRT(int64(V/2)+int64(1), V)
 
-    fea_idx = 1;
-    fea_z = zeros(V, V, V);
-   
-    EE = generateNSFNET();
-    EE = setVirtualLinks(EE);
-    E = sum(sum(EE));
-    
-    OV = computeOV(V, EE);
+virtuals()
 
-    %we should finally have a acyclic, directed graph
-    for si = 1:S
-        makeAcyclic(SS(si), zeros(1, V), zeros(1, 1));
-    end
+ST = zeros(S, T);
+%ST(1, 3) = 1;
+ST = generateST(pairing_avg);
+%ST(1, 1) = 1;
+%ST(2, 1) = 1;
+%ST(1, 2) = 1;
 
-    %save the realization to a file so that it can be
-    %used for other trials
-    filename = strcat('realizations/realizations', num2str(iteration), '.vars');
-    filename
-    save(filename, 'RS', 'RT', 'ST', 'EE');
-   
-    disp_EE(EE, V);
- 
-    z_exhaustive = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST);
-    %fprintf('Mixing\n');
-    if sum(sum(z_exhaustive)) ~= 0
-        cost_exhaustive = getCost(z_exhaustive);
-    else
-        cost_exhaustive = -1;
+fea_idx = 1;
+fea_z = zeros(V, V, V);
+
+EE = generateNSFNET();
+EE = setVirtualLinks(EE);
+E = sum(sum(EE));
+
+OV = computeOV(V, EE);
+
+%we should finally have a acyclic, directed graph
+for si = 1:S
+    makeAcyclic(SS(si), zeros(1, V), zeros(1, 1));
+end
+
+%save the realization to a file so that it can be
+%used for other trials
+filename = strcat('realizations/realizations', num2str(iteration), '.vars');
+filename
+save(filename, 'RS', 'RT', 'ST', 'EE');
+
+disp_EE(EE, V);
+
+z_exhaustive = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1);
+%fprintf('Mixing\n');
+if sum(sum(z_exhaustive)) ~= 0
+    cost_exhaustive = getCost(z_exhaustive);
+else
+    cost_exhaustive = -1;
+end
+
+%do not expand the demand set in order to enlarge feasibility range
+z_exhaustive_no_expand = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0);
+if sum(sum(z_exhaustive_no_expand)) ~= 0
+    cost_exhaustive_no_expansion = getCost(z_exhaustive_no_expand);
+else
+    cost_exhaustive_no_expansion = -1;
     end
 
     z_routing = ExhaustiveSearchRouting(V, SS, S, TT, T, EE, E, ST);  
@@ -73,7 +83,7 @@ function [cost_exhaustive, cost_routing, cost_atoms]=GenerateGraph(iteration, pa
     end
 
     z_atoms = Atoms(V, SS, S, TT, T, EE, E, ST);
-    disp_z(z_atoms, V);
+    %disp_z(z_atoms, V);
     %fprintf('Atoms\n');
     if sum(sum(z_atoms)) ~= 0
         cost_atoms = getCost(z_atoms);
@@ -115,13 +125,13 @@ end
 function RS = generateRS(Vs, Ve)
     global V S RT T EE ST SS TT OV
 
-    RS = [randperm(Ve-Vs, S)] + Vs; 
+    RS = [randperm(round(Ve)-round(Vs), S)] + Vs; 
 end
 
 function RT = generateRT(Vs, Ve)
     global V S RT T EE ST SS TT OV
 
-    RT = [randperm(Ve-Vs, T)] + double(Vs);
+    RT = [randperm(round(Ve)-round(Vs), T)] + double(Vs);
 end
 
 function ST = generateST(pairing_avg)
