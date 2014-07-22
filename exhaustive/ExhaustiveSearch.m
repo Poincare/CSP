@@ -1,6 +1,7 @@
 %demand_set_expansion: boolean variable that decides whether or the demand set is to be expanded
 %shortest_path_depth: how far we had to go down the ranked paths list in order to find a feasible solution
-function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, demand_set_expansion)
+function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST,...
+ demand_set_expansion, ROUTING, ATOMS)
 %function z=ExhaustiveSearch()
 
     global m 
@@ -115,7 +116,6 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
         end
       end
 
-
       %initialize variable matrices  
       z=-ones(V,V);
       x=-ones(V,V,S);
@@ -145,6 +145,10 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
       %use Depth First Search to set the correct variable spots for f.    
       f = explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge);
 
+      if ATOMS
+        compute_atom_globals(V, OV, ST, f, S, T);
+      end
+
       global path_set_costs
       global path_set_idx
 
@@ -169,7 +173,7 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
         path_set = path_set_costs{k, 1};
 
         [f, beta] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, f);
-        [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma);
+        [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma, ROUTING, ATOMS);
 
         if res
           %first feasible solution is the optimal solution
@@ -190,6 +194,41 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
       end
     end
 end
+
+function atom_mat=d_atoms(i, D,atoms, ti, atom_mat)
+    global V SS S P TT T EE E ST IV OV sigma edge st_imag TP
+    
+    %result matrices
+    global z x beta f
+    
+    terminals = TP{i};
+    
+    %base case
+    if ti > length(terminals)
+        atom_mat = cell(1, 1);
+        atom_mat{1} = atoms;
+        return
+    end
+    
+    atoms_l = intersect(atoms, D{terminals(ti)});
+    if length(atoms_l) ~= 0
+        atom_mat_l = d_atoms(i, D, atoms_l, ti + 1, atom_mat);
+        if ~isempty(atom_mat_l)
+            atom_mat = [atom_mat; atom_mat_l];
+        end
+    end
+    
+    whole = 1:S;
+    d_comp = setdiff(whole, D{terminals(ti)});
+    atoms_r = intersect(atoms, d_comp);
+    if length(atoms_r) ~= 0
+        atom_mat_r = d_atoms(i, D, atoms_r, ti + 1, atom_mat);
+        if ~isempty(atom_mat_r)
+            atom_mat = [atom_mat; atom_mat_r];
+        end
+    end
+end
+
 
 function cost = get_cost(z)
     cost = sum(sum(z)); 
@@ -291,9 +330,10 @@ function [f, beta] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, f)
     for p = 1:length(path_set)
         path = path_set{p};
 
-        si = find(SS, path(1));
-        terminal = path(length(path));
-        ti = find(TT == terminal);
+        source = find(SS == path(1));
+        si = source(1);
+        terminal = find(TT == path(length(path)));
+        ti = terminal(1); 
 
         %set the right f values for all of the edges
         %along this path
@@ -316,8 +356,121 @@ function [f, beta] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, f)
     end
 end
 
-function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma)
+function compute_atom_globals(V, OV, ST, f, S, T)
+    global C TP D
+ 
+    TP = cell(V, 1);
+    for v = 1:V
+        ov = OV{v};
+        terminals = [];
+        
+        for t = 1:T
+            for s = 1:S
+                if ST(s, t) == 1
+                    for j = 1:length(ov)
+                        if ov(j) ~= 0 && f(v, ov(j), s, t) ~= -1
+                            terminals = unique([terminals, t]);
+                        end
+                    end
+                end
+            end
+        end
+        
+        TP{v} = terminals;
+    end
+
+    %set up D(t) from 2004isit paper
+    D = cell(T, 1);
+    for t = 1:T
+        sources = [];
+        
+        for s = 1:S
+            if ST(s, t) == 1
+                sources = [sources, s];
+            end
+        end
+        
+        D{t} = sources;
+    end
+    
+    C = cell(1, V);
+    for i = 1:V
+        ti_size = length(TP{i});
+        atom_mat = d_atoms(i, D, 1:S, 1, cell(1, 1));
+        
+        atoms = cell(1, S);
+        [rows, cols] = size(atom_mat);
+        atoms = cell(1, 2^ti_size);
+        j = 1;
+        for r = 1:rows
+            if length(atom_mat{r}) ~= 0
+                atoms{j} = atom_mat{r};
+                j = j + 1;
+            end
+        end
+        
+        C{i} = atoms;
+    end
+ 
+end
+
+function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma, ROUTING, ATOMS)
     global m
+
+    function atom_s = check_atom_feasibility()
+        %check f %Consraint (17)
+        global C D TP 
+
+        atom_s = 1;
+
+        if (checkf == 1) && (checkfv == 1)
+            for e = 1:E
+                i = real(edge(e));
+                j = imag(edge(e));
+                C_j = cell(1, 0);
+                for c = 1:length(C{j})
+                    found = 0;
+                    for cji = 1:length(C_j)
+                        if isequal(C_j{cji}, C{j}{c})
+                            found = 1;
+                            break;
+                        end                
+                    end
+
+                    if ~found
+                        C_j{c} = C{j}{c};
+                    end
+                end
+
+                Value_sets = cell(1, length(C_j));
+                
+                for c = 1:length(C_j)
+                    path_set = C_j{c};
+                    
+                    if ~isempty(path_set)
+                        value_set = zeros(1, length(path_set));
+                        for k = 1:length(path_set)
+                            if x(i, j, path_set(k)) ~= -1
+                                value_set(k) = x(i, j, path_set(k));
+                            end
+                        end
+                        
+                        Value_sets{c} = value_set;
+                    end
+                end
+              
+                %C_j 
+                %Value_sets 
+                value_sums = cellfun(@sum, Value_sets);
+                TOTAL_VALUE = length(value_sums(value_sums > 0));
+                if TOTAL_VALUE > 1
+                    atom_s = 0;
+                end
+            end
+        end
+       
+    end
+
 
     %check conditions...
      %f = zeros(V, V, S, T);
@@ -332,42 +485,69 @@ function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, e
      checkfx=1;
      checkf=1;
      checkfv=1; %Fow Conservation
+    checkrouting = 1;
+    checkatoms = 1;
 
-     %check x at terminals
-     t=1;
-     while (t<=T)&&(checkx==1)
-         for s=1:S
-             if (ST(s,t)~=1)
-                 for iv=1:length(IV{TT(t)})
-                     if x(IV{TT(t)}(iv),TT(t),s)~=0
-                         checkx=0;
-                     end
-                 end
-             end
-         end 
-         t=t+1;
-     end
+    if ROUTING == 1
+        e = 1;
+         while (e <= E)
+            iv = real(edge(e));
+            ov = imag(edge(e));
+            
+            x_sum = 0;
+            for s = 1:S
+                val = x(iv, ov, s);
+                if val ~= -1
+                    x_sum = x_sum + val;
+                end
+            end
 
-     %check f<=x %Constraint (29)
-     e=1;
-     while (checkx==1)&&(e<=E)&&(checkfx==1)
-         iv=real(edge(e)); %input node (represented by real number)
-         ov=imag(edge(e)); %output node (represented by imaginary number)
-         for s=1:S
-             for t=1:T
-                 if ST(s,t)==1
-                     if f(iv,ov,s,t)>x(iv,ov,s)
-                        %fprintf('Failed checkfx for iv: %d, ov:  %d, s: %d, t: %d\n', iv, ov, s, t);
-                        %fprintf('fval: %d, xval: %d\n', f(iv, ov, s, t), x(iv, ov, s));
-                        %f(:, :, s, t)
-                         checkfx=0;
-                     end
-                 end
-             end
+            if x_sum > 1
+                checkrouting = 0;
+            end
+
+            e = e+1;
          end
-         e=e+1;
-     end
+    end
 
+    if ATOMS
+        checkatoms = check_atom_feasibility(); 
+    else
+         %check x at terminals
+         t=1;
+         while (t<=T)&&(checkx==1)
+             for s=1:S
+                 if (ST(s,t)~=1)
+                     for iv=1:length(IV{TT(t)})
+                         if x(IV{TT(t)}(iv),TT(t),s)~=0
+                             checkx=0;
+                         end
+                     end
+                 end
+             end 
+             t=t+1;
+         end
+
+         %check f<=x %Constraint (29)
+         e=1;
+         while (checkx==1)&&(e<=E)&&(checkfx==1)
+             iv=real(edge(e)); %input node (represented by real number)
+             ov=imag(edge(e)); %output node (represented by imaginary number)
+             for s=1:S
+                 for t=1:T
+                     if ST(s,t)==1
+                         if f(iv,ov,s,t)>x(iv,ov,s)
+                            %fprintf('Failed checkfx for iv: %d, ov:  %d, s: %d, t: %d\n', iv, ov, s, t);
+                            %fprintf('fval: %d, xval: %d\n', f(iv, ov, s, t), x(iv, ov, s));
+                            %f(:, :, s, t)
+                             checkfx=0;
+                         end
+                     end
+                 end
+             end
+             e=e+1;
+         end
+    end
 
      %check f %Consraint (17)
      e=1;
@@ -377,6 +557,10 @@ function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, e
          iv=real(edge(e));
          ov=imag(edge(e));
          for t=1:T
+             if ov == TT(t)
+                continue;
+            end
+
              sumf=0;
              for s=1:S
                  if ST(s,t)==1
@@ -442,7 +626,8 @@ function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, e
     %checkf
     %checkfv
 
-    res = checkx & checkfx & checkf & checkfv;
+
+    res = checkx & checkfx & checkf & checkfv & checkrouting & checkatoms;
 end
 
 function disp_z(z, V)

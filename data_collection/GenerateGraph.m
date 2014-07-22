@@ -55,7 +55,7 @@ save(filename, 'RS', 'RT', 'ST', 'EE');
 
 disp_EE(EE, V);
 
-[z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1);
+[z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0);
 %fprintf('Mixing\n');
 if sum(sum(z_exhaustive)) ~= 0
     cost_exhaustive = getCost(z_exhaustive);
@@ -64,14 +64,14 @@ else
 end
 
 %do not expand the demand set in order to enlarge feasibility range
-z_exhaustive_no_expand = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0);
+z_exhaustive_no_expand = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 0);
 if sum(sum(z_exhaustive_no_expand)) ~= 0
     cost_exhaustive_no_expansion = getCost(z_exhaustive_no_expand);
 else
     cost_exhaustive_no_expansion = -1;
     end
 
-    z_routing = ExhaustiveSearchRouting(V, SS, S, TT, T, EE, E, ST);  
+    z_routing = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 1, 0);  
     %fprintf('Routing\n');
     if sum(sum(z_routing)) ~= 0
         cost_routing = getCost(z_routing);
@@ -79,7 +79,7 @@ else
         cost_routing = -1;
     end
 
-    z_atoms = Atoms(V, SS, S, TT, T, EE, E, ST);
+    z_atoms = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 1);
     %disp_z(z_atoms, V);
     %fprintf('Atoms\n');
     if sum(sum(z_atoms)) ~= 0

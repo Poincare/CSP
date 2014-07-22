@@ -492,6 +492,10 @@ function path_comb(st_index, f, beta, C)
                 iv=real(edge(e));
                 ov=imag(edge(e));
                 for t=1:T
+                    if ov == TT(t)
+                        continue;
+                    end
+
                     sumf=0;
                     for s=1:S
                         if ST(s,t)==1
@@ -565,6 +569,8 @@ function path_comb(st_index, f, beta, C)
             %fprintf('---------------------\n');
             
             if (checkf == 1) && (checkfv == 1) && (atom_s == 1)
+                %f
+
                 z = zeros(V, V);
                 for i = 1:V
                     for j = 1:V
@@ -579,7 +585,7 @@ function path_comb(st_index, f, beta, C)
                     end
                 end
 
-                z;
+                atom_cost = sum(sum(z))
                 fea_f(:, :, :, :, fea_idx) = f;
                 fea_z(:, :, fea_idx) = z;
 
