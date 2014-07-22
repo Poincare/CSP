@@ -29,11 +29,7 @@ RT = generateRT(int64(V/2)+int64(1), V)
 virtuals()
 
 ST = zeros(S, T);
-%ST(1, 3) = 1;
 ST = generateST(pairing_avg);
-%ST(1, 1) = 1;
-%ST(2, 1) = 1;
-%ST(1, 2) = 1;
 
 fea_idx = 1;
 fea_z = zeros(V, V, V);
@@ -257,6 +253,59 @@ function OV=computeOV(V, EE)
     end
 end
 
+function EE=generateSprint()
+    global V RS S RT T EE ST SS TT
+    UE = zeros(V, V);
+    UE(1,5) =1;
+    UE(1,8) = 1;
+    UE(2, 11) = 1;
+    UE(2, 7) = 1;
+    UE(4, 9) = 1;
+    UE(4, 5) = 1;
+    UE(5, 6) = 1;
+    UE(5, 9) = 1;
+    UE(5, 10) = 1;
+    UE(5, 11) = 1;
+    UE(6, 7) = 1;
+    UE(7, 11) = 1;
+    UE(7, 8) = 1;
+    UE(8, 9) = 1;
+    UE(8, 11) = 1;
+    UE(9, 10) = 1;
+    UE(10, 11) = 1;
+
+    EE = generateDirected(UE);
+end
+
+function EE=generateDirected(UE)
+    global V RS S RT T EE ST SS TT
+
+    UE = transpose(UE) + UE;
+    
+    IV = computeIV(V, UE);
+    OV = computeOV(V, UE); 
+
+    EE = zeros(V, V);
+
+    for si = 1:S
+        for ti = 1:T
+            if ST(si, ti) == 1
+                path_cells = get_paths(UE, OV, RS(si), ti, zeros(1, V));
+ 
+                %take one of the paths and directionalize according to it
+                for j = 1:length(path_cells)
+                    path = path_cells{j};
+
+                    for i = 1:length(path)-1
+                        if EE(path(i+1), path(i)) ~= 1
+                            EE(path(i), path(i+1)) = 1;   
+                        end
+                    end
+                end
+            end
+        end
+    end    
+end
 
 function EE=generateNSFNET()
     global V RS S RT T EE ST SS TT
@@ -284,33 +333,7 @@ function EE=generateNSFNET()
     UE(12, 13) = 1;
     UE(13, 14) = 1;
 
-    %make it undirected
-    UE = transpose(UE) + UE;
-    
-    IV = computeIV(V, UE);
-    OV = computeOV(V, UE); 
-
-    EE = zeros(V, V);
-
-    for si = 1:S
-        for ti = 1:T
-            if ST(si, ti) == 1
-                path_cells = get_paths(UE, OV, RS(si), ti, zeros(1, V));
- 
-                %take one of the paths and directionalize according to it
-                for j = 1:length(path_cells)
-                    path = path_cells{j};
-
-                    for i = 1:length(path)-1
-                        if EE(path(i+1), path(i)) ~= 1
-                            EE(path(i), path(i+1)) = 1;   
-                        end
-                    end
-                end
-            end
-        end
-    end
-
+    EE = generateDirected(UE);
 end
 
 function [cont, cell_mat, path_count, paths]=get_paths_explore_iter(s, t, EE, cell_mat, path_count, paths)
