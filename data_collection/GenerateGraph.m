@@ -37,7 +37,6 @@ fea_z = zeros(V, V, V);
 EE = generateNSFNET();
 EE = setVirtualLinks(EE);
 E = sum(sum(EE));
-
 OV = computeOV(V, EE);
 
 %we should finally have a acyclic, directed graph

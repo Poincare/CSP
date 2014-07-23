@@ -14,8 +14,6 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
     
     shortest_path_depth = -1;
     
-    %    load('../data_collection/satisfied_atoms.mat', '-mat');
-    
     m=1;
     
     fea_idx = 1;

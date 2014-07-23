@@ -22,5 +22,9 @@ function Collection(S, T, pairing_avg, iterations)
         fprintf('Iteration: %d\n', iteration);
     end     
 
-    costs        
+    mkdir('costs');
+    filename = strcat('costs/costs-', num2str(S), '-', num2str(T), '-', num2str(pairing_avg), '-', num2str(iterations));
+    diary filename;
+    costs
+    diary off;        
 end
