@@ -167,18 +167,17 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
 
       %path_set_costs
       [path_count, ~] = size(path_set_costs);
-      path_count
 
       %path_count
       for k = 1:path_count
         path_set = path_set_costs{k, 1};
 
         [f, beta] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, f);
-        res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma, ROUTING, ATOMS);
+        [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma, ROUTING, ATOMS);
 
         if res
           %first feasible solution is the optimal solution
-          min_cost_z = compute_z(f, edge, E, V, S, T);
+          min_cost_z = z;
           shortest_path_depth = path_count;
  
           return
@@ -415,23 +414,7 @@ function compute_atom_globals(V, OV, ST, f, S, T)
  
 end
 
-function z=compute_z(f, edge, E, V, S, T)
-    z = zeros(V, V);
-    for e = 1:E
-        iv = real(edge(e));
-        ov = imag(edge(e));
-    
-        for s = 1:S
-            for t = 1:T
-                if f(iv, ov, s, t) == 1
-                    z(iv, ov) = 1;
-                end
-            end
-        end
-    end 
-end
-
-function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma, ROUTING, ATOMS)
+function [res, z] = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma, ROUTING, ATOMS)
     global m
 
     function atom_s = check_atom_feasibility()
