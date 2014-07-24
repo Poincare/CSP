@@ -1,4 +1,4 @@
-function Collection(S, T, pairing_avg, iterations)
+function costs=Collection(S, T, pairing_avg, iterations)
     clearvars -except S T pairing_avg iterations
     clc
 

@@ -47,6 +47,7 @@ virtuals()
 
 ST = zeros(S, T);
 ST = generateST(pairing_avg);
+ST
 % ST(1, 1) = 1;
 % ST(2, 1) = 1;
 % ST(1, 2) = 1;
