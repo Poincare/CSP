@@ -3,7 +3,7 @@
 %S: number of sources
 %T: number of terminals
 %scheme_name: "NSFNET" or "SPRINT"
-function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms]...
+function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification]...
 =GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
 %function cost_atoms=GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
 
@@ -55,6 +55,7 @@ ST(1, 2) = 1;
 ST(1, 3) = 1;
 ST(2, 3) = 1;
 
+
     % ST(1,1)=1;
     % ST(1,2)=1;
     % ST(1,3)=1;
@@ -93,6 +94,8 @@ EE(4, 1) = 1;
 EE(3, 2) = 1;
 EE(3, 1) = 1;
 EE(1, 2) = 1;
+
+ST_classification = ClassifyST();
 
     % EE=zeros(V,V); %Edges
     %     EE(1,3)=1; %Edges

@@ -4,7 +4,7 @@ function cost_mat=CreateCostMat(V)
     function randomCostMat()
         %randomize the cost matrix so that
         %we get some bottlenecks sometimes
-        cost_mat = randi(10, V, V);       
+        cost_mat = randi(20, V, V);       
     end
 
     function unitCostMat()
