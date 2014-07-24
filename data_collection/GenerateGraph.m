@@ -3,10 +3,12 @@
 %S: number of sources
 %T: number of terminals
 %scheme_name: "NSFNET" or "SPRINT"
-%function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms]...
-%=GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
-function cost_atoms=GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
-    
+function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms]...
+=GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
+%function cost_atoms=GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
+
+clearvars -except iteration pairing_avg s t scheme_name
+
 %this is to get the exhaustive search code
 %on the path so that we can use it from this file
 addpath('../exhaustive/');
@@ -35,6 +37,11 @@ RS = [14, 13];
 RT = [2, 4, 5];
 S = 2;
 T = 3;
+    % V=11; %Number of Nodes
+    % RS=[1,2]; %Sources
+    % S=length(SS); %Number of Sources
+    % T=[7,8,10]; %Terminals
+    % T=length(TT); %Number of Terminals
 
 virtuals()
 
@@ -45,6 +52,13 @@ ST(2, 1) = 1;
 ST(1, 2) = 1;
 ST(1, 3) = 1;
 ST(2, 3) = 1;
+
+    % ST(1,1)=1;
+    % ST(1,2)=1;
+    % ST(1,3)=1;
+    % ST(2,1)=1;
+    % ST(2,3)=1;
+
 
 fea_idx = 1;
 fea_z = zeros(V, V, V);
@@ -77,9 +91,27 @@ EE(4, 1) = 1;
 EE(3, 2) = 1;
 EE(3, 1) = 1;
 EE(1, 2) = 1;
+
+    % EE=zeros(V,V); %Edges
+    %     EE(1,3)=1; %Edges
+    %     EE(3,4)=1;
+    %     EE(3,8)=1;
+    %     EE(11,8)=1;
+    %     EE(5,4)=1;
+    %     EE(4,6)=1;
+    %     EE(6,7)=1;
+    %     EE(6,10)=1;
+    %     EE(6,9)=1;
+    %     EE(9,11)=1;
+    %     EE(2,5)=1;
+    %     EE(5,7)=1;
+    %     EE(9,10)=1;
+    %     EE(3,9)=1;
+
+
+
 EE = setVirtualLinks(EE);
 E = sum(sum(EE));
-
 
 OV = computeOV(V, EE);
 
@@ -101,26 +133,26 @@ disp_EE(EE, V);
 [z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0);
 %fprintf('Mixing\n');
 if GetCost(z_exhaustive) ~= 0
-    cost_exhaustive = getCost(z_exhaustive);
+    cost_exhaustive = getCost(z_exhaustive)
 else
     cost_exhaustive = -1;
 end
 
 %do not expand the demand set in order to enlarge feasibility range
-%z_exhaustive_no_expand = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 0);
-%if GetCost(z_exhaustive_no_expand) ~= 0
-%    cost_exhaustive_no_expansion = getCost(z_exhaustive_no_expand);
-%else
-%    cost_exhaustive_no_expansion = -1;
-%    end
+z_exhaustive_no_expand = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 0);
+if GetCost(z_exhaustive_no_expand) ~= 0
+    cost_exhaustive_no_expansion = getCost(z_exhaustive_no_expand);
+else
+    cost_exhaustive_no_expansion = -1;
+    end
 
-%    z_routing = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 1, 0);  
-    %fprintf('Routing\n');
-%    if GetCost(z_routing) ~= 0
- %       cost_routing = getCost(z_routing);
-  %  else
-%        cost_routing = -1;
-%    end
+    z_routing = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 1, 0);  
+    fprintf('Routing\n');
+    if GetCost(z_routing) ~= 0
+        cost_routing = getCost(z_routing);
+    else
+        cost_routing = -1;
+    end
 
     z_atoms = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 1);
     %disp_z(z_atoms, V);
