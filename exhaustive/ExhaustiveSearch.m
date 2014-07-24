@@ -1,7 +1,7 @@
 %demand_set_expansion: boolean variable that decides whether or the demand set is to be expanded
 %shortest_path_depth: how far we had to go down the ranked paths list in order to find a feasible solution
 function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST,...
-        demand_set_expansion, ROUTING, ATOMS)
+        demand_set_expansion, ROUTING, ATOMS, clause_mat_l)
     %function z=ExhaustiveSearch()
     
     global m
@@ -12,6 +12,9 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
     global fea_f
     global fea_usum;
     
+    global clause_mat
+    clause_mat = clause_mat_l;
+
     shortest_path_depth = -1;
     
     m=1;
@@ -162,7 +165,7 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
         path_set_costs = cell(1, 2);
         path_set_idx = 1;
         shortest_path_rankings(1, st_imag, cell(0, 0), V, T, TT, S, SS, EE);
-        
+
         [~, non_empty_size] = size(path_set_costs(~cellfun('isempty', path_set_costs)));
         if non_empty_size == 0
             z = zeros(V, V);
@@ -171,7 +174,7 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
         
         path_set_costs = sortrows(path_set_costs, 2);
         
-        %path_set_costs
+        path_set_costs
         [path_count, ~] = size(path_set_costs);
         
         % for k = 1:path_count
@@ -299,7 +302,10 @@ function ST_possib = expand_demand_set(S, T, ST)
 end
 
 %get cost for a path
+%REWRITE
 function cost=path_stack_cost(path_stack)
+    global cost_mat
+
     cost = 0;
     edges = zeros(1, 2);
     edge_idx = 1;
@@ -318,14 +324,21 @@ function cost=path_stack_cost(path_stack)
     
     %note: this has to be changed if a different
     %cost function is to be used
-    [cost, ~] = size(unique(edges, 'rows'));
+    cost_edges = unique(edges, 'rows');
+    [num_cost_edges, ~] = size(cost_edges);
+
+    for ce = 1:num_cost_edges
+        m = cost_edges(ce, 1);
+        n = cost_edges(ce, 2);
+
+        cost = cost + cost_mat(m, n);
+    end
 end
 
 function shortest_path_rankings(st_index, st_imag, path_stack, V, T, TT, S, SS, EE)
     global path_set_costs
     global path_set_idx
-    
-    
+
     if st_index > length(st_imag)
         %fprintf('hit.\n');
         cost = path_stack_cost(path_stack);
@@ -387,7 +400,7 @@ function [f, beta] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, f, beta)
             beta(m, n, o) = 1;
         end
     end
-    fprintf('----\n')
+    %fprintf('----\n')
 end
 
 function compute_atom_globals(V, OV, ST, f, S, T)
@@ -724,7 +737,7 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
     if res && ATOMS
         f
         x
-        beta 
+        beta
     end
 end
 
@@ -745,7 +758,7 @@ function z = find_optimal(V)
     r = sum(sum(sum(fea_z)));
     
     for idx = 1:length(fea_z(1, 1, :))
-        if sum(sum(fea_z(:, :, idx))) ~= 0
+        if GetCost(fea_z(:, :, idx), cost_mat) ~= 0
             %fea_z(:, :, idx)
         else
             fprintf('No feasible solution found\n');
@@ -756,7 +769,7 @@ function z = find_optimal(V)
     min_cost_z = zeros(V, V);
     
     for idx = 1:length(fea_z(1, 1, :))
-        cost = GetCost(fea_z(:, :, idx));
+        cost = GetCost(fea_z(:, :, idx), cost_mat);
         if (cost < min_cost) && (cost > 0)
             min_cost = cost;
             min_cost_z = fea_z(:, :, idx);
@@ -1033,7 +1046,7 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
             %    ov=imag(edge(e));
             %    Usum=Usum+z(iv,ov);
             %end
-            Usum = GetCost(z);
+            Usum = GetCost(z, cost_mat);
             
             fea_usum(fea_idx)=Usum;
             fea_idx = fea_idx + 1;

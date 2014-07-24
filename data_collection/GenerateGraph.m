@@ -30,13 +30,14 @@ P = S;
 %number of terminals
 T=t; 
 
+
 %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
-RS = generateRS(1, int64(V/2))
-RT = generateRT(int64(V/2)+int64(1), V)
-% RS = [14, 13];
-% RT = [2, 4, 5];
-% S = 2;
-% T = 3;
+%RS = generateRS(1, int64(V/2))
+%RT = generateRT(int64(V/2)+int64(1), V)
+RS = [14, 13];
+RT = [2, 4, 5];
+S = 2;
+T = 3;
     % V=11; %Number of Nodes
     % RS=[1,2]; %Sources
     % S=length(SS); %Number of Sources
@@ -46,13 +47,13 @@ RT = generateRT(int64(V/2)+int64(1), V)
 virtuals()
 
 ST = zeros(S, T);
-ST = generateST(pairing_avg);
-ST
-% ST(1, 1) = 1;
-% ST(2, 1) = 1;
-% ST(1, 2) = 1;
-% ST(1, 3) = 1;
-% ST(2, 3) = 1;
+% ST = generateST(pairing_avg);
+% ST
+ST(1, 1) = 1;
+ST(2, 1) = 1;
+ST(1, 2) = 1;
+ST(1, 3) = 1;
+ST(2, 3) = 1;
 
     % ST(1,1)=1;
     % ST(1,2)=1;
@@ -70,28 +71,28 @@ else
     EE = generateSprint();
 end
 
-% EE = zeros(V, V);
-% EE(14, 10) = 1;
-% EE(14, 11) = 1;
-% EE(14, 12) = 1;
-% EE(13, 10) = 1;
-% EE(13, 12) = 1;
-% EE(13, 11) = 1;
-% EE(12, 6) = 1;
-% EE(11, 9) = 1;
-% EE(11, 8) = 1;
-% EE(10, 4) = 1;
-% EE(9, 6) = 1;
-% EE(8, 7) = 1;
-% EE(8, 2) = 1;
-% EE(7, 5) = 1;
-% EE(6, 5) = 1;
-% EE(6, 3) = 1;
-% EE(5, 4) = 1;
-% EE(4, 1) = 1;
-% EE(3, 2) = 1;
-% EE(3, 1) = 1;
-% EE(1, 2) = 1;
+EE = zeros(V, V);
+EE(14, 10) = 1;
+EE(14, 11) = 1;
+%EE(14, 12) = 1;
+EE(13, 10) = 1;
+EE(13, 12) = 1;
+EE(13, 11) = 1;
+EE(12, 6) = 1;
+%EE(11, 9) = 1;
+EE(11, 8) = 1;
+EE(10, 4) = 1;
+EE(9, 6) = 1;
+EE(8, 7) = 1;
+EE(8, 2) = 1;
+EE(7, 5) = 1;
+EE(6, 5) = 1;
+%EE(6, 3) = 1;
+EE(5, 4) = 1;
+EE(4, 1) = 1;
+EE(3, 2) = 1;
+EE(3, 1) = 1;
+EE(1, 2) = 1;
 
     % EE=zeros(V,V); %Edges
     %     EE(1,3)=1; %Edges
@@ -114,6 +115,9 @@ end
 EE = setVirtualLinks(EE);
 E = sum(sum(EE));
 
+global cost_mat
+cost_mat = CreateCostMat(V);
+
 OV = computeOV(V, EE);
 
 %we should finally have a acyclic, directed graph
@@ -131,35 +135,36 @@ save(filename, 'RS', 'RT', 'ST', 'EE');
 
 disp_EE(EE, V);
 
-[z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0);
+[z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0, cost_mat);
 %fprintf('Mixing\n');
-if GetCost(z_exhaustive) ~= 0
-    cost_exhaustive = getCost(z_exhaustive)
+if GetCost(z_exhaustive, cost_mat) ~= 0
+    cost_exhaustive = GetCost(z_exhaustive, cost_mat)
 else
     cost_exhaustive = -1;
 end
 
 %do not expand the demand set in order to enlarge feasibility range
-z_exhaustive_no_expand = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 0);
-if GetCost(z_exhaustive_no_expand) ~= 0
-    cost_exhaustive_no_expansion = getCost(z_exhaustive_no_expand);
+z_exhaustive_no_expand = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 0, cost_mat);
+if GetCost(z_exhaustive_no_expand, cost_mat) ~= 0
+    cost_exhaustive_no_expansion = GetCost(z_exhaustive_no_expand, cost_mat);
 else
     cost_exhaustive_no_expansion = -1;
     end
 
-    z_routing = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 1, 0);  
+    z_routing = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 1, 0, cost_mat);  
     fprintf('Routing\n');
-    if GetCost(z_routing) ~= 0
-        cost_routing = getCost(z_routing);
+    if GetCost(z_routing, cost_mat) ~= 0
+        cost_routing = GetCost(z_routing, cost_mat);
     else
         cost_routing = -1;
     end
 
-    z_atoms = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 1);
+    cost_mat
+    z_atoms = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 1, cost_mat);
     %disp_z(z_atoms, V);
     %fprintf('Atoms\n');
-    if GetCost(z_atoms) ~= 0
-        cost_atoms = getCost(z_atoms);
+    if GetCost(z_atoms, cost_mat) ~= 0
+        cost_atoms = GetCost(z_atoms, cost_mat);
     else
         cost_atoms = -1;
     end
@@ -189,10 +194,6 @@ function disp_z(z, V)
             end
         end
     end
-end
-
-function cost = getCost(z)
-    cost = sum(sum(z));
 end
 
 function RS = generateRS(Vs, Ve)
