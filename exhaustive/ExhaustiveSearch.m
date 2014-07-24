@@ -78,7 +78,7 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
     for l=1:V
         for m=1:V
             if EE(l,m)==1
-                edge(e)=l+m*i;
+                edge(e)=l+m*1i;
                 e=e+1;
             end
         end
@@ -174,13 +174,13 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
         %path_set_costs
         [path_count, ~] = size(path_set_costs);
         
-        for k = 1:path_count
-            path_set = path_set_costs{k, 1};
-            for l = 1:length(path_set)
-                path_set{l}
-            end
-            fprintf('----\n');
-        end
+        % for k = 1:path_count
+        %     path_set = path_set_costs{k, 1};
+        %     for l = 1:length(path_set)
+        %         path_set{l}
+        %     end
+        %     fprintf('----\n');
+        % end
 
 
         %path_count
@@ -189,9 +189,9 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
             betas = beta;
 
             path_set = path_set_costs{k, 1};
-            for l = 1:length(path_set)
-                path_set{l}
-            end
+            %for l = 1:length(path_set)
+            %    path_set{l}
+            %end
 
 
             [fs, betas] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, fs, betas);
@@ -350,7 +350,7 @@ function shortest_path_rankings(st_index, st_imag, path_stack, V, T, TT, S, SS, 
         path = paths(path_i);
         if ~isempty(path{1})
             %path{1}
-            shortest_path_rankings(st_index + 1, st_imag, [path_stack; path], V, T, TT, S, SS, EE)
+            shortest_path_rankings(st_index + 1, st_imag, [path_stack; path], V, T, TT, S, SS, EE);
         end
     end
     
@@ -362,7 +362,6 @@ function [f, beta] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, f, beta)
     
     for p = 1:length(path_set)
         path_m = path_set{p};
-        path_m
 
         source = find(SS == path_m(1));
         si = source(1);
@@ -432,9 +431,6 @@ function compute_atom_globals(V, OV, ST, f, S, T)
     for i = 1:V
         ti_size = length(TP{i});
         atom_mat = d_atoms(i, 1:S, 1, cell(1, 1));
-        if i == 8
-            atom_mat
-        end
  
         atoms = cell(1, S);
         [rows, cols] = size(atom_mat);
@@ -451,7 +447,6 @@ function compute_atom_globals(V, OV, ST, f, S, T)
     end
  
     save('c.mat', 'C', 'TP', 'D'); 
-    C{8} 
 end
 
 function z=compute_z(f, edge, E, V, S, T)
@@ -487,9 +482,6 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
             j = imag(edge(e));
             C_j = cell(1, 0);
             
-            diary 'c.txt'
-            C_4 = C{4}
-            diary off
 
             for c = 1:length(C{j})
                 found = 0;
