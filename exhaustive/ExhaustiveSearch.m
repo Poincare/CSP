@@ -200,7 +200,10 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
             if res
                 %first feasible solution is the optimal solution
                 min_cost_z = compute_z(fs, edge, E, V, S, T);
-                min_cost_z = min_cost_z(1:V-S-T, 1:V-S-T)
+                %EE
+                %ST
+                %min_cost_z
+                min_cost_z = min_cost_z(1:V-S-T, 1:V-S-T);
                 shortest_path_depth = path_count;
                 
                 return
@@ -717,12 +720,12 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
         v=v+1;
     end
     
-    checkx
-    checkfx
-    checkf
-    checkfv
-    checkrouting
-    checkatoms
+    %checkx
+    %checkfx
+    %checkf
+    %checkfv
+    %checkrouting
+    %checkatoms
 
     res = checkx & checkfx & checkf & checkfv & checkrouting & checkatoms;
  
