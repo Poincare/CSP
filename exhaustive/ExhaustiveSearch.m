@@ -144,6 +144,7 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
         f = explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge);
         
         if ATOMS
+            global C
             compute_atom_globals(V, OV, ST, f, S, T);
         end
         
@@ -165,7 +166,6 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
         
         %path_set_costs
         [path_count, ~] = size(path_set_costs);
-        path_count
         
         %path_count
         for k = 1:path_count
@@ -194,24 +194,35 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
     end
 end
 
-function atom_mat=d_atoms(i, D,atoms, ti, atom_mat)
+function atom_mat=d_atoms(i, atoms, ti, atom_mat)
     global V SS S P TT T EE E ST IV OV sigma edge st_imag TP
-    
+    global D
+ 
     %result matrices
     global z x beta f
     
     terminals = TP{i};
-    
+ 
     %base case
     if ti > length(terminals)
         atom_mat = cell(1, 1);
         atom_mat{1} = atoms;
         return
     end
-    
+   
+    if i == 8
+        terminals_ti = terminals(ti) 
+        atoms
+        to_intersect = D{terminals(ti)}
+    end
+
     atoms_l = intersect(atoms, D{terminals(ti)});
+    if i == 8
+        atoms_l
+    end
+
     if length(atoms_l) ~= 0
-        atom_mat_l = d_atoms(i, D, atoms_l, ti + 1, atom_mat);
+        atom_mat_l = d_atoms(i, atoms_l, ti + 1, atom_mat);
         if ~isempty(atom_mat_l)
             atom_mat = [atom_mat; atom_mat_l];
         end
@@ -221,17 +232,13 @@ function atom_mat=d_atoms(i, D,atoms, ti, atom_mat)
     d_comp = setdiff(whole, D{terminals(ti)});
     atoms_r = intersect(atoms, d_comp);
     if length(atoms_r) ~= 0
-        atom_mat_r = d_atoms(i, D, atoms_r, ti + 1, atom_mat);
+        atom_mat_r = d_atoms(i, atoms_r, ti + 1, atom_mat);
         if ~isempty(atom_mat_r)
             atom_mat = [atom_mat; atom_mat_r];
         end
     end
 end
 
-
-function cost = get_cost(z)
-    cost = sum(sum(z));
-end
 
 %expand the demand set (can give feasible solution even when the original demand set
 %does not give a feasible solution).
@@ -323,8 +330,8 @@ function shortest_path_rankings(st_index, st_imag, path_stack, V, T, TT, S, SS, 
 end
 
 function [f, beta] = gen_vars_from_path_set(path_set, V, P, T, SS, TT, f)
-    beta = zeros(V, V, V);
-    f = zeros(V, V, P, T);
+    %beta = zeros(V, V, V);
+    %f = zeros(V, V, P, T);
     
     for p = 1:length(path_set)
         path = path_set{p};
@@ -391,12 +398,15 @@ function compute_atom_globals(V, OV, ST, f, S, T)
         
         D{t} = sources;
     end
-    
+
     C = cell(1, V);
     for i = 1:V
         ti_size = length(TP{i});
-        atom_mat = d_atoms(i, D, 1:S, 1, cell(1, 1));
-        
+        atom_mat = d_atoms(i, 1:S, 1, cell(1, 1));
+        if i == 8
+            atom_mat
+        end
+ 
         atoms = cell(1, S);
         [rows, cols] = size(atom_mat);
         atoms = cell(1, 2^ti_size);
@@ -410,7 +420,9 @@ function compute_atom_globals(V, OV, ST, f, S, T)
         
         C{i} = atoms;
     end
-    
+ 
+    save('c.mat', 'C', 'TP', 'D'); 
+    C{8} 
 end
 
 function z=compute_z(f, edge, E, V, S, T)
@@ -432,58 +444,96 @@ end
 function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma, ROUTING, ATOMS)
     global m
     
-    function atom_s = check_atom_feasibility()
-        %check f %Consraint (17)
+    function res = sum_cell(cell_m)
+        res = cellfun(@sum, cell_m);
+    end
+            
+    function atom_s = check_atom_feasibility(x, f)
         global C D TP
+        C
         
         atom_s = 1;
         
-        if (checkf == 1) && (checkfv == 1)
-            for e = 1:E
-                i = real(edge(e));
-                j = imag(edge(e));
-                C_j = cell(1, 0);
-                for c = 1:length(C{j})
-                    found = 0;
-                    for cji = 1:length(C_j)
-                        if isequal(C_j{cji}, C{j}{c})
-                            found = 1;
-                            break;
-                        end
-                    end
-                    
-                    if ~found
-                        C_j{c} = C{j}{c};
+        for e = 1:E
+            i = real(edge(e));
+            j = imag(edge(e));
+            C_j = cell(1, 0);
+            for c = 1:length(C{j})
+                found = 0;
+                for cji = 1:length(C_j)
+                    if isequal(C_j{cji}, C{j}{c})
+                        found = 1;
+                        break;
                     end
                 end
-                
-                Value_sets = cell(1, length(C_j));
-                
-                for c = 1:length(C_j)
-                    path_set = C_j{c};
-                    
-                    if ~isempty(path_set)
-                        value_set = zeros(1, length(path_set));
-                        for k = 1:length(path_set)
-                            if x(i, j, path_set(k)) ~= -1
-                                value_set(k) = x(i, j, path_set(k));
-                            end
-                        end
-                        
-                        Value_sets{c} = value_set;
-                    end
-                end
-                
-                %C_j
-                %Value_sets
-                value_sums = cellfun(@sum, Value_sets);
-                TOTAL_VALUE = length(value_sums(value_sums > 0));
-                if TOTAL_VALUE > 1
-                    atom_s = 0;
+
+                if ~found
+                    C_j{c} = C{j}{c};
                 end
             end
+
+            Value_sets = cell(1, length(C_j));
+
+            for c = 1:length(C_j)
+                path_set = C_j{c};
+
+                if j == 8
+                    path_set
+                end
+
+                if ~isempty(path_set)
+                    value_set = zeros(1, length(path_set));
+                    for k = 1:length(path_set)
+                        if x(i, j, path_set(k)) ~= -1
+                            value_set(k) = x(i, j, path_set(k));
+                        end
+                    end
+
+                    if j == 8
+                        value_set
+                    end
+
+                    Value_sets{c} = {value_set};
+                end
+            end
+
+            
+            value_sums = [];
+            for vs = 1:length(Value_sets)
+                value_set = Value_sets{vs};
+                
+                if iscell(value_set)
+                    value_set = value_set{1};
+                end
+                
+                val_sum = 0;
+                
+                for m = 1:length(value_set)
+                    val_sum = val_sum + value_set(m);
+                end
+                
+                value_sums = [value_sums, val_sum];
+            end
+            
+            
+            TOTAL_VALUE = length(value_sums(value_sums > 0));
+            if TOTAL_VALUE > 1
+                atom_s = 0;
+            end
+                 
+            if (j == 8) && (atom_s == 1)
+                C{8}
+
+                Value_sets
+
+                for k = 1:length(Value_sets)
+                    value_sets_k = Value_sets{k}
+                end
+                value_sums
+                TOTAL_VALUE
+            end
+            
         end
-        
     end
     
     
@@ -494,7 +544,7 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
     
     x = set_x_on_initial_edges(x, f, OV, IV, V, S, T, SS, TT);
     x = compute_x(x, beta, EE, IV, OV, V, S, T);
-    
+
     %% checking constraints 1:satisfied
     checkx=1;
     checkfx=1;
@@ -530,7 +580,7 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
     %(2) checkf constraint (outside of if)
     %(3) flow conservation (outside of if)
     if ATOMS
-        checkatoms = check_atom_feasibility();
+        checkatoms = check_atom_feasibility(x, f);
     else
         %check x at terminals
         t=1;
@@ -646,8 +696,15 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
     %checkf
     %checkfv
     
-    
     res = checkx & checkfx & checkf & checkfv & checkrouting & checkatoms;
+    if ATOMS
+        checkatoms
+    end
+ 
+    if res && ATOMS
+        f
+        x 
+    end
 end
 
 function disp_z(z, V)
@@ -678,7 +735,7 @@ function z = find_optimal(V)
     min_cost_z = zeros(V, V);
     
     for idx = 1:length(fea_z(1, 1, :))
-        cost = sum(sum(fea_z(:, :, idx)));
+        cost = GetCost(fea_z(:, :, idx));
         if (cost < min_cost) && (cost > 0)
             min_cost = cost;
             min_cost_z = fea_z(:, :, idx);
@@ -772,9 +829,11 @@ function x=set_x_on_initial_edges(x, f, OV, IV, V, P, T, SS, TT)
 end
 
 %computes x from beta values
+%x, beta, EE, IV, OV, V, S, T
 function x=compute_x(x, beta, EE, IV, OV, V, S, T)
     sorted_nodes = TopologicalSort(EE, IV);
-    
+    sorted_nodes
+
     for n = 1:length(sorted_nodes)
         v = sorted_nodes(n);
         
@@ -799,7 +858,6 @@ function x=compute_x(x, beta, EE, IV, OV, V, S, T)
             end
         end
     end
-    
 end
 
 function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, E, edge, sigma, z)
@@ -952,7 +1010,7 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
             %    ov=imag(edge(e));
             %    Usum=Usum+z(iv,ov);
             %end
-            Usum = sum(sum(z));
+            Usum = GetCost(z);
             
             fea_usum(fea_idx)=Usum;
             fea_idx = fea_idx + 1;
@@ -1117,5 +1175,4 @@ function f=explore_vars_f(f, EE, SS, V, P, T, E, TT, ST, edge_imag)
     end
     
 end
-
 
