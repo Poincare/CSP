@@ -1,0 +1,2 @@
+data_collection/realizations*
+data_collection/realizations*/*

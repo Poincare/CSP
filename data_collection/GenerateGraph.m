@@ -31,8 +31,8 @@ P = S;
 T=t; 
 
 %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
-%RS = generateRS(1, int64(V/2))
-%RT = generateRT(int64(V/2)+int64(1), V)
+RS = generateRS(1, int64(V/2))
+RT = generateRT(int64(V/2)+int64(1), V)
 % RS = [14, 13];
 % RT = [2, 4, 5];
 % S = 2;
