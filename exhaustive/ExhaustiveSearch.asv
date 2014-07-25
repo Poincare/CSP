@@ -590,9 +590,9 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
             iv = real(edge(e));
             ov = imag(edge(e));
             
-            if ~isempty(find(TT == ov))
-               e = e+1;
-                continue;   
+            %if ~isempty(find(TT == ov))
+             %   e = e+1;
+             %   continue;   
             end
             
             x_sum = 0;
@@ -604,7 +604,6 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
             end
             
             if x_sum > 1
-                fprintf('Failed routing; iv: %d, ov: %d\n', iv, ov);
                 checkrouting = 0;
             end
             
@@ -733,8 +732,7 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
         v=v+1;
     end
     
-    
-    if ROUTING == 1
+    if ROUTING
         checkx
         checkfx
         checkf
