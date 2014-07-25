@@ -8,7 +8,7 @@ function costs=Collection(S, T, pairing_avg, iterations)
 
     for iteration = 1:iterations
          [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification]=...
- GenerateGraph(iteration, pairing_avg, S, T, 'NSFNET');
+ GenerateGraph(iteration, pairing_avg, S, T, 'SPRINT');
         %cost_atoms = GenerateGraph(iteration, pairing_avg, S, T, 'NSFNET');
 
         %cost_exhaustive
@@ -36,4 +36,11 @@ function costs=Collection(S, T, pairing_avg, iterations)
     filename_mat = strcat(filename, '.mat')
     save(filename_mat, 'costs', 'classifications')
     diary off;
+
+    exh = costs(:, 1);
+    exh_no_exp = costs(:, 2);
+    routing = costs(:, 3);
+    atoms = costs(:, 4);
+
+    DIFF_EXH_ATOMS = sum(exh-atoms);
 end

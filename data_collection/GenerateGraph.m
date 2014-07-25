@@ -30,14 +30,16 @@ P = S;
 %number of terminals
 T=t; 
 
-
+%S = 2;
+%T = 3;
 %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
-%RS = generateRS(1, int64(V/2))
-%RT = generateRT(int64(V/2)+int64(1), V)
-RS = [14, 13];
-RT = [2, 4, 5];
-S = 2;
-T = 3;
+RS = generateRS(1, int64(V/2))
+RT = generateRT(int64(V/2)+1, V);
+%RS = [14, 13];
+%RS
+%RT
+%RT = [2, 4, 5];
+
     % V=11; %Number of Nodes
     % RS=[1,2]; %Sources
     % S=length(SS); %Number of Sources
@@ -47,13 +49,14 @@ T = 3;
 virtuals()
 
 ST = zeros(S, T);
-% ST = generateST(pairing_avg);
+ST = generateST(pairing_avg);
+ST
 % ST
-ST(1, 1) = 1;
-ST(2, 1) = 1;
-ST(1, 2) = 1;
-ST(1, 3) = 1;
-ST(2, 3) = 1;
+%ST(1, 1) = 1;
+%ST(2, 1) = 1;
+%ST(1, 2) = 1;
+%ST(1, 3) = 1;
+%ST(2, 3) = 1;
 
 
     % ST(1,1)=1;
@@ -72,28 +75,28 @@ else
     EE = generateSprint();
 end
 
-EE = zeros(V, V);
-EE(14, 10) = 1;
-EE(14, 11) = 1;
-%EE(14, 12) = 1;
-EE(13, 10) = 1;
-EE(13, 12) = 1;
-EE(13, 11) = 1;
-EE(12, 6) = 1;
-%EE(11, 9) = 1;
-EE(11, 8) = 1;
-EE(10, 4) = 1;
-EE(9, 6) = 1;
-EE(8, 7) = 1;
-EE(8, 2) = 1;
-EE(7, 5) = 1;
-EE(6, 5) = 1;
-%EE(6, 3) = 1;
-EE(5, 4) = 1;
-EE(4, 1) = 1;
-EE(3, 2) = 1;
-EE(3, 1) = 1;
-EE(1, 2) = 1;
+% EE = zeros(V, V);
+% EE(14, 10) = 1;
+% EE(14, 11) = 1;
+% %EE(14, 12) = 1;
+% EE(13, 10) = 1;
+% EE(13, 12) = 1;
+% EE(13, 11) = 1;
+% EE(12, 6) = 1;
+% %EE(11, 9) = 1;
+% EE(11, 8) = 1;
+% EE(10, 4) = 1;
+% EE(9, 6) = 1;
+% EE(8, 7) = 1;
+% EE(8, 2) = 1;
+% EE(7, 5) = 1;
+% EE(6, 5) = 1;
+% %EE(6, 3) = 1;
+% EE(5, 4) = 1;
+% EE(4, 1) = 1;
+% EE(3, 2) = 1;
+% EE(3, 1) = 1;
+% EE(1, 2) = 1;
 
 ST_classification = ClassifyST();
 
@@ -136,7 +139,6 @@ filename = strcat(foldername, '/realizations', num2str(iteration), '.vars');
 filename
 save(filename, 'RS', 'RT', 'ST', 'EE');
 
-disp_EE(EE, V);
 
 [z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0, cost_mat);
 %fprintf('Mixing\n');
@@ -166,6 +168,7 @@ else
     %disp_z(z_atoms, V);
     %fprintf('Atoms\n');
     if GetCost(z_atoms, cost_mat) ~= 0
+        z_atoms
         cost_atoms = GetCost(z_atoms, cost_mat);
     else
         cost_atoms = -1;
