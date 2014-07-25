@@ -35,5 +35,5 @@ function costs=Collection(S, T, pairing_avg, iterations)
     classifications
     filename_mat = strcat(filename, '.mat')
     save(filename_mat, 'costs', 'classifications')
-    diary off;        
+    diary off;
 end

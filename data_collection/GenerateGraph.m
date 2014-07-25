@@ -141,7 +141,7 @@ disp_EE(EE, V);
 [z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0, cost_mat);
 %fprintf('Mixing\n');
 if GetCost(z_exhaustive, cost_mat) ~= 0
-    cost_exhaustive = GetCost(z_exhaustive, cost_mat)
+    cost_exhaustive = GetCost(z_exhaustive, cost_mat);
 else
     cost_exhaustive = -1;
 end
@@ -162,7 +162,6 @@ else
         cost_routing = -1;
     end
 
-    cost_mat
     z_atoms = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 1, cost_mat);
     %disp_z(z_atoms, V);
     %fprintf('Atoms\n');

@@ -174,7 +174,6 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
         
         path_set_costs = sortrows(path_set_costs, 2);
         
-        path_set_costs
         [path_count, ~] = size(path_set_costs);
         
         % for k = 1:path_count
@@ -675,7 +674,7 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
             zt(e,t)=sumf;
             if sumf>1
 
-                fprintf('Failed on: iv: %d, ov: %d, t: %d, sumf: %d\n', iv, ov, t, sumf);
+                %fprintf('Failed on: iv: %d, ov: %d, t: %d, sumf: %d\n', iv, ov, t, sumf);
                 checkf=0;
             end
         end
@@ -715,8 +714,8 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
                     end
                     
                     if (sumoutf-suminf~=sigma(v,s,t))
-                        fprintf('Failed on node: %d, t: %d, s: %d\n', v, t, s);
-                        fprintf('Sumoutf: %d, suminf: %d, sigma: %d\n', sumoutf, suminf, sigma(v, s, t));
+                        %fprintf('Failed on node: %d, t: %d, s: %d\n', v, t, s);
+                        %fprintf('Sumoutf: %d, suminf: %d, sigma: %d\n', sumoutf, suminf, sigma(v, s, t));
                         checkfv=0;
                     end
                 end
@@ -733,12 +732,7 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
     %checkatoms
 
     res = checkx & checkfx & checkf & checkfv & checkrouting & checkatoms;
- 
-    if res && ATOMS
-        f
-        x
-        beta
-    end
+
 end
 
 function disp_z(z, V)
@@ -961,7 +955,7 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
             iv=real(edge(e));
             ov=imag(edge(e));
 
-            fprintf('Failed on: %d, %d\n', iv, ov)
+            %fprintf('Failed on: %d, %d\n', iv, ov)
             for t=1:T
                 sumf=0;
                 for s=1:S
@@ -1013,8 +1007,8 @@ function path_comb(st_imag, st_index, f, beta, SS, TT, EE, ST, IV, OV, S, T, V, 
                         end
                         
                         if (sumoutf-suminf~=sigma(v,s,t))
-                            fprintf('Failed on node: %d, t: %d, s: %d\n', v, t, s);
-                            fprintf('Sumoutf: %d, suminf: %d, sigma: %d\n', sumoutf, suminf, sigma(v, s, t));
+                            %fprintf('Failed on node: %d, t: %d, s: %d\n', v, t, s);
+                            %fprintf('Sumoutf: %d, suminf: %d, sigma: %d\n', sumoutf, suminf, sigma(v, s, t));
                             checkfv=0;
                         end
                     end
