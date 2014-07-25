@@ -15745,3 +15745,63 @@ filename_mat =
 
 costs/costs-2-3-1.5-1.mat
 
+
+costs =
+
+    25    25    25    25
+
+
+classifications = 
+
+    'general'
+
+
+filename_mat =
+
+costs/costs-2-3-1.4-1.mat
+
+
+costs =
+
+    24    24    24    24
+
+
+classifications = 
+
+    'unicast'
+
+
+filename_mat =
+
+costs/costs-2-3-1.5-1.mat
+
+
+costs =
+
+    56    56    66    56
+
+
+classifications = 
+
+    'multicast'
+
+
+filename_mat =
+
+costs/costs-2-3-1.5-1.mat
+
+
+costs =
+
+     8     8     8     8
+
+
+classifications = 
+
+    'unicast'
+
+
+filename_mat =
+
+costs/costs-2-3-1.5-1.mat
+

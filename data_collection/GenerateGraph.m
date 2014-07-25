@@ -30,19 +30,16 @@ P =S;
 %number of terminals
 T=t; 
 
-V = 9;
-%S = 2;
-%T = 3;
+S = 2;
+T = 3;
+
 %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
 %RS = generateRS(8,14);
-%RT = generateRT(1, 5);
-%RS = generateRS(11, 14);
 
-%RS = [14, 13];
-%RT = generateRT(1, 5);
-%RS
-%RT
-%RT = [2, 4, 5];
+RT = generateRT(1, 5);
+RS = [11, 10];
+
+%RS = generateRS(11, 14);
 
     % V=11; %Number of Nodes
     % RS=[1,2]; %Sources
@@ -55,8 +52,8 @@ V = 9;
     %RT = [1, 2, 3];
     
     %GRID
-    RS = [1,4];
-    RT = [6, 8, 9];
+    %RS = [1,4];
+    %RT = [6, 8, 9];
     
 virtuals()
 
@@ -92,28 +89,28 @@ fea_z = zeros(V, V, V);
 % else
 %     EE = generateSprint();
 % end
-EE = generateGridTopology();
+% EE = generateGridTopology();
 
 %sprint directionality
-%EE = zeros(V, V);
-%EE(1,2) = 1;
-%EE(1, 3) = 1;
-% EE(4,1) = 1;
-% EE(4,5) = 1;
-% EE(5,1) = 1;
-% EE(6,3) = 1;
-% EE(7,6) = 1;
-% EE(7,4) = 1;
-% EE(8,6) = 1;
-% EE(9, 2) = 1;
-% EE(9,4) = 1;
-% EE(9,7) = 1;
-% EE(10, 5) = 1;
-% EE(10, 7) = 1;
-% EE(10, 6) = 1;
-% EE(10, 8) = 1;
-% EE(11, 9) = 1;
-% EE(11, 10) = 1;
+EE = zeros(V, V);
+EE(1,2) = 1;
+EE(1, 3) = 1;
+EE(4,1) = 1;
+EE(4,5) = 1;
+EE(5,1) = 1;
+EE(6,3) = 1;
+EE(7,6) = 1;
+EE(7,4) = 1;
+EE(8,6) = 1;
+EE(9, 2) = 1;
+EE(9,4) = 1;
+EE(9,7) = 1;
+EE(10, 5) = 1;
+EE(10, 7) = 1;
+EE(10, 6) = 1;
+EE(10, 8) = 1;
+EE(11, 9) = 1;
+EE(11, 10) = 1;
 
 %EE = zeros(V, V);
 %EE(14, 10) = 1;

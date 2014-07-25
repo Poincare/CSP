@@ -32,8 +32,6 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
     else
         ST_possib = ST;
     end
-    
-
 
     min_cost = Inf;
     min_cost_z = zeros(V, V);
@@ -604,7 +602,7 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
             end
             
             if x_sum > 1
-                fprintf('Failed routing; iv: %d, ov: %d\n', iv, ov);
+                %fprintf('Failed routing; iv: %d, ov: %d\n', iv, ov);
                 checkrouting = 0;
             end
             
@@ -734,15 +732,15 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
     end
     
     
-    if ROUTING == 1
-        checkx
-        checkfx
-        checkf
-        checkfv
-        checkrouting
-        checkatoms
-        fprintf('----------\n');
-    end
+    %  if ROUTING == 1
+    %     checkx
+    %     checkfx
+    %     checkf
+    %     checkfv
+    %     checkroutin
+    %     checkatoms
+    %     fprintf('----------\n');
+    % end
     
     res = checkx & checkfx & checkf & checkfv & checkrouting & checkatoms;
 
