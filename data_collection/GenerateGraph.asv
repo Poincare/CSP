@@ -30,7 +30,7 @@ P =S;
 %number of terminals
 T=t; 
 
-V
+V = 9;
 %S = 2;
 %T = 3;
 %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
@@ -52,12 +52,16 @@ V
 
     %SPRINT
     RS = [11, 10];
-    RT = [1, 2, 3];
+    %RT = [1, 2, 3];
+    
+    %GRID
+    RS = [1,4];
+    RT = [6, 8, 9];
     
 virtuals()
 
 ST = zeros(S, T);
-%ST = generateST(pairing_avg);
+ST = generateST(pairing_avg);
 %ST
 % ST(1, 1) = 1;
 % ST(2, 1) = 1;
@@ -73,12 +77,12 @@ ST = zeros(S, T);
     % ST(2,3)=1;
 
     %SPRINT
-    ST(1, 1) = 1;
+    %ST(1, 1) = 1;
     %ST(2, 1) = 1;
-    ST(1, 3) = 1;
-    ST(2, 3) = 1;
+    %ST(1, 3) = 1;
+    %ST(2, 3) = 1;
     %ST(1, 2) = 1;
-    ST(2, 2) = 1;
+    %ST(2, 2) = 1;
 
 fea_idx = 1;
 fea_z = zeros(V, V, V);
@@ -88,27 +92,28 @@ fea_z = zeros(V, V, V);
 % else
 %     EE = generateSprint();
 % end
+EE = generateGridTopology();
 
 %sprint directionality
-EE = zeros(V, V);
-EE(1,2) = 1;
-EE(1, 3) = 1;
-EE(4,1) = 1;
-EE(4,5) = 1;
-EE(5,1) = 1;
-EE(6,3) = 1;
-EE(7,6) = 1;
-EE(7,4) = 1;
-EE(8,6) = 1;
-EE(9, 2) = 1;
-EE(9,4) = 1;
-EE(9,7) = 1;
-EE(10, 5) = 1;
-EE(10, 7) = 1;
-EE(10, 6) = 1;
-EE(10, 8) = 1;
-EE(11, 9) = 1;
-EE(11, 10) = 1;
+%EE = zeros(V, V);
+%EE(1,2) = 1;
+%EE(1, 3) = 1;
+% EE(4,1) = 1;
+% EE(4,5) = 1;
+% EE(5,1) = 1;
+% EE(6,3) = 1;
+% EE(7,6) = 1;
+% EE(7,4) = 1;
+% EE(8,6) = 1;
+% EE(9, 2) = 1;
+% EE(9,4) = 1;
+% EE(9,7) = 1;
+% EE(10, 5) = 1;
+% EE(10, 7) = 1;
+% EE(10, 6) = 1;
+% EE(10, 8) = 1;
+% EE(11, 9) = 1;
+% EE(11, 10) = 1;
 
 %EE = zeros(V, V);
 %EE(14, 10) = 1;
@@ -359,7 +364,7 @@ function OV=computeOV(V, EE)
     OV=cell(V);
     for v=1:V
         OV{v}=0;
-        for ov=1:Vf
+        for ov=1:V
             if EE(v,ov)==1
                 if sum(OV{v})==0
                     OV{v}=ov;
@@ -374,7 +379,7 @@ end
 function EE=generateGridTopology()
     global V RS S RT T EE ST SS TT
     
-    V = 9;
+    V = 14;
     EE = zeros(V, V);
     EE(1,2) = 1;
     EE(1,4) = 1;
