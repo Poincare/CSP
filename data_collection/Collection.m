@@ -6,9 +6,12 @@ function costs=Collection(S, T, pairing_avg, iterations)
     classifications = cell(0, 0);
     path_depths = zeros(0, 1); 
 
+    scheme_name = 'SPRINT';
+    scheme_suffix = 'DIRECTED';
+
     for iteration = 1:iterations
          [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification]=...
- GenerateGraph(iteration, pairing_avg, S, T, 'SPRINT');
+ GenerateGraph(iteration, pairing_avg, S, T, scheme_name, scheme_suffix);
         %cost_atoms = GenerateGraph(iteration, pairing_avg, S, T, 'NSFNET');
 
         %cost_exhaustive
@@ -29,7 +32,9 @@ function costs=Collection(S, T, pairing_avg, iterations)
     end     
 
     mkdir('costs');
-    filename = strcat('costs/costs-', num2str(S), '-', num2str(T), '-', num2str(pairing_avg), '-', num2str(iterations));
+    filename = strcat('costs/costs-', scheme_name, '-', scheme_suffix,...
+        '-', num2str(S), '-', num2str(T), '-', num2str(pairing_avg), '-', num2str(iterations));
+
     diary filename;
     costs
     classifications

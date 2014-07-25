@@ -15805,3 +15805,78 @@ filename_mat =
 
 costs/costs-2-3-1.5-1.mat
 
+
+costs =
+
+    57    57    65    57
+
+
+classifications = 
+
+    'multicast'
+
+
+filename_mat =
+
+costs/costs-2-3-1.5-1.mat
+
+
+costs =
+
+    65    65    75    65
+
+
+classifications = 
+
+    'multicast'
+
+
+filename_mat =
+
+costs/costs-2-3-1.5-1.mat
+
+
+costs =
+
+    14    14    14    14
+
+
+classifications = 
+
+    'multicast'
+
+
+filename_mat =
+
+costs/costs-SPRINT-DIRECTED-2-3-1-1.mat
+
+
+costs =
+
+    42    42    42    42
+
+
+classifications = 
+
+    'unicast'
+
+
+filename_mat =
+
+costs/costs-SPRINT-DIRECTED-2-3-1-1.mat
+
+
+costs =
+
+    32    32    32    32
+
+
+classifications = 
+
+    'unicast'
+
+
+filename_mat =
+
+costs/costs-SPRINT-DIRECTED-2-3-1-1.mat
+
