@@ -208,19 +208,19 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
                 min_cost_z = min_cost_z(1:V-S-T, 1:V-S-T);
                 shortest_path_depth = path_count;
                 
-                return
-                
-                %cost = get_cost(z);
-                %if cost < min_cost && (cost > 0)
-                %   min_cost = cost;
-                %   min_cost_z = z;
-                %   min_cost_st = ST;
-                %end
+                cost = get_cost(z);
+                if cost < min_cost && (cost > 0)
+                   min_cost = cost;
+                   min_cost_z = z;
+                   min_cost_st = ST;
+                end
             else
                 z = zeros(V, V);
             end
         end
     end
+
+    return
 end
 
 function atom_mat=d_atoms(i, atoms, ti, atom_mat)
