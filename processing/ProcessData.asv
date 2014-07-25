@@ -35,10 +35,7 @@ function ProcessData(cost_file)
 
     end
 
-    fprintf('Routing feasible:%d\n', length(routing_costs(routing_costs ~= -1)));
-    fprintf('2004 feasible: %d\n', length(atoms_costs(atoms_costs ~= -1)));
-    fprintf('Exh_no_exp feasible: %d\n', length(exh_no_exp_costs(exh_no_exp_costs ~= -1)));
-    fprintf('Exh feasible: %d\n', length(exh_costs(exh_costs ~= -1)));
+    fprintf('Routing feasible:%d', length(routing_costs(routing_costs ~= -1));
     
     routing_comparison
     atoms_comparison

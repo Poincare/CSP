@@ -11,5 +11,9 @@ function cost_mat=CreateCostMat(V)
         cost_mat = ones(V, V);
     end
 
-    randomCostMat();
+    function oneTenMat()
+        cost_mat = (randi(2, V, V) - ones(V,V))*9 + ones(V,V);
+    end
+    
+    oneTenMat();
 end

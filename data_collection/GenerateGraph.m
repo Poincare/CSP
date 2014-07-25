@@ -3,7 +3,7 @@
 %S: number of sources
 %T: number of terminals
 %scheme_name: "NSFNET" or "SPRINT"
-function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification]...
+function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification, RT]...
 =GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
 %function cost_atoms=GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
 
@@ -33,9 +33,12 @@ T=t;
 %S = 2;
 %T = 3;
 %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
-RS = generateRS(1, int64(V/2))
-RT = generateRT(int64(V/2)+1, V);
+%RS = generateRS(8,14);
+RT = generateRT(1, 5);
+RS = generateRS(11, 14);
+
 %RS = [14, 13];
+%RT = generateRT(1, 5);
 %RS
 %RT
 %RT = [2, 4, 5];
@@ -50,8 +53,7 @@ virtuals()
 
 ST = zeros(S, T);
 ST = generateST(pairing_avg);
-ST
-% ST
+%ST
 %ST(1, 1) = 1;
 %ST(2, 1) = 1;
 %ST(1, 2) = 1;
