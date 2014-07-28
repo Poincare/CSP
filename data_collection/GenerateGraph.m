@@ -30,19 +30,25 @@ P =S;
 %number of terminals
 T=t; 
 
-S = 2;
-T = 3;
-
 %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
 %RS = generateRS(8,14);
 
-RT = generateRT(1, 5);
-RT
+%RT = generateRT(2, 4);
+RT = randsample([2,3,4], T);
+%RT = [2, 3];
+% RT = [1,3];
+%RT
+%RS
+%RT = [2,4];
+%RT
 if strcmp(scheme_name, 'NSFNET')
     RS = [14, 13];
 else
-    RS = [11, 10];
+    RS = [11, 8];
 end
+
+RT
+RS
 
 %RS = generateRS(11, 14);
 
@@ -64,7 +70,18 @@ virtuals()
 
 ST = zeros(S, T);
 ST = generateST(pairing_avg);
-%ST
+%ST(1,1) = 1;
+%ST(1,2) = 1;
+%ST(2, 1) = 1;
+%ST(2,2) = 1;
+
+%ST(1,2)=1;
+%ST(1,2) =1;
+%ST(2,1) = 1;
+%ST(2,2) = 1;
+
+ %ST(2, 2) = 1;
+% ST(1, 3) = 1;
 % ST(1, 1) = 1;
 % ST(2, 1) = 1;
 % ST(1, 2) = 1;
@@ -110,11 +127,14 @@ if strcmp(scheme_name, 'SPRINT') && strcmp(scheme_suffix, 'DIRECTED')
     EE(8,6) = 1;
     EE(9, 2) = 1;
     EE(9,4) = 1;
-    EE(9,7) = 1;
+    %EE(9,7) = 1;
+    EE(7, 9) = 1;
+    
     EE(10, 5) = 1;
     EE(10, 7) = 1;
     EE(10, 6) = 1;
-    EE(10, 8) = 1;
+    %EE(10, 8) = 1;
+    EE(8, 10) = 1;
     EE(11, 9) = 1;
     EE(11, 10) = 1;
 
@@ -122,8 +142,8 @@ elseif strcmp(scheme_name, 'NSFNET') && strcmp(scheme_suffix, 'DIRECTED')
     EE = zeros(V, V);
     EE(14, 10) = 1;
     EE(14, 11) = 1;
-    EE(14, 12) = 1;
-    EE(13, 10) = 1;
+    %EE(14, 12) = 1;
+    %EE(13, 10) = 1;
     EE(13, 12) = 1;
     EE(13, 11) = 1;
     EE(12, 6) = 1;
@@ -138,8 +158,8 @@ elseif strcmp(scheme_name, 'NSFNET') && strcmp(scheme_suffix, 'DIRECTED')
     EE(6, 3) = 1;
     EE(5, 4) = 1;
     EE(4, 1) = 1;
-    EE(3, 2) = 1;
-    EE(3, 1) = 1;
+    %EE(2, 3) = 1;
+    EE(1, 3) = 1;
     EE(1, 2) = 1;
 end
 
@@ -190,6 +210,7 @@ save(filename, 'RS', 'RT', 'ST', 'EE');
 [z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0, cost_mat);
 %fprintf('Mixing\n');
 if GetCost(z_exhaustive, cost_mat) ~= 0
+    %z_exhaustive
     cost_exhaustive = GetCost(z_exhaustive, cost_mat);
 else
     cost_exhaustive = -1;
@@ -206,6 +227,7 @@ else
     z_routing = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 1, 0, cost_mat);  
     fprintf('Routing\n');
     if GetCost(z_routing, cost_mat) ~= 0
+        %z_routing
         cost_routing = GetCost(z_routing, cost_mat);
     else
         cost_routing = -1;
@@ -215,7 +237,6 @@ else
     %disp_z(z_atoms, V);
     %fprintf('Atoms\n');
     if GetCost(z_atoms, cost_mat) ~= 0
-        z_atoms
         cost_atoms = GetCost(z_atoms, cost_mat);
     else
         cost_atoms = -1;
@@ -258,7 +279,7 @@ end
 function RT = generateRT(Vs, Ve)
     global V S RT T EE ST SS TT OV
 
-    RT = [randperm(round(Ve)-round(Vs), T)] + double(Vs);
+    RT = [randperm(round(Ve)-round(Vs) + 1, T)] + round(Vs) - 1;
 end
 
 function ST = generateST(pairing_avg)

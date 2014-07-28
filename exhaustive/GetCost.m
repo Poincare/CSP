@@ -12,6 +12,5 @@ function cost = GetCost(z, cost_mat)
     [z_x, z_y] = size(z);
 
     cost_mat = cost_mat(1:z_x, 1:z_y);
-
     cost = sum(sum(cost_mat.*z));
 end

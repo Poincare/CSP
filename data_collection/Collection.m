@@ -1,12 +1,11 @@
-function costs=Collection(S, T, pairing_avg, iterations)
-    clearvars -except S T pairing_avg iterations
+function costs=Collection(S, T, pairing_avg, iterations, scheme_name)
+    clearvars -except S T pairing_avg iterations scheme_name
     clc
 
     costs = zeros(0, 4);
     classifications = cell(0, 0);
     path_depths = zeros(0, 1); 
 
-    scheme_name = 'SPRINT';
     scheme_suffix = 'DIRECTED';
 
     for iteration = 1:iterations
@@ -38,7 +37,7 @@ function costs=Collection(S, T, pairing_avg, iterations)
     diary filename;
     costs
     classifications
-    filename_mat = strcat(filename, '.mat')
+    filename_mat = strcat(filename, '.mat');
     save(filename_mat, 'costs', 'classifications')
     diary off;
 

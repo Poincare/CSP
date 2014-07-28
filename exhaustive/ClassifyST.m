@@ -2,7 +2,8 @@
 %set of connections
 function classification=ClassifyST()
     global S T ST
-
+    ST
+    
     D = cell(1, T);
     for ti = 1:T
         sources = [];
@@ -18,6 +19,7 @@ function classification=ClassifyST()
 
     %compute intersection
     whole = D{1};
+    whole
     intersected = whole;
     for ti = 1:T
         intersected = intersect(intersected, D{ti});
@@ -25,7 +27,7 @@ function classification=ClassifyST()
 
     if isequal(whole, intersected)
         classification = 'multicast';
-    else if isempty(intersected)
+    elseif isempty(intersected)
         classification = 'unicast';
     else
         classification = 'general';

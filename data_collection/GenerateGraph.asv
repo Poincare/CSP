@@ -4,10 +4,10 @@
 %T: number of terminals
 %scheme_name: "NSFNET" or "SPRINT"
 function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification, RT]...
-=GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
+=GenerateGraph(iteration, pairing_avg, s, t, scheme_name, scheme_suffix)
 %function cost_atoms=GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
 
-clearvars -except iteration pairing_avg s t scheme_name
+clearvars -except iteration pairing_avg s t scheme_name scheme_suffix
 
 %this is to get the exhaustive search code
 %on the path so that we can use it from this file
@@ -30,19 +30,27 @@ P =S;
 %number of terminals
 T=t; 
 
-V = 9;
-%S = 2;
-%T = 3;
 %THIS RANDOMIZES THE SOURCES AND TERMINALS - NEED IN SIMULATION
 %RS = generateRS(8,14);
-%RT = generateRT(1, 5);
-%RS = generateRS(11, 14);
 
-%RS = [14, 13];
-%RT = generateRT(1, 5);
-%RS
+RT = generateRT(2, 4);
+%RT = randsample([2,3,4,9,6], T);
 %RT
-%RT = [2, 4, 5];
+% RT = [1,3];
+%RT
+%RS
+%RT = [2,4];
+%RT
+if strcmp(scheme_name, 'NSFNET')
+    RS = [14, 13];
+else
+    RS = [11, 8];
+end
+
+RT
+RS
+
+%RS = generateRS(11, 14);
 
     % V=11; %Number of Nodes
     % RS=[1,2]; %Sources
@@ -51,18 +59,29 @@ V = 9;
     % T=length(TT); %Number of Terminals
 
     %SPRINT
-    RS = [11, 10];
+    %RS = [11, 10];
     %RT = [1, 2, 3];
     
     %GRID
-    RS = [1,4];
-    RT = [6, 8, 9];
+    %RS = [1,4];
+    %RT = [6, 8, 9];
     
 virtuals()
 
 ST = zeros(S, T);
 ST = generateST(pairing_avg);
-%ST
+%ST(1,1) = 1;
+%ST(1,2) = 1;
+%ST(2, 1) = 1;
+%ST(2,2) = 1;
+
+%ST(1,2)=1;
+%ST(1,2) =1;
+%ST(2,1) = 1;
+%ST(2,2) = 1;
+
+ %ST(2, 2) = 1;
+% ST(1, 3) = 1;
 % ST(1, 1) = 1;
 % ST(2, 1) = 1;
 % ST(1, 2) = 1;
@@ -92,51 +111,57 @@ fea_z = zeros(V, V, V);
 % else
 %     EE = generateSprint();
 % end
-EE = generateGridTopology();
+% EE = generateGridTopology();
 
-%sprint directionality
-%EE = zeros(V, V);
-%EE(1,2) = 1;
-%EE(1, 3) = 1;
-% EE(4,1) = 1;
-% EE(4,5) = 1;
-% EE(5,1) = 1;
-% EE(6,3) = 1;
-% EE(7,6) = 1;
-% EE(7,4) = 1;
-% EE(8,6) = 1;
-% EE(9, 2) = 1;
-% EE(9,4) = 1;
-% EE(9,7) = 1;
-% EE(10, 5) = 1;
-% EE(10, 7) = 1;
-% EE(10, 6) = 1;
-% EE(10, 8) = 1;
-% EE(11, 9) = 1;
-% EE(11, 10) = 1;
+if strcmp(scheme_name, 'SPRINT') && strcmp(scheme_suffix, 'DIRECTED')
+    %sprint directionality
+    EE = zeros(V, V);
+    EE(1,2) = 1;
+    EE(1, 3) = 1;
+    EE(4,1) = 1;
+    EE(4,5) = 1;
+    EE(5,1) = 1;
+    EE(6,3) = 1;
+    EE(7,6) = 1;
+    EE(7,4) = 1;
+    EE(8,6) = 1;
+    EE(9, 2) = 1;
+    EE(9,4) = 1;
+    %EE(9,7) = 1;
+    EE(7, 9) = 1;
+    
+    EE(10, 5) = 1;
+    EE(10, 7) = 1;
+    EE(10, 6) = 1;
+    %EE(10, 8) = 1;
+    EE(8, 10) = 1;
+    EE(11, 9) = 1;
+    EE(11, 10) = 1;
 
-%EE = zeros(V, V);
-%EE(14, 10) = 1;
-%EE(14, 11) = 1;
-%EE(14, 12) = 1;
-% EE(13, 10) = 1;
-% EE(13, 12) = 1;
-% EE(13, 11) = 1;
-% EE(12, 6) = 1;
-% %EE(11, 9) = 1;
-% EE(11, 8) = 1;
-% EE(10, 4) = 1;
-% EE(9, 6) = 1;
-% EE(8, 7) = 1;
-% EE(8, 2) = 1;
-% EE(7, 5) = 1;
-% EE(6, 5) = 1;
-% %EE(6, 3) = 1;
-% EE(5, 4) = 1;
-% EE(4, 1) = 1;
-% EE(3, 2) = 1;
-% EE(3, 1) = 1;
-% EE(1, 2) = 1;
+elseif strcmp(scheme_name, 'NSFNET') && strcmp(scheme_suffix, 'DIRECTED')
+    EE = zeros(V, V);
+    EE(14, 10) = 1;
+    EE(14, 11) = 1;
+    %EE(14, 12) = 1;
+    %EE(13, 10) = 1;
+    EE(13, 12) = 1;
+    EE(13, 11) = 1;
+    EE(12, 6) = 1;
+    EE(11, 9) = 1;
+    EE(11, 8) = 1;
+    EE(10, 4) = 1;
+    EE(9, 6) = 1;
+    EE(8, 7) = 1;
+    EE(8, 2) = 1;
+    EE(7, 5) = 1;
+    EE(6, 5) = 1;
+    EE(6, 3) = 1;
+    EE(5, 4) = 1;
+    EE(4, 1) = 1;
+    %EE(2, 3) = 1;
+    EE(1, 3) = 1;
+    EE(1, 2) = 1;
+end
 
 ST_classification = ClassifyST();
 
@@ -173,7 +198,9 @@ end
 
 %save the realization to a file so that it can be
 %used for other trials
-foldername = strcat('realizations', '-', num2str(S), '-', num2str(T), '-', num2str(pairing_avg));
+foldername = strcat('realizations-', scheme_name, '-', scheme_suffix, '-', num2str(S),...
+    '-', num2str(T), '-', num2str(pairing_avg));
+
 mkdir(foldername);
 filename = strcat(foldername, '/realizations', num2str(iteration), '.vars');
 filename
@@ -183,6 +210,7 @@ save(filename, 'RS', 'RT', 'ST', 'EE');
 [z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0, cost_mat);
 %fprintf('Mixing\n');
 if GetCost(z_exhaustive, cost_mat) ~= 0
+    %z_exhaustive
     cost_exhaustive = GetCost(z_exhaustive, cost_mat);
 else
     cost_exhaustive = -1;
@@ -199,6 +227,7 @@ else
     z_routing = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 1, 0, cost_mat);  
     fprintf('Routing\n');
     if GetCost(z_routing, cost_mat) ~= 0
+        z_routing
         cost_routing = GetCost(z_routing, cost_mat);
     else
         cost_routing = -1;
@@ -208,7 +237,6 @@ else
     %disp_z(z_atoms, V);
     %fprintf('Atoms\n');
     if GetCost(z_atoms, cost_mat) ~= 0
-        z_atoms
         cost_atoms = GetCost(z_atoms, cost_mat);
     else
         cost_atoms = -1;
@@ -251,7 +279,7 @@ end
 function RT = generateRT(Vs, Ve)
     global V S RT T EE ST SS TT OV
 
-    RT = [randperm(round(Ve)-round(Vs), T)] + double(Vs);
+    RT = [randperm(round(Ve)-round(Vs) + 1, T)] + round(Vs) - 1;
 end
 
 function ST = generateST(pairing_avg)

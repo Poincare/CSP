@@ -29,8 +29,8 @@ ST=zeros(S,T); %Flows Each Terminal Wants
 ST(1,1)=1;
 ST(1,2)=1;
 ST(1,3)=1;
-%ST(2,1)=1;
-%ST(2,3)=1;
+ST(2,1)=1;
+ST(2,3)=1;
 
 %set up OV and IV
 IV=cell(V);
