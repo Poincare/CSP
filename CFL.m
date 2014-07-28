@@ -87,141 +87,174 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     last_time = cputime;
     while 1
         done = 1;
-        for i = 1:N
-                       
-            %check if the variable is supposed to be considered
-            if vars(i) == -1
-                continue;
-            end
-
-            %design variable
-            b = 0.2;
-
-            %evaluate the clauses and see if they are
-            %satisfied
-            satisfied = 1;
-            %disp_vars(vars, V, P, T, E, edge)
-
-            for c = 1:V
-                if clause_mat(i, c) == 1 && satisfied
-                    if flow_conservation(c, vars, V,P,T,OV,IV,sigma,ST,E,edge) ~= 1
-                        %fprintf('Flow conservation failed.\n\n');
-                        satisfied = 0;
-                        break;
-                    end  
+        for  v = 1:V
+            for i = 1:N
+                %check if the variable is supposed to be considered
+                if vars(i) == -1
+                    continue;
                 end
+
+                %design variable
+                b = 0.2;
+
+                %evaluate the clauses and see if they are
+                %satisfied
+                satisfied = 1;
+                %disp_vars(vars, V, P, T, E, edge)
+
+                [vars, p] = ReduceSearch(vars, V, P, T, OV);
+                
+                for c = 1:V
+                    if clause_mat(i, c) == 1 && satisfied
+                        if flow_conservation(c, vars, V,P,T,OV,IV,sigma,ST,E,edge) ~= 1
+                            %fprintf('Flow conservation failed.\n\n');
+                            satisfied = 0;
+                            break;
+                        end  
+                    end
+                end
+
+                for c = 1:V
+                    if clause_mat(i, V+c) == 1 && satisfied
+                        %checking clause 3
+                        if flow_x(c, vars, OV, V, P, T, E, ST, edge) ~= 1
+                            %fprintf('Flow x failed. i: %d, c: %d, mat: %d, var_value: %d\n\n', i, c, clause_mat(i,c), vars(i));                        satisfied = 0;
+                        end
+                    end
+                end
+
+                
+               for c = 1:V
+                   if clause_mat(i, 2*V+c) == 1 && satisfied
+                        if checkx(c, vars, V, P, T, ST, IV, TT) ~= 1
+                            %fprintf('Checkx failed.\n')
+                            satisfied = 0;
+                        end
+                    end
+               end
+               
+               for c = 1:V
+                   if clause_mat(i, 3*V+c) == 1 && satisfied
+                        if flow_limit(c, vars, V, P, T, E, edge, ST, OV) ~= 1
+                            %fprintf('Flow limit failed.\n')
+                            satisfied = 0;
+                        end
+                    end
+               end
+               
+                %if clause_mat(i, 2) == 1 && satisfied 
+                %    %checking clause2
+                %    if flow_conservation(vars,V,P,T,OV,IV,sigma,ST) ~= 1
+                %        %fprintf('Flow conservation failed.\n')
+                %        satisfied = 0;
+                %    end
+                %end
+                
+                if clause_mat(i, 4*V+1) == 1 && satisfied
+                    %checking clause 5
+                    if checkbeta(vars, V, P, T, IV, E, edge) ~= 1
+                        %fprintf('Checkbeta failed.\n')
+                        satisfied = 0;
+                    end
+                end
+
+                %fprintf('-----------\n\n\n')
+
+                %fprintf('Before: \n');
+                %p           
+                %fprintf('Satisfied: %d, i: %d, vars(i): %d\n', satisfied, i, vars(i)); 
+                
+                %if it is satisfied, we can clear the probabilities
+                if satisfied == 1
+                    p(i, :) = 0;
+                    p(i, vars(i) + 1) = 1;
+                    continue;
+                %otherwise, we have to interpolate the distribution
+                else
+                    t = p(i,vars(i)+1);
+                    for j = 1:D
+                        p(i, j) = (1-b)*(p(i,j)) + (b/(D-1));
+                    end
+                  
+                    %i
+                    %vars(i) 
+                    %(1-b)*t
+     
+                    p(i, vars(i) + 1) = (1-b)*t;
+                end
+                
+                r = rand;
+                %realize random bernoulli variable
+                %remember that p(i, 1) is actually the probability of j=0
+                if r <= p(i, 1)
+                    vars(i) = 0;
+                else
+                    vars(i) = 1;
+                end                   
+
+                if rem(iter_counter, 10000) == 0
+                    fprintf('Iter: %d\n', iter_counter);
+                    fprintf('%.10f\n', (cputime - last_time)*1000)
+                    save_vars(vars);
+                    last_time = cputime;
+                end
+                
+                iter_counter = iter_counter + 1;
             end
 
-            for c = 1:V
-                if clause_mat(i, V+c) == 1 && satisfied
-                    %checking clause 3
-                    if flow_x(c, vars, OV, V, P, T, E, ST, edge) ~= 1
-                        %fprintf('Flow x failed. i: %d, c: %d, mat: %d, var_value: %d\n\n', i, c, clause_mat(i,c), vars(i));                        satisfied = 0;
+            %check if we are completely done
+            for r = 1:N
+                if vars(r) == -1
+                    continue
+                end
+                
+                for c = 1:D
+                    if p(r, c) ~= 0 && p(r, c) ~= 1
+                        done = 0;
                     end
                 end
             end
-
             
-           for c = 1:V
-               if clause_mat(i, 2*V+c) == 1 && satisfied
-                    if checkx(c, vars, V, P, T, ST, IV, TT) ~= 1
-                        %fprintf('Checkx failed.\n')
-                        satisfied = 0;
-                    end
-                end
-           end
-           
-           for c = 1:V
-               if clause_mat(i, 3*V+c) == 1 && satisfied
-                    if flow_limit(c, vars, V, P, T, E, edge, ST, OV) ~= 1
-                        %fprintf('Flow limit failed.\n')
-                        satisfied = 0;
-                    end
-                end
-           end
-           
-            %if clause_mat(i, 2) == 1 && satisfied 
-            %    %checking clause2
-            %    if flow_conservation(vars,V,P,T,OV,IV,sigma,ST) ~= 1
-            %        %fprintf('Flow conservation failed.\n')
-            %        satisfied = 0;
-            %    end
-            %end
-            
-            if clause_mat(i, 4*V+1) == 1 && satisfied
-                %checking clause 5
-                if checkbeta(vars, V, P, T, IV, E, edge) ~= 1
-                    %fprintf('Checkbeta failed.\n')
-                    satisfied = 0;
-                end
-            end
-
-            %fprintf('-----------\n\n\n')
-
-            %fprintf('Before: \n');
-            %p           
-            %fprintf('Satisfied: %d, i: %d, vars(i): %d\n', satisfied, i, vars(i)); 
-            
-            %if it is satisfied, we can clear the probabilities
-            if satisfied == 1
-                p(i, :) = 0;
-                p(i, vars(i) + 1) = 1;
-                continue;
-            %otherwise, we have to interpolate the distribution
-            else
-                t = p(i,vars(i)+1);
-                for j = 1:D
-                    p(i, j) = (1-b)*(p(i,j)) + (b/(D-1));
-                end
-              
-                %i
-                %vars(i) 
-                %(1-b)*t
- 
-                p(i, vars(i) + 1) = (1-b)*t;
-            end
-            
-            r = rand;
-            %realize random bernoulli variable
-            %remember that p(i, 1) is actually the probability of j=0
-            if r <= p(i, 1)
-                vars(i) = 0;
-            else
-                vars(i) = 1;
-            end                   
-
-            if rem(iter_counter, 10000) == 0
-                fprintf('Iter: %d\n', iter_counter);
-                fprintf('%.10f\n', (cputime - last_time)*1000)
-                save_vars(vars);
-                last_time = cputime;
-            end
-            
-            iter_counter = iter_counter + 1;
-        end
-
-        %check if we are completely done
-        for r = 1:N
-            if vars(r) == -1
-                continue
-            end
-            
-            for c = 1:D
-                if p(r, c) ~= 0 && p(r, c) ~= 1
-                    done = 0;
-                end
+            if done
+               break 
             end
         end
-        
-        if done
-           break 
-        end
-
     end
     
     fprintf('ANSWER:: \n')
     disp_vars(vars, V, P, T, E, edge)
 end
+
+function [vars, p]=ReduceSearch(vars, p, v, V, P, T, OV)
+    i = v;
+    ov = OV{v};
+
+    if sum(ov) == 0
+        return
+    end
+
+    for ovi = 1:length(ov)  
+        j = ov(ovi);
+
+        found_one = 0;
+        for p = 1:P
+            for t = 1:T
+                if get_f_from_vars(vars, i, j, p, t, V, P, T) == 1
+                    found_one = 1;
+                    break;
+                end
+            end
+
+            if found_one
+                vars = set_x_in_vars(vars, 1, i, j, p, V, P, T);
+                p(linear_index_x(i, j, p, V, P, T), 1) = 0;
+                p(linear_index_x(i, j, p, V, P, T), 2) = 1;
+            end
+        end
+    end
+
+end
+
 
 function optimalCFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     while 1
