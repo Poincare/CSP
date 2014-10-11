@@ -234,16 +234,34 @@ end
 %randomizes a variable group's value given a variable group probability
 %table
 function randomizeVariableGroup(i, j, t, D)
-    global p_variable_group
-    global variable_group_vals
+    global p_variable_group;
+    global variable_group_vals;
     
-    r = rand
-    low = 0
-    for e = 0:P
-        prob = p_variable_group(i, j, t, p)
-        if e >= 
+    r = rand;
+    low = 0;
+    for e = 0:D-1
+        prob = p_variable_group(i, j, t, p);
+        if (r >= low) && (r <= low + prob)
+            variable_group_vals(i, j, t) = e;
+            return
+        end
+        
+        low = low + prob;
     end
 end
+
+function satisfied=checkFirstClauseSet(node, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge)
+    satisfied = 1;
+    if clause_mat(var_index, node) == 1 && satisfied
+        if flow_conservation(node, vars, V,P,T,OV,IV,sigma,ST,E,edge) ~= 1
+            %fprintf('Flow conservation failed.\n\n');
+            satisfied = 0;
+            return;
+        end  
+    end
+end
+
+function satisfied=checkSecondClause(node, vars, clause_mat,V,p
 
 function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global NO_CHANGE_P
@@ -312,7 +330,78 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
             for i = 1:V
                 for j = 1:V
                     for t = 1:T
+                        D = D_variable_group(i, j, t);
                         
+                        %randomize the variable group's value
+                        randomizeVariableGroup(i, j, t, D);
+                        
+                        %unpack the variable group into vars
+                        unpackVariableGroup(i, j, t, D);
+                        
+                        satisfied = 0;
+                        %check feasibility
+                        for p = 1:D-1
+                            var_index = linear_index_f(i, j, p, t);
+
+                            satisfied = checkFirstClause(i,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
+                            satisfied = checkFirstClause(j,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
+                            
+                            for c = 1:V
+                                if clause_mat(var_index, V+c) == 1 && satisfied
+                                    %checking clause 3
+                                    if flow_x(c, vars, OV, V, P, T, E, ST, edge) ~= 1
+                                        %fprintf('Flow x failed. i: %d, c: %d, mat: %d, var_value: %d\n\n', i, c, clause_mat(i,c), vars(i));                        satisfied = 0;
+                                    end
+                                end
+                            end
+
+
+                           for c = 1:V
+                               if clause_mat(var_index, 2*V+c) == 1 && satisfied
+                                    if checkx(c, vars, V, P, T, ST, IV, TT) ~= 1
+                                        %fprintf('Checkx failed.\n')
+                                        satisfied = 0;
+                                    end
+                                end
+                           end
+
+                           for c = 1:V
+                               if clause_mat(var_index, 3*V+c) == 1 && satisfied
+                                    if flow_limit(c, vars, V, P, T, E, edge, ST, OV) ~= 1
+                                        %fprintf('Flow limit failed.\n')
+                                        satisfied = 0;
+                                    end
+                                end
+                           end
+
+                            %if clause_mat(i, 2) == 1 && satisfied 
+                            %    %checking clause2
+                            %    if flow_conservation(vars,V,P,T,OV,IV,sigma,ST) ~= 1
+                            %        %fprintf('Flow conservation failed.\n')
+                            %        satisfied = 0;
+                            %    end
+                            %end
+
+                            if clause_mat(var_index, 4*V+1) == 1 && satisfied
+                                %checking clause 5
+                                if checkbeta(vars, V, P, T, IV, E, edge) ~= 1
+                                    %fprintf('Checkbeta failed.\n')
+                                    satisfied = 0;
+                                end
+                            end
+
+                            %check cost clause
+                            if clause_mat(var_index, 4*V+2) == 1 && satisfied
+                                if cost_clause(vars, V, P, T, E, edge, ST, OV) ~= 1
+                                    satisfied = 0;
+                                    cost_clause_failure = cost_clause_failure + 1;
+                                    if cost_clause_failure > cost_clause_thresh
+                                        vars = [];
+                                        return
+                                    end
+                                end    
+                            end                            
+                        end
                     end
                 end
             end
