@@ -231,6 +231,25 @@ function vars=unpackVariableGroup(vars, i, j, t, e)
     end
 end
 
+%randomizes a variable group's value given a variable group probability
+%table
+function randomizeVariableGroup(i, j, t, D)
+    global p_variable_group;
+    global variable_group_vals;
+    
+    r = rand;
+    low = 0;
+    for e = 0:P
+        prob = p_variable_group(i, j, t, p);
+        if (r >= low) && (r <= low + prob)
+            variable_group_vals(i, j, t) = e;
+            return
+        end
+        
+        low = low + prob
+    end
+end
+
 function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global NO_CHANGE_P
 
@@ -275,7 +294,8 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
     global D_variable_group
     global p_variable_group
     global N_variable_group
-
+    global variable_group_vals
+    
     init_variable_groups(V, P, T, ST);
     D_variable_group
     
@@ -297,7 +317,6 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
             for i = 1:V
                 for j = 1:V
                     for t = 1:T
-                        D = D_variable_group(i, j, t);
                         
                     end
                 end
@@ -528,6 +547,7 @@ function init_variable_groups(V, P, T, ST)
     global D_variable_group
     global N_variable_group
     global p_variable_group
+    global variable_group_vals
     
     max_D = 0;
     D_variable_group = zeros(V, V, T);
@@ -556,6 +576,9 @@ function init_variable_groups(V, P, T, ST)
             end
         end
     end
+    
+    variable_group_vals = zeros(V, V, T);
+    
 end
 
 %cost constraint - changes w/ every satisfying solution found
