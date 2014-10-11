@@ -255,6 +255,11 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
     %all f variables participate in the cost clause
     clause_mat(1:V*V*P*T, 4*V+2) = 1;      
 
+    global D_variable_group
+    D_variable_group = zeros(V, V, P);
+    init_D_variable_group(V, P, T, ST);
+    D_variable_group
+    
     [vars, p, clause_mat] = set_source_links(vars, p, clause_mat, V, P, T, EE, SS);
 
     iter_counter = 0;
@@ -483,6 +488,18 @@ function res = get_terminal_inputs(vars, s, t, V, P, T, E, IV, SS, TT)
         if f_val ~= -1
             res = [res, iv(i)]; 
         end 
+    end
+end
+
+function init_D_variable_group(V, P, T, ST)
+    global D_variable_group
+    D_variable_group = zeros(V, V, P);
+    for i = 1:V
+        for j = 1:V
+            for t = 1:T
+                D_variable_group(i, j, t) = sum(ST(:, t)) + 1;
+            end
+        end
     end
 end
 

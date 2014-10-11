@@ -20,7 +20,14 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     
     p = zeros(N, 2);
     p(1:N, 1:D) = 1/D;
-  
+    
+    global D_variable_group
+    D_variable_group = zeros(V, V, P);
+    init_D_variable_group(V, P, T, ST);
+    D_variable_group
+    
+    return
+    
     %vector of variable values
     %f: first V* V * P * T entries
     %x: next V * V * P entries
@@ -47,41 +54,6 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     clause_mat(V*V*P*T+1:N, 3*V+2) = 1;
     
     [vars, p, clause_mat] = set_source_links(vars, p, clause_mat, V, P, T, EE, SS);
-
-    %vars = set_f_in_vars(vars, 1, 1, 3, 1, 1, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 2, 4, 2, 2, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 3, 5, 1, 1, V, P, T);
-    %vars = set_f_in_vars(vars, 0, 3, 6, 1, 1, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 4, 5, 2, 2, V, P, T);
-    %vars = set_f_in_vars(vars, 0, 4, 7, 2, 2, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 5, 6, 1, 1, V, P, T);
-    %vars = set_f_in_vars(vars, 1, 5, 7, 2, 2, V, P, T);
-
-    %vars = set_x_in_vars(vars, 1, 1, 3, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 1, 3, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 2, 4, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 2, 4, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 3, 5, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 3, 5, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 3, 6, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 3, 6, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 4, 5, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 4, 5, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 4, 7, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 4, 7, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 5, 6, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 5, 6, 2, V, P, T);
-    %vars = set_x_in_vars(vars, 0, 5, 7, 1, V, P, T);
-    %vars = set_x_in_vars(vars, 1, 5, 7, 2, V, P, T);
-    %disp(vars_to_bitstr(vars));
-    %disp_vars(vars, V, P, T, E, edge)
-    
-    %fprintf('Flow limit: %d\n', flow_limit(vars, V, P, T, E, edge, ST));
-    %fprintf('Flow conservation: %d\n', flow_conservation(vars, V, P, T, OV, IV, sigma, ST));
-    %fprintf('Flow x: %d\n', flow_x(vars, V, P, T, E, edge, ST));
-    %fprintf('Checkx: %d\n', checkx(vars, V, P, T, ST, IV, TT));
-
-    %return
 
     iter_counter = 0;
     last_time = cputime;
@@ -225,6 +197,41 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     disp_vars(vars, V, P, T, E, edge)
 end
 
+function init_variable_groups(V, P, T, ST)
+    global D_variable_group
+    global N_variable_group
+    global p_variable_group
+    
+    max_D = 0;
+    D_variable_group = zeros(V, V, T);
+    for i = 1:V
+        for j = 1:V
+            for t = 1:T
+                D = sum(ST(:, t));
+                D_variable_group(i, j, t) = D;
+                N_variable_group = N_variable_group + 1;
+                
+                if D > max_D
+                    max_D = D;
+                end
+            end
+        end
+    end
+    
+    p_variable_group = zeros(V, V, T, max_D);
+    for i = 1:V
+        for j = 1:V
+            for t = 1:T
+                D = D_variable_group(i, j, t);
+                for d = 1:D
+                    p_variable_group(i, j, t, d) = 1/D;
+                end
+            end
+        end
+    end
+    
+end
+    
 function [vars, p]=ReduceSearch(vars, p, v, V, P, T, OV)
     i = v;
     ov = OV{v};
