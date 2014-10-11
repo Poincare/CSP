@@ -8,7 +8,7 @@ function vars=CFL(V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
 
     vars = zeros(1, V*V*P*T + V*V*P);
     
-    %number of variables
+    %number of variaibles
     N = length(vars);
     
     %possible values of variables

@@ -214,6 +214,23 @@ function [vars, p]=ReduceSearch(vars, p, v, V, P, T, OV, SS)
     end
 end
 
+%this function takes the variable group defined by nodes i, j and terminal
+%t and the random variable value e in order to pack those values into vars
+function vars=unpackVariableGroup(vars, i, j, t, e)
+    for p = 1:P
+        %zero all the variables in this variable group
+        vars = set_f_in_vars(vars, 0, i, j, p, t, V, P, T);
+    end
+    
+    %set the variable to which "e" refers as 1
+    p = e + 1;
+    %if p = 0, e = -1, implying that all the variables in this group
+    %should be zero
+    if p ~= 0
+        vars = set_f_in_vars(vars, 1, i, j, p, t, V, P, T);
+    end
+end
+
 function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global NO_CHANGE_P
 
@@ -256,8 +273,10 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
     clause_mat(1:V*V*P*T, 4*V+2) = 1;      
 
     global D_variable_group
-    D_variable_group = zeros(V, V, P);
-    init_D_variable_group(V, P, T, ST);
+    global p_variable_group
+    global N_variable_group
+
+    init_variable_groups(V, P, T, ST);
     D_variable_group
     
     [vars, p, clause_mat] = set_source_links(vars, p, clause_mat, V, P, T, EE, SS);
@@ -272,6 +291,20 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
 
     p_cell_mat = cell(0, 1);
 
+    while 1
+        done = 1;
+        for v = 1:V
+            for i = 1:V
+                for j = 1:V
+                    for t = 1:T
+                        D = D_variable_group(i, j, t);
+                        
+                    end
+                end
+            end
+        end
+    end
+    
     while 1
         done = 1;
         for v = 1:V
@@ -491,13 +524,35 @@ function res = get_terminal_inputs(vars, s, t, V, P, T, E, IV, SS, TT)
     end
 end
 
-function init_D_variable_group(V, P, T, ST)
+function init_variable_groups(V, P, T, ST)
     global D_variable_group
-    D_variable_group = zeros(V, V, P);
+    global N_variable_group
+    global p_variable_group
+    
+    max_D = 0;
+    D_variable_group = zeros(V, V, T);
     for i = 1:V
         for j = 1:V
             for t = 1:T
-                D_variable_group(i, j, t) = sum(ST(:, t)) + 1;
+                D = sum(ST(:, t));
+                D_variable_group(i, j, t) = D;
+                N_variable_group = N_variable_group + 1;
+                
+                if D > max_D
+                    max_D = D;
+                end
+            end
+        end
+    end
+    
+    p_variable_group = zeros(V, V, T, max_D);
+    for i = 1:V
+        for j = 1:V
+            for t = 1:T
+                D = D_variable_group(i, j, t);
+                for d = 1:D
+                    p_variable_group(i, j, t, d) = 1/D;
+                end
             end
         end
     end
