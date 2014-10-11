@@ -3,3 +3,4 @@ data_collection/realizations-2-3-1/realizations1.vars
 data_collection/filename
 *.vars
 *.vars
+data_collection/realizations-*

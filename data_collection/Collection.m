@@ -1,4 +1,4 @@
-function costs=Collection(S, T, pairing_avg, iterations, scheme_name)
+function [costs,complexity_mat]=Collection(S, T, pairing_avg, iterations, scheme_name)
     clearvars -except S T pairing_avg iterations scheme_name
     clc
 
@@ -8,11 +8,15 @@ function costs=Collection(S, T, pairing_avg, iterations, scheme_name)
 
     scheme_suffix = 'DIRECTED';
 
+    complexity_mat = zeros(iterations, 4); 
+    
     for iteration = 1:iterations
-         [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification]=...
+         [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification, RT, complexity]=...
  GenerateGraph(iteration, pairing_avg, S, T, scheme_name, scheme_suffix);
         %cost_atoms = GenerateGraph(iteration, pairing_avg, S, T, 'NSFNET');
 
+        complexity_mat(iteration, :) = complexity;
+        
         %cost_exhaustive
         %cost_exhaustive_no_expansion
         %cost_routing

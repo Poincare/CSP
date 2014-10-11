@@ -16,9 +16,8 @@ function cost_mat=CreateCostMat(V)
     end
     
     unitCostMat();
-    cost_mat(13, 11) = 20;
-    cost_mat(11,9) = 20;
-    cost_mat(9,6) = 20;
-    cost_mat(14,12) = 20;
-    cost_mat(13,10) = 20;
+    cost_mat(10,6) = 20;
+    cost_mat(10,5) = 20;
+    cost_mat(9,4) = 20;
+    
 end

@@ -3,7 +3,7 @@
 %S: number of sources
 %T: number of terminals
 %scheme_name: "NSFNET" or "SPRINT"
-function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification, RT]...
+function [cost_exhaustive, shortest_path_count, path_count, cost_exhaustive_no_expansion, cost_routing, cost_atoms, ST_classification, RT, complexity]...
 =GenerateGraph(iteration, pairing_avg, s, t, scheme_name, scheme_suffix)
 %function cost_atoms=GenerateGraph(iteration, pairing_avg, s, t, scheme_name)
 
@@ -206,42 +206,51 @@ filename = strcat(foldername, '/realizations', num2str(iteration), '.vars');
 filename
 save(filename, 'RS', 'RT', 'ST', 'EE');
 
+complexity = zeros(1, 4);
 
-[z_exhaustive, shortest_path_count, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0, cost_mat);
+
+[z_exhaustive, shortest_path_count, path_count, check_constraint_counter] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 1, 0, 0, cost_mat);
 %fprintf('Mixing\n');
 if GetCost(z_exhaustive, cost_mat) ~= 0
     %z_exhaustive
     cost_exhaustive = GetCost(z_exhaustive, cost_mat);
+    
+    complexity(1, 1) = check_constraint_counter;
 else
     cost_exhaustive = -1;
 end
 
 %do not expand the demand set in order to enlarge feasibility range
-z_exhaustive_no_expand = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 0, cost_mat);
+[z_exhaustive_no_expand, ~, ~, check_constraint_counter] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 0, cost_mat);
 if GetCost(z_exhaustive_no_expand, cost_mat) ~= 0
     cost_exhaustive_no_expansion = GetCost(z_exhaustive_no_expand, cost_mat);
+    complexity(1, 2) = check_constraint_counter;
 else
     cost_exhaustive_no_expansion = -1;
     end
 
-    z_routing = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 1, 0, cost_mat);  
+    [z_routing,~,~, check_constraint_counter] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 1, 0, cost_mat);  
     fprintf('Routing\n');
     if GetCost(z_routing, cost_mat) ~= 0
         %z_routing
         cost_routing = GetCost(z_routing, cost_mat);
+        complexity(1, 3) = check_constraint_counter;
     else
         cost_routing = -1;
     end
 
-    z_atoms = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 1, cost_mat);
+    [z_atoms,~,~,check_constraint_counter]  = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST, 0, 0, 1, cost_mat);
     %disp_z(z_atoms, V);
     %fprintf('Atoms\n');
     if GetCost(z_atoms, cost_mat) ~= 0
         cost_atoms = GetCost(z_atoms, cost_mat);
+
+        complexity(1, 4) = check_constraint_counter;
     else
         cost_atoms = -1;
     end
 
+    
     ST
     %fprintf('Cost exhaustive: %d\n', cost_exhaustive);
     %fprintf('Cost routing: %d\n', cost_routing);

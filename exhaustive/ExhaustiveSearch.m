@@ -1,9 +1,9 @@
 %demand_set_expansion: boolean variable that decides whether or the demand set is to be expanded
 %shortest_path_depth: how far we had to go down the ranked paths list in order to find a feasible solution
-function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST,...
+function [min_cost_z, shortest_path_depth, path_count, check_constraint_counter] = ExhaustiveSearch(V, SS, S, TT, T, EE, E, ST,...
         demand_set_expansion, ROUTING, ATOMS, clause_mat_l)
     %function z=ExhaustiveSearch()
-    
+
     global m
     global fea_idx
     global fea_x
@@ -219,6 +219,7 @@ function [min_cost_z, shortest_path_depth, path_count] = ExhaustiveSearch(V, SS,
         end
     end
 
+    check_constraint_counter
     return
 end
 
@@ -478,12 +479,16 @@ end
 
 function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, ST, sigma, ROUTING, ATOMS)
     global m
+    global check_constraint_counter;
     
     function res = sum_cell(cell_m)
+        
         res = cellfun(@sum, cell_m);
     end
             
     function atom_s = check_atom_feasibility(x, f)
+        check_constraint_counter = check_constraint_counter + 1;
+        
         global C D TP
 
         atom_s = 1;
@@ -584,6 +589,8 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
 
     if ROUTING == 1
         e = 1;
+        check_constraint_counter = check_constraint_counter + 1;
+        
         while (e <= E)
             iv = real(edge(e));
             ov = imag(edge(e));
@@ -619,6 +626,11 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
     else
         %check x at terminals
         t=1;
+        
+        if checkx == 1
+            check_constraint_counter = check_constraint_counter + 1;
+        end
+        
         while (t<=T)&&(checkx==1)
             for s=1:S
                 if (ST(s,t)~=1)
@@ -636,6 +648,9 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
         
         %check f<=x %Constraint (29)
         e=1;
+        if (checkx == 1) && (checkfx == 1)
+            check_constraint_counter = check_constraint_counter + 1;
+        end
         while (checkx==1)&&(e<=E)&&(checkfx==1)
             iv=real(edge(e)); %input node (represented by real number)
             ov=imag(edge(e)); %output node (represented by imaginary number)
@@ -660,6 +675,10 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
     e=1;
     zt=zeros(E,T);
     z = zeros(V, V);
+    if (checkfx == 1) && (checkf == 1)  &&(checkx == 1)
+        check_constraint_counter = check_constraint_counter + 1;
+    end
+    
     while (checkx==1)&&(checkfx==1)&&(e<=E)&&(checkf==1)
         iv=real(edge(e));
         ov=imag(edge(e));
@@ -692,6 +711,11 @@ function res = check_feasibility(f, beta, V, S, T, SS, TT, OV, IV, E, EE, edge, 
     % check f flow conservation
     %Constraint (28)
     v=1;
+    
+    if (checkfx == 1) && (checkfv == 1) && (checkf == 1) && (checkfv == 1)
+        check_constraint_counter = check_constraint_counter + 1;
+    end
+    
     while (checkx==1)&&(checkfx==1)&&(checkf==1)&&(v<=V)&&(checkfv==1)
         for t=1:T
             for s=1:S
