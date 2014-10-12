@@ -250,8 +250,7 @@ function randomizeVariableGroup(i, j, t, D)
     end
 end
 
-function satisfied=checkFlowConservation(node, var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge)
-    satisfied = 1;
+function satisfied=checkFlowConservation(node, var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied)
     if clause_mat(var_index, node) == 1 && satisfied
         if flow_conservation(node, vars, V,P,T,OV,IV,sigma,ST,E,edge) ~= 1
             %fprintf('Flow conservation failed.\n\n');
@@ -261,8 +260,7 @@ function satisfied=checkFlowConservation(node, var_index, vars,clause_mat,V,P,T,
     end
 end
 
-function satisfied=checkFlowX(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge)
-    satisfied = 1;
+function satisfied=checkFlowX(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied)
     if clause_mat(var_index, V+node) == 1 && satisfied
         %checking clause 3
         if flow_x(node, vars, OV, V, P, T, E, ST, edge) ~= 1
@@ -271,8 +269,7 @@ function satisfied=checkFlowX(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,
     end    
 end
 
-function satisfied=checkX(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge)
-    satisfied = 1;
+function satisfied=checkX(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied)
     if clause_mat(var_index, 2*V+node) == 1 && satisfied
         if checkx(node, vars, V, P, T, ST, IV, TT) ~= 1
             %fprintf('Checkx failed.\n')
@@ -281,8 +278,7 @@ function satisfied=checkX(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E
     end    
 end
 
-function satisfied=checkFlowLimit(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge)
-    satisfied = 1;
+function satisfied=checkFlowLimit(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied)
     if clause_mat(var_index, 3*V+node) == 1 && satisfied
         if flow_limit(node, vars, V, P, T, E, edge, ST, OV) ~= 1
             %fprintf('Flow limit failed.\n')
@@ -291,8 +287,7 @@ function satisfied=checkFlowLimit(node,var_index, vars,clause_mat,V,P,T,OV,IV,si
     end    
 end
 
-function satisfied=checkBeta(node,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge)
-    satisfied = 1;
+function satisfied=checkBeta(node,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied)
     if clause_mat(var_index, 4*V+1) == 1 && satisfied
         %checking clause 5
         if checkbeta(vars, V, P, T, IV, E, edge) ~= 1
@@ -302,8 +297,7 @@ function satisfied=checkBeta(node,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST
     end    
 end
 
-function satisfied=checkCostClause(node,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge)
-    satisfied = 1;
+function satisfied=checkCostClause(node,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied)
     if clause_mat(var_index, 4*V+2) == 1 && satisfied
         if cost_clause(vars, V, P, T, E, edge, ST, OV) ~= 1
             satisfied = 0;
@@ -406,18 +400,18 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
                         for p = 1:D-1
                             var_index = linear_index_f(i, j, p, t);
 
-                            satisfied = checkFlowConservation(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkFlowConservation(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkFlowX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkFlowX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkFlowLimit(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkFlowLimit(j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkBeta(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkBeta(j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkCostClause(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
-                            satisfied = checkCostClause(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge);
+                            satisfied = checkFlowConservation(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkFlowConservation(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkFlowX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkFlowX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkFlowLimit(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkFlowLimit(j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkBeta(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkBeta(j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkCostClause(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+                            satisfied = checkCostClause(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
 
 
                             %check cost clause
