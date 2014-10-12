@@ -310,6 +310,21 @@ function satisfied=checkCostClause(node,var_index,vars,clause_mat,V,P,T,OV,IV,si
     end    
 end
 
+function satisfied=checkClauses(i, j, var_index)
+    satisfied = 1;
+    satisfied = checkFlowConservation(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkFlowConservation(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkFlowX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkFlowX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkFlowLimit(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkFlowLimit(j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkBeta(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkBeta(j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkCostClause(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkCostClause(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+end
 
 function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global NO_CHANGE_P
@@ -375,11 +390,49 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
     %design parameter
     b = 0.3;
     
-    N_xvars = V*V*P
+    N_xvars = V*V*P;
     
     while 1
         done = 1;
         globally_satisfied = 1;
+
+        for i = 1:V
+            for j = 1:V
+                for p = 1:P
+                    fixed = 0;
+                    var_index = linear_index_x(i, j, p, V, P, T);
+                    if vars(var_index) == -1
+                        continue;
+                    end
+
+                    if any(p(var_index, :) == NO_CHANGE_P) ~= 0 
+                        fixed = 1;
+                    end
+
+                    satisfied = checkClauses(i, j, var_index);
+                    if satisfied == 1
+                        p(i, :) = 0;
+                        p(i, vars(i) + 1) = 1;
+                        continue;
+                    %otherwise, we have to interpolate the distribution
+                    else
+                        globally_satisfied = 0;
+                        if ~fixed
+                            t = p(i,vars(i)+1);
+                            for j = 1:D
+                                p(i, j) = (1-b)*(p(i,j)) + (b/(D-1));
+                            end
+
+                            %i
+                            %vars(i) 
+                            %(1-b)*t
+
+                            p(i, vars(i) + 1) = (1-b)*t;
+                        end
+                    end
+                end
+            end
+        end
         
         for v = 1:V
             for i = 1:V
@@ -399,23 +452,7 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
                         %check feasibility
                         for p = 1:D-1
                             var_index = linear_index_f(i, j, p, t);
-
-                            satisfied = checkFlowConservation(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkFlowConservation(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkFlowX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkFlowX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkFlowLimit(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkFlowLimit(j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkBeta(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkBeta(j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkCostClause(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-                            satisfied = checkCostClause(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-
-
-                            %check cost clause
-                            
+                            satisfied = checkClauses(i, j, var_index);
                         end
                         
                         %update the probability distribution for this
