@@ -218,11 +218,6 @@ end
 %t and the random variable value e in order to pack those values into vars
 function vars=unpackVariableGroup(vars, i, j, t, e, D, V, P, T)
     for p = 1:P
-        i
-        j
-        p
-        t
-        
         %zero all the variables in this variable group
         vars = set_f_in_vars(vars, 0, i, j, p, t, V, P, T);
     end
@@ -454,8 +449,6 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
                         
                         e = variable_group_vals(i, j, t);
                         
-                        '---'
-                        t
                         %unpack the variable group into vars
                         unpackVariableGroup(vars, i, j, t, e, D, V, P, T);
                         
