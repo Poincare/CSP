@@ -216,8 +216,13 @@ end
 
 %this function takes the variable group defined by nodes i, j and terminal
 %t and the random variable value e in order to pack those values into vars
-function vars=unpackVariableGroup(vars, i, j, t, e)
+function vars=unpackVariableGroup(vars, i, j, t, e, D, V, P, T)
     for p = 1:P
+        i
+        j
+        p
+        t
+        
         %zero all the variables in this variable group
         vars = set_f_in_vars(vars, 0, i, j, p, t, V, P, T);
     end
@@ -240,7 +245,7 @@ function randomizeVariableGroup(i, j, t, D)
     r = rand;
     low = 0;
     for e = 0:D-1
-        prob = p_variable_group(i, j, t, p);
+        prob = p_variable_group(i, j, t, e + 1);
         if (r >= low) && (r <= low + prob)
             variable_group_vals(i, j, t) = e;
             return
@@ -269,7 +274,7 @@ function satisfied=checkFlowX(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,
     end    
 end
 
-function satisfied=checkX(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied)
+function satisfied=checkX(node,var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,TT,satisfied)
     if clause_mat(var_index, 2*V+node) == 1 && satisfied
         if checkx(node, vars, V, P, T, ST, IV, TT) ~= 1
             %fprintf('Checkx failed.\n')
@@ -310,14 +315,14 @@ function satisfied=checkCostClause(node,var_index,vars,clause_mat,V,P,T,OV,IV,si
     end    
 end
 
-function satisfied=checkClauses(i, j, var_index)
+function satisfied=checkClauses(i, j, var_index, vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,TT)
     satisfied = 1;
     satisfied = checkFlowConservation(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
     satisfied = checkFlowConservation(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
     satisfied = checkFlowX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
     satisfied = checkFlowX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-    satisfied = checkX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
-    satisfied = checkX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
+    satisfied = checkX(i,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,TT,satisfied);
+    satisfied = checkX(j,var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,TT,satisfied);
     satisfied = checkFlowLimit(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
     satisfied = checkFlowLimit(j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
     satisfied = checkBeta(i, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,satisfied);
@@ -329,6 +334,9 @@ end
 function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E, SS, OV, IV, sigma, ST, edge, TT)
     global NO_CHANGE_P
 
+    global z
+    z = zeros(V, V);
+    
     %meant for Octave (not sure about matlab syntax)
     more off
 
@@ -398,29 +406,30 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
 
         for i = 1:V
             for j = 1:V
-                for p = 1:P
+                for s = 1:P
                     fixed = 0;
-                    var_index = linear_index_x(i, j, p, V, P, T);
+                    var_index = linear_index_x(i, j, s, V, P, T);
                     if vars(var_index) == -1
                         continue;
                     end
 
+                    p
                     if any(p(var_index, :) == NO_CHANGE_P) ~= 0 
                         fixed = 1;
                     end
 
-                    satisfied = checkClauses(i, j, var_index);
+                    satisfied = checkClauses(i, j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,TT);
                     if satisfied == 1
                         p(i, :) = 0;
-                        p(i, vars(i) + 1) = 1;
+                        p(i, vars(var_index) + 1) = 1;
                         continue;
                     %otherwise, we have to interpolate the distribution
                     else
                         globally_satisfied = 0;
                         if ~fixed
                             t = p(i,vars(i)+1);
-                            for j = 1:D
-                                p(i, j) = (1-b)*(p(i,j)) + (b/(D-1));
+                            for val = 1:D
+                                p(var_index, val) = (1-b)*(p(var_index,val)) + (b/(D-1));
                             end
 
                             %i
@@ -445,14 +454,16 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
                         
                         e = variable_group_vals(i, j, t);
                         
+                        '---'
+                        t
                         %unpack the variable group into vars
-                        unpackVariableGroup(i, j, t, D);
+                        unpackVariableGroup(vars, i, j, t, e, D, V, P, T);
                         
                         satisfied = 1;
                         %check feasibility
                         for p = 1:D-1
-                            var_index = linear_index_f(i, j, p, t);
-                            satisfied = checkClauses(i, j, var_index);
+                            var_index = linear_index_f(i, j, p, t, V, P, T);
+                            satisfied = checkClauses(i, j, var_index,vars,clause_mat,V,P,T,OV,IV,sigma,ST,E,edge,TT);
                         end
                         
                         %update the probability distribution for this
@@ -464,12 +475,12 @@ function [vars,p_cell_mat,iter_counter]=CFL(vars, clause_mat, p, V, P, T, EE, E,
                             continue;                            
                         else
                             globally_satisfied = 0;
-                            prev = p_variable_group(i,j,t,p_val);
+                            prev = p_variable_group(i,j,t,e+1);
                             for k = 0:D-1
-                                p_variable_group(i,j,t,k) = (1-b)*(p_variable_group(i,j,t,k)) + (b/(D-1));
+                                p_variable_group(i,j,t,k+1) = (1-b)*(p_variable_group(i,j,t,k+1)) + (b/(D-1));
                             end
 
-                            p_variable_group(i, j, t, p_val) = (1-b)*prev;
+                            p_variable_group(i, j, t, e+1) = (1-b)*prev;
                         end
                     end
                 end
